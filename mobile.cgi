@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: mobile.cgi,v 1.1 2004-11-22 20:55:20 naruse Exp $;
+# $cvsid = q$Id: mobile.cgi,v 1.2 2004-11-23 18:30:10 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -106,18 +106,13 @@ sub mobileView{
 Status: 200 OK
 Content-type: text/html; charset=euc-jp
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <HTML lang="ja-JP">
 <HEAD>
 <META http-equiv="Content-type" content="text/html; charset=euc-jp">
-<META http-equiv="Content-Style-Type" content="text/css">
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
-<BODY>
+<BODY><font size=2>
 <FORM name="north" method="post" action="$CF{'program'}">
-<INPUT name="south" type="hidden">
-内容: <INPUT type="text" name="body">
-行: <INPUT type="text" name="line" value="20">
 <INPUT type="hidden" name="name"  value="$IN{'name'}">
 <INPUT type="hidden" name="color" value="$IN{'color'}">
 <INPUT type="hidden" name="bcolo" value="$IN{'bcolo'}">
@@ -126,7 +121,10 @@ Content-type: text/html; charset=euc-jp
 <INPUT type="hidden" name="email" value="$IN{'email'}">
 <INPUT type="hidden" name="opt"   value="$IN{'opt'}">
 <INPUT type="hidden" name="home"  value="$IN{'home'}">
-<INPUT type="submit" value="OK">
+<INPUT name="south" type="hidden">
+内容: <INPUT type="text" name="body" size="5">
+行: <INPUT type="text" name="line" value="20" size="2">
+<INPUT type="submit" value="OK" size="2">
 </FORM>
 _HTML_
     
@@ -146,13 +144,17 @@ _HTML_
 	#日付
 	my$date=sprintf("%s",(split(/\s+/o,localtime$DT{'time'}))[3]);;
 	#名前・メールアドレス・名前色
-	my$name=$DT{'color'}?qq(<A style="color:$DT{'color'}">$DT{'name'}</A>):$DT{'name'};
 	#出力
 	print<<"_HTML_";
-$name &gt; <SPAN style="color:$DT{'bcolo'}">$DT{'body'}</SPAN> <SPAN class="artdate">$date</SPAN></TD>
+<FONT color="$DT{'color'}">$DT{'name'}</FONT> &gt; <FONT color="$DT{'bcolo'}">$DT{'body'}</FONT> $date
 _HTML_
     }
-    &showFooter;
+    print<<"_HTML_";
+Airemix Marldia
+</PRE>
+</BODY>
+</HTML>
+_HTML_
     exit;
 }
 
@@ -203,7 +205,7 @@ BEGIN{
     $CF{'ProgramDirectory'} = $1;
 	
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.1 $;
+    $CF{'correv'}=qq$Revision: 1.2 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 
