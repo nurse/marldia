@@ -1,0 +1,167 @@
+@charset "Shift_JIS";
+/* Marldia Style Sheet */
+/* LastModified 2000-09-06 [ by NARUSE Yui ] */
+/* "This file is written in shift_jis." 空 */
+/* $Id: style.css,v 1.1 2001-10-21 12:27:17 naruse Exp $ */
+
+/* --------------------- 全体のスタイル --------------------- */
+a:link{
+  color: #acf;
+  text-decoration: none;
+}
+a:visited{
+  color: #acf;
+  text-decoration: none;
+}
+a:hover{
+  color: #fa8;
+  text-decoration: underline;
+}
+a:active{
+  color: #f00;
+  text-decoration: underline;
+}
+
+body{
+  background-attachment: scroll;
+  background-color: #112;
+/*  background-image: url('');
+  background-position: left;
+  background-repeat: repeat; */
+  color: #fd0;
+  font-family: "MS UI Gothic", sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  margin: 0;
+  text-align: center;
+  width: 98%;
+}
+
+form{
+  margin: 0;
+}
+
+h1 {
+  background-color: transparent;
+  color: #333;
+  font-family: 'Comic Sans MS', sans-serif;
+  font-size: 35px;
+  font-weight: bold;
+  letter-spacing: 0.2em;
+  line-height: normal;
+  margin: auto;
+  width: 13em;
+}
+h3 {
+  font-family: "MS UI Gothic", sans-serif;
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 0.15em;
+  line-height: normal;
+  margin: 5px auto;
+  width: 25em;
+}
+h5{
+  font-family: "MS UI Gothic", sans-serif;
+  font-size: 13px;
+  font-weight: normal;
+  letter-spacing: 0.15em;
+  line-height: normal;
+  margin: 1px auto;
+}
+
+img {
+  border: none;
+  border-color: #ccd;
+  border-style: double;
+  border-width: 3px;
+  vertical-align: middle;
+}
+
+input,option,textarea{
+  background-color: #eef;
+  border-color: #fd0;
+  border-style: solid;
+  border-width: 1px;
+  color: #000;
+  font-family: "MS UI Gothic", sans-serif;
+  font-size: 100%;
+}
+
+table{
+  border-color: #000;
+  border-style: none;
+  border-width: 1px;
+  font-size: 100%;
+  margin: 0 auto;
+  text-align: left;
+  vertical-align: middle;
+}
+td{
+  border-color: #000;
+  border-style: none;
+  border-width: 1px;
+  padding: 0px 2px;
+}
+th{
+  border-color: #000;
+  border-style: none;
+  border-width: 1px;
+  font-size: 100%;
+  font-weight: normal;
+}
+
+
+/* --------------------- 全体に共通のクラス --------------------- */
+/* Checkbox */
+input.check{
+  background-color: transparent;
+  border-style: none;
+  cursor: hand;
+}
+/* OK/Submitボタン */
+input.submit{
+  background-color: #55A;
+  border-color: #fd0;
+  border-width: 1px;
+  border-style: solid;
+  color: #333;
+  cursor: hand;
+  letter-spacing: 0.15em;
+  width: 7em;
+}
+/* Cancel/Resetボタン */
+input.reset{
+  background-color: #A55;
+  border-color: #fd0;
+  border-width: 1px;
+  border-style: solid;
+  color: #333;
+  cursor: hand;
+  letter-spacing: 0.15em;
+  width: 7em;
+}
+/* アクセスキー */
+span.ak{
+  text-decoration: underline;
+}
+/* Message */
+table.message{
+  margin: 0.1em 0;
+  text-align: left;
+  width: 100%;
+}
+table.message th{
+  white-space: nowrap;
+  word-break: keep-all; /* MSIE5 */
+}
+/* 経験値 */
+span.level{
+  color: #999;
+  font-size: 12px;
+}
+/* 発言日時 */
+span.date{
+  color: #999;
+  font-size: 12px;
+}
