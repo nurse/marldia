@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 = Marldia - Web Chat System
 #
-# $Id: Marldia.txt,v 1.17 2004-08-25 17:00:07 naruse Exp $
+# $Id: Marldia.txt,v 1.18 2004-08-25 17:01:31 naruse Exp $
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
@@ -28,6 +28,8 @@ Airemixの掲示板で質問してみてください
 
 #------------------------------------------------------------------------------#
 == Marldia History
+:2004-07-30 Revision: 1.18
+  * 退室モードの時に発言削除が出来ないのを修正
 :2004-07-30 Revision: 1.17
   * 強制転送機能の実装
 :2003-09-04 Revision: 1.16
