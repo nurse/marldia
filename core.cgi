@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.21 $
+# $Revision: 1.22 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.21 2004-11-22 20:55:35 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.22 2004-11-23 18:41:08 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -98,7 +98,7 @@ sub modeNorth{
     (%CK)||(%CK=%IN);
     &header;
     &iptico($CK{'icon'},'tabindex="12"');
-    open(JS,$CF{'ProgramDirectory'}.'Marldia.js');
+    open(JS,$CF{'ProgramDirectory'}.$CF{'marldiajs'}) or die"Can't load JavaScript External JavaScript";
     print qq(<SCRIPT type="text/javascript" defer>\n<!--\n);
     print<JS>;
     print"//-->\n</SCRIPT>";
@@ -207,7 +207,7 @@ value="$CK{'opt'}" tabindex="102" onchange="changeOption()"></TD>
 >H<SPAN class="ak">o</SPAN>me</LABEL>:</TH>
 <TD colspan="3"><INPUT type="text" class="text" name="home" id="home" maxlength="200" size="40"
 style="ime-mode:inactive;width:200px" value="$CK{'home'}" tabindex="112"></TD>
-<TH style="letter-cpacing:-1px;text-align:center">-<A href="http://www.airemix.com/" title="Airemixへいってみる"
+<TH style="letter-cpacing:-1px;text-align:center">-<A href="http://airemix.com/" title="Airemixへいってみる"
 target="_top">Marldia $CF{'version'}</A>-</TH>
 </TR>
 </TABLE>
@@ -481,11 +481,13 @@ $CF{'admipass'}='admicmd';なら、
 #admicmd ...
 で...というコマンドが発動
 
-◇rank (del|merge|conv) <id ...>
+◇rank (del|merge|conv) <...>
 ランキングを表示
-・del
+・del <id>
 引数として指定されたIDの情報を削除
-・merge
+・delByExp <exp>
+引数として指定された経験値より少ない人を削除
+・merge <mainid> [<subid>]..
 第一引数のIDに、それ以降のIDを統合する
 ・conv
 1.5以前のランキングデータを1.6形式に変換する
@@ -507,6 +509,14 @@ $CF{'admipass'}='admicmd';なら、
 	}elsif('del'eq$arg[1]){
 	    #ランキングから削除
 	    $rank->delete($arg[2]);
+	}elsif('delByExp'eq$arg[1]){
+	    #経験地の少ない人をランキングから削除
+	    my %rank = %{$rank->getOnlyHash()};
+	    for(keys%rank){
+		if($arg[2] > $rank{$_}->{'exp'}){
+		    $rank->delete($_);
+		}
+	    }
 	}elsif('merge'eq$arg[1]){
 	    #IDおよび経験地の統合
 	    exists$rank->{$arg[2]}&&exists$rank->{$arg[2]}->{'exp'}||die"そんな人いない";
@@ -650,7 +660,7 @@ Content-type: text/html; charset=euc-jp
 <P>And, please go <A href="$i">here</A>.</P>
 <P>Location: $i</P>
 <P>Marldia <VAR>$CF{'correv'}</VAR>.<BR>
-Copyright &#169;2001,2002 <A href="http://www.airemix.com/" target="_blank" title="Airemix">Airemix</A>. All rights reserved.</P>
+Copyright &#169;2001,2002 <A href="http://airemix.com/" target="_blank" title="Airemix">Airemix</A>. All rights reserved.</P>
 </BODY>
 </HTML>
 _HTML_
@@ -746,7 +756,7 @@ _HTML_
 #
 sub showFooter{
     print<<"_HTML_";
-<DIV class="AiremixCopy">- <A href="http://www.airemix.com/" target="_top" title="Airemix - Marldia -">Airemix Marldia</A><VAR title="times:@{[times]}">$CF{'version'}</VAR> -</DIV>
+<DIV class="AiremixCopy">- <A href="http://airemix.com/" target="_top" title="Airemix - Marldia -">Airemix Marldia</A><VAR title="times:@{[times]}">$CF{'version'}</VAR> -</DIV>
 </BODY>
 </HTML>
 _HTML_
@@ -1747,10 +1757,11 @@ BEGIN{
 	    print "\n";
 	    printf"%-20.20s : %s\n",$$_[0],$$_[1]
 		for([PerlVer=>$]],[PerlPath=>$^X],[BaseTime=>$^T],[OSName=>$^O],[FileName=>$0],[__FILE__=>__FILE__]);
+	    print"\nRUID:$< EUID:$> RGID:$( EGID:$)\n";
 	    print "\n = = = ENVIRONMENTAL VARIABLE = = =\n";
 	    printf"%-20.20s : %s\n",$_,$ENV{$_} for grep{$ENV{$_}}
 qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME OS SERVER_SOFTWARE);
-	    print "\n+#      Airemix  Marldia     #+\n+#  http://www.airemix.com/  #+\n</PRE>\n</BODY>\n</HTML>\n";
+	    print "\n+#      Airemix  Marldia     #+\n+#  http://airemix.com/  #+\n</PRE>\n</BODY>\n</HTML>\n";
 	    exit;
 	}:sub{
 	    index($_[0],'flock')+1 and index($_[0],'unimplemented')+1 and return;
@@ -1763,7 +1774,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     $CF{'program'} = substr($ENV{'SCRIPT_NAME'}, rindex('/'.$ENV{'SCRIPT_NAME'},'/'));
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.21 $;
+    $CF{'correv'}=qq$Revision: 1.22 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;
