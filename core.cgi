@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.25 $
+# $Revision: 1.26 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.25 2005-01-20 19:24:08 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.26 2005-03-11 18:55:46 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -24,6 +24,7 @@ sub main{
     #	$ENV{'REMOT_ADDR'}&&index(" $IN{'REMOT_ADDR'} "," $CF{'denyra'} ")&&(&locate($CF{'sitehome'}));
     #	$ENV{'REMOT_HOST'}&&index(" $ENV{'REMOT_HOST'} "," $CF{'denyrh'} ")&&(&locate($CF{'sitehome'}));
 
+    $CF{'supass'} = [$CF{'admipass'}]unless$CF{'supass'};
     if($IN{'hua'} =~ /(?:^Mozilla\/[1-3].0|DoCoMo|^KDDI|^J-PHONE|^ASTEL)/o){
 	my %default = (
 		       line => 20
@@ -102,12 +103,13 @@ _HTML_
 sub mobileView{
     #---------------------------------------
     #Viewの共通処理
-    my ($chatlog,$members) = &commonRoutineForView();
+    my ($logfile,$chatlog,$members) = &commonRoutineForView();
     
     #-----------------------------
     #参加者情報
     my@singers=map{qq($_->{'name'})}sort{$a->{'blank'}<=>$b->{'blank'}}$members->getSingersInfo;
     my$intMembers=scalar keys%{$members};
+    $members->dispose;
     my$intSingers=@singers;
     my$intAudiences=$intMembers-$intSingers;
     my$strMembers = @singers ? "@singers" : 'Read Only';
@@ -170,6 +172,8 @@ _HTML_
 <FONT color="$DT{'color'}">$DT{'name'}</FONT> &gt; <FONT color="$DT{'bcolo'}">$DT{'body'}</FONT> $date
 _HTML_
     }
+    $chatlog->dispose;
+    $logfile->dispose;
     print<<"_HTML_";
 Airemix Marldia
 </PRE>
@@ -364,7 +368,7 @@ _HTML_
 sub modeSouth{
     #---------------------------------------
     #Viewの共通処理
-    my ($chatlog,$members) = &commonRoutineForView();
+    my ($logfile,$chatlog,$members) = &commonRoutineForView();
     
     #-----------------------------
     #クエリ
@@ -440,9 +444,17 @@ _HTML_
     #-----------------------------
     #ログ表示
     my$i=0;
+    my $isAdmin = 0;
+    if($IN{'_opt'}{'su'}&&$CF{'supass'}){
+	for(@{$CF{'supass'}}){
+	    $IN{'_opt'}{'su'}eq$_ or next;
+	    $isAdmin = 1;
+	    last;
+    	}
+    }
     for(@{$chatlog}){
 	my%DT=%{$_};
-	'del'eq$DT{'Mar1'}&&next;
+	!$isAdmin&&'del'eq$DT{'Mar1'}&&next;
 	++$i>$IN{'line'}&&last;
 
 	#日付
@@ -459,8 +471,16 @@ qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}"
 	#レベル取得
 	$DT{'level'}=&getLevel($DT{'exp'});
 	#削除ボタン
-	my$del=$IN{'id'}&&$DT{'id'}eq$IN{'id'}?qq([<A href="$CF{'index'}?del=$DT{'exp'}&#59;$query">削除</A>])
-	    :'&nbsp;';
+	my$del = '&nbsp;';
+	if('del'eq$DT{'Mar1'}){
+	    $del = qq([削除済]);
+	}elsif($IN{'id'}&&$DT{'id'}eq$IN{'id'}){
+	    $del = qq([<A href="$CF{'index'}?del=$DT{'exp'}&#59;$query">削除</A>]);
+	}elsif($isAdmin){
+	    my$id = $DT{'id'};
+	    $id=~s{(\W)}{'%'.unpack('H2',$1)}ego;
+	    $del = qq([<A href="$CF{'index'}?del=$DT{'exp'}_$id&#59;$query">削除</A>]);
+	}
 	#出力
 	print<<"_HTML_";
 <TABLE cellspacing="0" class="article" summary="article">
@@ -479,6 +499,7 @@ _HTML_
     }
     $chatlog->dispose;
     $members->dispose;
+    $logfile->dispose;
     &showFooter;
     exit;
 }
@@ -632,9 +653,17 @@ _HTML_
 sub modeAdmicmd{
     unless($IN{'body'}){
 	die"「何もしない＠管理」";
-    }elsif($IN{'body'}!~s/$::CF{'admipass'}//o){
-	die'password is not valid';
     }
+    $IN{'_opt'} = parseOption($IN{'opt'});
+    my $isAdmin = 0;
+    if($IN{'_opt'}{'su'}&&$CF{'supass'}){
+	for(@{$CF{'supass'}}){
+	    $IN{'_opt'}{'su'}eq$_ or next;
+	    $isAdmin = 1;
+	    last;
+    	}
+    }
+    die'password is not valid'unless$isAdmin;
     
     #引数処理
     my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;length$_;}
@@ -643,8 +672,9 @@ sub modeAdmicmd{
     
 =item 管理コマンド
 
-$CF{'admipass'}='admicmd';なら、
-#admicmd ...
+$::CF{'admipass'}='admicmd';なら、
+オプションにsu=admincmdと指定した上で、
+#admin ...
 で...というコマンドが発動
 
 ◇rank (del|merge|conv) <...>
@@ -959,12 +989,20 @@ sub setCookie{
     my$cook=join('',map{"$_=\t$IN{$_};\t"}qw(id name color bcolo line reload icon email home opt));
     $cook=~s{(\W)}{'%'.unpack('H2',$1)}ego;
     my$expires=$^T+33554432; #33554432=2<<24; #33554432という数字に特に意味はない、ちなみに一年と少し
-    $CF{'-setCookie'}="Marldia=$cook; expires=".&datef($expires,'cookie');
+    if($CF{'ckpath'}){
+	$CF{'-setCookie'}=sprintf'Marldia=%s; expires=%s'
+	    ,$cook,&datef(0,'cookie');
+	$CF{'-setCookie'}.="\n";
+	$CF{'-setCookie'}.=sprintf'Marldia=%s; expires=%s; %s'
+	    ,$cook,&datef($expires,'cookie'),$CF{'ckpath'};
+    }else{
+	$CF{'-setCookie'}="Marldia=$cook; expires=".&datef($expires,'cookie');
+    }
     $CF{'set_cookie_by_meta_tags'}=1if index($ENV{'SERVER_NAME'},'tok2.com')>-1&&!defined$CF{'set_cookie_by_meta_tags'};
     if($CF{'set_cookie_by_meta_tags'}){
 	#tok2対策
     }else{
-	print map{qq(Set-Cookie: $_\n)}split("\n",$CF{'-setCookie'});
+	print "Set-Cookie: $_\n" for split("\n",$CF{'-setCookie'});
 	undef($CF{'-setCookie'});
     }
 }
@@ -1046,18 +1084,8 @@ $ $ENV{'TZ'}
 #-------------------------------------------------
 #引数の前処理
 sub commonRoutineForView{
-    #-----------------------------
-    #コマンドの読み込み
-    my%EX;
-    my@option=($IN{'opt'}=~/\w+(?:=(?:"[^"\\]*(?:\\.[^"\\]*)*"|'[^'\\]*(?:\\.[^'\\]*)*'|[^"';]*))?/go);
-    for(@option){
-	my($i,$j)=split('=',$_,2);
-	$i||next;
-	$j=defined$j&&$j=~/^(?:"(.*)"|'(.*)'|(.*))$/o?$1||$2||$3:'';
-	$EX{$i}=$j;
-    }
-    $IN{'_opt'} = \%EX;
-    
+    $IN{'_opt'} = parseOption($IN{'opt'});
+    my %EX = %{$IN{'_opt'}};
     #専用アイコン機能。index.cgiで設定する。
     #index.cgiで指定したアイコンパスワードに合致すれば。
     $IN{'icon'}=$IC{$EX{'icon'}}if$CF{'exicon'}&&$IC{$EX{'icon'}};
@@ -1079,12 +1107,14 @@ sub commonRoutineForView{
     
     #---------------------------------------
     #参加者・ランキング・書き込み処理
+    my$logfile=Logfile->getInstance;
     my$chatlog=Chatlog->getInstance;
     my$members=Members->getInstance;
     
     #-----------------------------
     #自分のデータを追加
     $IN{'reload'}=$members->add(\%IN);
+    $members->getSingersInfo;
     
     #-----------------------------
     #書き込み
@@ -1097,9 +1127,33 @@ sub commonRoutineForView{
 	$chatlog->add(\%IN);
     }elsif($IN{'del'}){
 	#発言削除
-	$chatlog->delete({id=>$IN{'id'},exp=>$IN{'del'}});
+	my$id;
+	if($IN{'del'}=~s/([1-9]\d*)_(.*)/$1/o){
+	    $id = $2;
+	}else{
+	    $id = $IN{'id'};
+	}
+	$chatlog->delete({id=>$id,exp=>$IN{'del'}});
     }
-    return($chatlog,$members);
+    $logfile->close;
+    return($logfile,$chatlog,$members);
+}
+
+
+#-------------------------------------------------
+# コマンドの読み込み
+#
+sub parseOption{
+    my $str = shift;
+    my %hash;
+    my@option=($str=~/\w+(?:=(?:"[^"\\]*(?:\\.[^"\\]*)*"|'[^'\\]*(?:\\.[^'\\]*)*'|[^"';]*))?/go);
+    for(@option){
+	my($i,$j)=split('=',$_,2);
+	$i||next;
+	$j=defined$j&&$j=~/^(?:"(.*)"|'(.*)'|(.*))$/o?$1||$2||$3:'';
+	$hash{$i}=$j;
+    }
+    return \%hash;
 }
 
 
@@ -1422,13 +1476,16 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	}elsif($::CF{'admipass'}&&$DT{'body'}=~/^\/admin\s*(.*)/o){
 	    $IN{'mode'}='admicmd';
 	    $IN{'body'}=$1;
+	    $IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
 	    $IN{'mode'}&&return\%IN;
 	}elsif($DT{'body'}=~/^\/(\w+(?:\s.*)?)$/o){
 	    $IN{'mode'}='usercmd';
 	    $IN{'body'}=$1;
 	    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($::CK{'id'}||$IN{'name'});
+	    $IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
 	    $IN{'mode'}&&return\%IN;
 	}
+	$DT{'body'}=~s/^\/\//\//o if$DT{'body'};
 	
 	if(!%DT||($DT{'mode'}&&'frame'eq$DT{'mode'})){
 	    #フレーム
@@ -1446,7 +1503,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		$IN{'cook'}=$DT{'cook'}?1:0;
 	    }
 	    if(defined$DT{'del'}){
-		$IN{'del'}=$1 if$DT{'del'}=~/([1-9]\d*)/o;
+		$IN{'del'}=$1 if$DT{'del'}=~/([1-9]\d*(?:_.*)?)/o;
 	    }
 	    $IN{'name'}=($DT{'name'}=~/(.{1,100})/o)?$1:'';
 	    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($::CK{'id'}||$IN{'name'});
@@ -1579,6 +1636,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	$str=~s/\t/&nbsp;&nbsp;/go;
 	$str=~s/(\x20{2,})/'&nbsp;' x length$1/ego;
 	$str=~s/\n/<BR>/go;
+	$str=~s/(&#60;!--.*?--&#62;)/<span style="color:green">$1<\/span>/go;
 	return$str;
     }
 }
@@ -1593,6 +1651,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
     my@members;
     my@chatlog;
     my$singleton;
+    my$isOpen=0;
 
     #---------------------------------------
     # Class Methods
@@ -1616,7 +1675,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    @members=();
 	    @chatlog=();
 	}
-
+	$isOpen=1;
 	$singleton=bless[\@chatlog,\@members],$class;
     }
 
@@ -1629,16 +1688,24 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 
     sub Logfile::DESTROY{shift->dispose}
 
-    #dispose -- 変更済みデータをファイルに保存
-    sub Logfile::dispose{
+    #close -- 変更済みデータをファイルに保存
+    sub Logfile::close{
+	$isOpen||return;
 	(@members&&@chatlog)||return;
-	Chatlog->getInstance->dispose if Chatlog->hasInstance;
-	Members->getInstance->dispose if Members->hasInstance;
+	Chatlog->getInstance->close if Chatlog->hasInstance;
+	Members->getInstance->close if Members->hasInstance;
 	my$self=shift;
 	truncate($path,0);#$fhじゃダメ
 	seek($fh,0,0);
 	print $fh map{$_."\n"}map{/(.*)/o}@members,'',@chatlog,'';
 	close($fh);
+	$isOpen=0;
+    }
+    
+    sub Logfile::dispose{
+	(@members&&@chatlog)||return;
+	my$self=ref($_[0])?$_[0]:return;shift;
+	$self->close;
 	undef$fh;undef@members;undef@chatlog;undef$singleton;
     }
 }
@@ -1650,6 +1717,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 {package Chatlog;
     my$logfile;
     my$singleton=undef;
+    my$isOpen=0;
 
     #---------------------------------------
     # Class Methods
@@ -1662,6 +1730,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		 grep{/^Mar1=\t[^\t]*;\t(?:[^\t]*=\t[^\t]*;\t)*$/o}$logfile->getChatlog
 		];
 
+	$isOpen=1;
 	$singleton=bless$self,$class;
     }
     sub Chatlog::getInstance{$singleton||Chatlog->new;}
@@ -1715,7 +1784,8 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	return @result;
     }
     
-    sub Chatlog::dispose{
+    sub Chatlog::close{
+	$isOpen||return;
 	$logfile||return;
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
 	$logfile->setChatlog(
@@ -1726,9 +1796,16 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 				 $tmp.join('',map{"$_=\t$DT{$_};\t"}keys%DT);
 				}@{$self}
 			    );
+	$isOpen=0;
+    }
+    
+    sub Chatlog::dispose{
+	$logfile||return;
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	$self->close;
 	undef$logfile;undef$singleton;
     }
-
+    
     sub Chatlog::DESTROY{my$self=shift;$self->dispose;}
 }
 
@@ -1740,6 +1817,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 {package Members;
     my$logfile;
     my$singleton=undef;
+    my$isOpen=0;
 
     #---------------------------------------
     # Class Methods
@@ -1752,12 +1830,14 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    map{/^id=\t([^\t]+);\t((?:[^\t]+=\t[^\t]*;\t)+)/o;[$1,$2]}
 	    grep{/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}$logfile->getMembers
 	};
+	$isOpen=1;
 	$singleton=bless$self,$class;
     }
     sub Members::getInstance{$singleton||Members->new;}
     sub Members::hasInstance{$singleton}
-
-    sub Members::dispose{
+    
+    sub Members::close{
+	$isOpen||return;
 	$logfile||return;
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
 	$logfile->setMembers(
@@ -1767,6 +1847,13 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 				 "id=\t$_;\t".join('',map{"$_=\t$DT{$_};\t"}keys%DT);
 				}keys%{$self}
 			    );
+	$isOpen=0;
+    }
+    
+    sub Members::dispose{
+	$logfile||return;
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	$self->close;
 	undef$logfile;undef$singleton;
     }
 
@@ -1973,7 +2060,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     $CF{'program'} = substr($ENV{'SCRIPT_NAME'}, rindex('/'.$ENV{'SCRIPT_NAME'},'/'));
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.25 $;
+    $CF{'correv'}=qq$Revision: 1.26 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;
