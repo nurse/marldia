@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.19 $
+# $Revision: 1.20 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.19 2004-08-10 04:44:40 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.20 2004-08-25 16:58:46 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -327,8 +327,20 @@ sub modeSouth{
     #データ表示
     #-----------------------------
     #ヘッダ出力
-    &header($IN{'reload'}&&!$IN{'quit'}?
-qq(<META http-equiv="refresh" content="$IN{'reload'};url='$CF{'index'}?$query'">\n):'');
+    my $additionalHeader = <<"_HTML_";
+<SCRIPT type="text/javascript">
+<!--
+function reload(){
+  self.location = '$CF{'index'}?$query';
+}
+setTimeout(reload, $IN{'reload'}000);
+//-->
+</SCRIPT>
+<NOSCRIPT>
+<META http-equiv="refresh" content="$IN{'reload'};url='$CF{'index'}?$query'">
+</NOSCRIPT>
+_HTML_
+    &header($IN{'reload'}&&!$IN{'quit'}?$additionalHeader:'');
     #-----------------------------
     #参加者表示
     print<<"_HTML_";
@@ -431,14 +443,18 @@ sub modeUsercmd{
 <TABLE class="table" summary="発言ランキング">
 <CAPTION>ハツゲンらんきんぐ（ゆーざーもーど）</CAPTION>
 <COL span="4">
+<TH scope="col">じゅんい</TH>
 <TH scope="col">なまえ</TH>
 <TH scope="col">けいけんち</TH>
 <TH scope="col">しょうそく</TH>
 <TH scope="col">はつとうじょう</TH>
 _HTML_
+	my $i = 0;
 	for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash}){
+	    $i++;
 	    print<<"_HTML_";
 <TR>
+<TD style="color:$_->{'color'}">$i</TD>
 <TD style="color:$_->{'color'}">$_->{'name'}</TD>
 <TD style="color:$_->{'bcolo'}">$_->{'exp'}</TD>
 <TD style="color:$_->{'bcolo'}">@{[$_->{'lastContact'}?&datef($_->{'lastContact'},'dateTime'):'<HR>']}</TD>
@@ -509,11 +525,11 @@ $CF{'admipass'}='admicmd';なら、
 #admicmd ...
 で...というコマンドが発動
 
-◇rank (del|cat|conv) <id ...>
+◇rank (del|merge|conv) <id ...>
 ランキングを表示
 ・del
 引数として指定されたIDの情報を削除
-・cat
+・merge
 第一引数のIDに、それ以降のIDを統合する
 ・conv
 1.5以前のランキングデータを1.6形式に変換する
@@ -521,7 +537,7 @@ $CF{'admipass'}='admicmd';なら、
 ◇mem
 参加者情報を表示
 
-◇del <id> <exp>
+◇del <id> [<exp>]
 発言削除
 
 =cut
@@ -530,14 +546,14 @@ $CF{'admipass'}='admicmd';なら、
     if(!$arg[0]){
     }elsif('rank'eq$arg[0]){
 	#発言ランキング
+	my$rank=Rank->getInstance;
 	unless($arg[1]){
 	}elsif('del'eq$arg[1]){
 	    #ランキングから削除
-	    Rank->delete($arg[2]);
-	}elsif('cat'eq$arg[1]){
+	    $rank->delete($arg[2]);
+	}elsif('merge'eq$arg[1]){
 	    #IDおよび経験地の統合
-	    my$rank=Rank->getInstance;
-	    $rank->{$arg[2]}->{'exp'}||die"そんな人いない";
+	    exists$rank->{$arg[2]}&&exists$rank->{$arg[2]}->{'exp'}||die"そんな人いない";
 	    for(3..$#arg){
 		(!$rank->{$arg[$_]}||!$rank->{$arg[$_]}->{'exp'})&&next;
 		$rank->{$arg[2]}->{'exp'}+=$rank->{$arg[$_]}->{'exp'};
@@ -551,6 +567,7 @@ $CF{'admipass'}='admicmd';なら、
 <TABLE class="table" summary="発言ランキング">
 <CAPTION>超！発言ランキング</CAPTION>
 <COL span="7">
+<TH scope="col">RANK</TH>
 <TH scope="col">NAME</TH>
 <TH scope="col">ID</TH>
 <TH scope="col">EXP</TH>
@@ -559,9 +576,13 @@ $CF{'admipass'}='admicmd';なら、
 <TH scope="col">REMOTE_ADDR</TH>
 <TH scope="col">HTTP_USER_AGENT</TH>
 _HTML_
-	for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash()}){
+	my %rank = %{$rank->getOnlyHash()};
+	my $i = 0;
+	for(map{{id=>$_,%{$rank{$_}}}}sort{$rank{$b}->{'exp'}<=>$rank{$a}->{'exp'}}keys%rank){
+	    $i++;
 	    print<<"_HTML_";
 <TR>
+<TD style="color:$_->{'color'}">$i</TD>
 <TD style="color:$_->{'color'}">$_->{'name'}</TD>
 <TD style="color:$_->{'bcolo'}">$_->{'id'}</TD>
 <TD style="color:$_->{'bcolo'}">$_->{'exp'}</TD>
@@ -605,6 +626,7 @@ _HTML_
 		print<<"_HTML_";
 <TR>
 <TD>ROM</TD>
+<TD>null</TD>
 <TD>null</TD>
 <TD>@{[$^T-$_->{'time'}]}</TD>
 <TD>$_->{'ra'}</TD>
@@ -1238,6 +1260,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $IN{'bcolo'}=($DT{'bcolo'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
 	    $DT{'email'}=($DT{'email'}=~/(.{1,200})/o)?$1:'';
 	    $IN{'email'}=($DT{'email'}=~/($mail_regex)/o)?$1:'';
+	    $IN{'email'}=~s/\@/&#64;/o;
 	    $DT{'home'}=($DT{'home'}=~/(.{1,200})/o)?$1:'';
 	    $IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?$1:'';
 	    $IN{'icon'}=($DT{'icon'}=~/([\w\:\.\~\-\%\/\#]+)/o)?$1:'';
@@ -1454,7 +1477,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
 	my%DT=%{shift()};
 	my @result = ();
-	if($_->{'exp'}){
+	if($DT{'exp'}){
 	    for(@{$self}){
 		$_->{'id'} eq$DT{'id'} ||next;
 		$_->{'exp'}eq$DT{'exp'}||next;
@@ -1663,7 +1686,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
     #ログを削除
     sub Rank::delete{
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
-	my $id =shift();
+	my $id = shift();
 	
 	delete $self->{$id};
     }
@@ -1675,8 +1698,8 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    open(RANK,'<'.$::CF{'rank'});
 	    eval{flock(RANK,1)};
 	    seek(RANK,0,0);
-	    %rank=map{$_->[1]=>{($_->[0]=~/([^\t]+)=\t([^\t]*);\t/go)}}
-	    map{[/^(id=\t([^\t]+);\t(?:[^\t]+=\t[^\t]*;\t)+)/o]}
+	    %rank=map{$_->[0]=>{($_->[1]=~/([^\t]+)=\t([^\t]*);\t/go)}}
+	    map{[/^id=\t([^\t]+);\t((?:[^\t]+=\t[^\t]*;\t)+)/o]}
 	    grep{/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}<RANK>;
 	    close(RANK);
 	}
@@ -1725,7 +1748,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     $CF{'ProgramDirectory'} = $1;
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.19 $;
+    $CF{'correv'}=qq$Revision: 1.20 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;
