@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.22 $
+# $Revision: 1.23 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.22 2004-11-23 18:41:08 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.23 2004-12-04 21:11:27 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -24,22 +24,32 @@ sub main{
     #	$ENV{'REMOT_ADDR'}&&index(" $IN{'REMOT_ADDR'} "," $CF{'denyra'} ")&&(&locate($CF{'sitehome'}));
     #	$ENV{'REMOT_HOST'}&&index(" $ENV{'REMOT_HOST'} "," $CF{'denyrh'} ")&&(&locate($CF{'sitehome'}));
 
-    if('south'eq$IN{'mode'}){
-    }elsif('frame'eq$IN{'mode'}){
-	&modeFrame;
-    }elsif('north'eq$IN{'mode'}){
-	&modeNorth;
-    }elsif('icct'eq$IN{'mode'}){
-	require($CF{'icct'}||'iconctlg.cgi');
-	&iconctlg;
-    }
+    if($IN{'hua'} =~ /(?:^Mozilla\/[1-3].0|DoCoMo|^KDDI|^J-PHONE|^ASTEL)/o){
+	my %default = (
+		       line => 20
+		      );
+	for(keys %default){
+	    $IN{$_} = $default{$_} unless exists $IN{$_};
+	}
+	'south'eq$IN{'mode'} ? &mobileView : &mobileEntrance;
+    }else{
+	if('south'eq$IN{'mode'}){
+	}elsif('frame'eq$IN{'mode'}){
+	    &modeFrame;
+	}elsif('north'eq$IN{'mode'}){
+	    &modeNorth;
+	}elsif('icct'eq$IN{'mode'}){
+	    require($CF{'icct'}||'iconctlg.cgi');
+	    &iconctlg;
+	}
 
-    if('admicmd'eq$IN{'mode'}){
-	&modeAdmicmd;
-    }elsif('usercmd'eq$IN{'mode'}){
-	&modeUsercmd;
+	if('admicmd'eq$IN{'mode'}){
+	    &modeAdmicmd;
+	}elsif('usercmd'eq$IN{'mode'}){
+	    &modeUsercmd;
+	}
+	&modeSouth;
     }
-    &modeSouth;
     exit;
 }
 
@@ -48,6 +58,127 @@ sub main{
 # MARD ROUTINS
 #
 # main直下のサブルーチン群
+
+
+#-------------------------------------------------
+# Mobile Entrance
+#
+sub mobileEntrance{
+    print <<"_HTML_";
+Status: 200 OK
+Content-type: text/html; charset=euc-jp
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML lang="ja-JP">
+<HEAD>
+<META http-equiv="Content-type" content="text/html; charset=euc-jp">
+<META http-equiv="Content-Style-Type" content="text/css">
+<TITLE>$CF{'title'}</TITLE>
+</HEAD>
+<BODY>
+<FORM name="north" method="get" action="$CF{'index'}">
+<INPUT name="mode" type="hidden" value="south">
+名: <INPUT type="text" name="name" value="$IN{'name'}">
+名色: <INPUT type="text" name="color" value="$IN{'color'}" istyle="3">
+行: <INPUT type="text" name="line" value="$IN{'line'}" istyle="4">
+アイコン: <INPUT type="text" name="icon" value="$IN{'icon'}" istyle="3">
+文色: <INPUT type="text" name="bcolo" value="$IN{'bcolo'}" istyle="3">
+Identity: <INPUT type="text" name="id" value="$IN{'id'}">
+E-mail: <INPUT type="text" name="email" value="$IN{'email'}" istyle="3">
+Option: <INPUT type="text" name="opt" value="$IN{'opt'}" istyle="3">
+Home: <INPUT type="text" name="home" value="$IN{'home'}" istyle="3">
+<INPUT type="submit" value="OK">
+</FORM>
+-<A href="http://www.airemix.com/" title="Airemixへいってみる">Marldia $CF{'version'}</A>-
+</BODY>
+</HTML>
+_HTML_
+}
+
+
+#-------------------------------------------------
+# Mobile View
+#
+sub mobileView{
+    #---------------------------------------
+    #Viewの共通処理
+    my ($chatlog,$members) = &commonRoutineForView();
+    
+    #-----------------------------
+    #参加者情報
+    my@singers=map{qq($_->{'name'})}sort{$a->{'blank'}<=>$b->{'blank'}}$members->getSingersInfo;
+    my$intMembers=scalar keys%{$members};
+    my$intSingers=@singers;
+    my$intAudiences=$intMembers-$intSingers;
+    my$strMembers = @singers ? "@singers" : 'Read Only';
+    
+    #-----------------------------
+    #クエリ
+    my$query=$IN{'id'} ?
+	join(';',map{my$val=$IN{$_};$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
+	     grep{defined$IN{$_}}($IN{'quit'}?qw(line reload):qw(name id line reload color))):'south';
+    
+    #---------------------------------------
+    #データ表示
+    
+    #-----------------------------
+    #ヘッダ出力
+    print<<"_HTML_";
+Status: 200 OK
+Content-type: text/html; charset=euc-jp
+
+<HTML lang="ja-JP">
+<HEAD>
+<META http-equiv="Content-type" content="text/html; charset=euc-jp">
+<TITLE>$CF{'title'}</TITLE>
+</HEAD>
+<BODY><font size=2>
+<FORM name="north" method="post" action="$CF{'index'}">
+<INPUT type="hidden" name="name"  value="$IN{'name'}">
+<INPUT type="hidden" name="color" value="$IN{'color'}">
+<INPUT type="hidden" name="bcolo" value="$IN{'bcolo'}">
+<INPUT type="hidden" name="icon"  value="$IN{'icon'}">
+<INPUT type="hidden" name="id"    value="$IN{'id'}">
+<INPUT type="hidden" name="email" value="$IN{'email'}">
+<INPUT type="hidden" name="opt"   value="$IN{'opt'}">
+<INPUT type="hidden" name="home"  value="$IN{'home'}">
+内容:<INPUT type="text" name="body" value="" size="4">
+<INPUT type="submit" value="OK" size="2">
+行:<INPUT type="text" name="line" value="$IN{'line'}" size="1" istyle="4">
+<INPUT name="mode" type="checkbox" value="entrance">
+</FORM>
+_HTML_
+    
+    #-----------------------------
+    #参加者表示
+    print<<"_HTML_";
+<pre>計:$intMembers [ $strMembers ]
+_HTML_
+    my$i=0;
+    #-----------------------------
+    #ログ表示
+    for(@{$chatlog}){
+	my%DT=%{$_};
+	'del'eq$DT{'Mar1'}&&next;
+	++$i>$IN{'line'}&&last;
+	
+	#日付
+	my$date=sprintf("%s",(split(/\s+/o,localtime$DT{'time'}))[3]);;
+	#名前・メールアドレス・名前色
+	#出力
+	print<<"_HTML_";
+<FONT color="$DT{'color'}">$DT{'name'}</FONT> &gt; <FONT color="$DT{'bcolo'}">$DT{'body'}</FONT> $date
+_HTML_
+    }
+    print<<"_HTML_";
+Airemix Marldia
+</PRE>
+</BODY>
+</HTML>
+_HTML_
+    exit;
+}
+
 
 #-------------------------------------------------
 # Frame
@@ -70,17 +201,12 @@ Content-type: text/html; charset=euc-jp
 </HEAD>
 <FRAMESET rows="120,*">
 <FRAME frameborder="0" name="north" src="$CF{'index'}?north">
-<FRAME frameborder="0" name="south" src="$CF{'program'}?south">
+<FRAME frameborder="0" name="south" src="$CF{'index'}?south">
 <NOFRAMES>
 <BODY>
-<PRE>
-このページはMicrosoft Internet Explorer 6.0 向けに作られています
-MSIE5.01やNetscape6、Mozilla0.9以上でもそこそこに見ることが出来ると思います
-Netscape4.xでは表示の一部が崩れる可能性があります
-テーブルやフレームに対応していないブラウザでは、表示の大部分が崩れてしまうため、
-実質的に閲覧することができません
-Mozilla4以上互換のブラウザでまた来てください
-</PRE>
+<H1>Marldia</H1>
+<P><A href="$CF{'index'}?mode=mobile">For Mobile</A></P>
+<P><A href="http://airemix.com/">Airemix Marldia</A></P>
 </BODY>
 </NOFRAMES>
 </FRAMESET>
@@ -104,7 +230,7 @@ sub modeNorth{
     print"//-->\n</SCRIPT>";
     close(JS);
     print<<"_HTML_";
-<FORM name="north" id="north" method="post" action="$CF{'program'}" target="south"
+<FORM name="north" id="north" method="post" action="$CF{'index'}" target="south"
 onsubmit="setTimeout(autoreset,20)" onreset="setTimeout(autoreset,20)">
 <TABLE cellspacing="0" style="width:770px" summary="発言フォーム">
 <COL style="width:130px">
@@ -176,8 +302,9 @@ title="reset&#10;内容を初期化します" value="キャンセル" tabindex="42"></TD>
 
 <TR>
 <TH><LABEL accesskey="b" for="body" title="Body&#10;発言する本文の内容です&#10;\$rankで発言ランキング、\$memberで参加者一覧を見れます">内容(<SPAN class="ak">B</SPAN>)</LABEL>:</TH>
-<TD colspan="5"><INPUT type="text" class="text" name="body" id="body" maxlength="300" size="100"
-style="ime-mode:active;width:450px" tabindex="1"></TD>
+<TD colspan="5"><SPAN id="body_container"><INPUT type="text" class="text" name="body" id="body"
+maxlength="300" size="100" style="ime-mode:active;width:450px" tabindex="1"></SPAN>
+<INPUT type="button" class="button" value="↓" onclick="switch_input_body"></TD>
 <TD style="text-align:center"><INPUT type="checkbox" name="quit" id="quit" class="check" tabindex="51"
 ><LABEL accesskey="Q" for="quit" title="Quit&#10;チェックを入れると参加者から名前を消します。"
 >退室モード(<SPAN class="ak">Q</SPAN>)</LABEL></TD>
@@ -267,6 +394,7 @@ sub modeSouth{
     my$intSingers=@singers;
     my$intAudiences=$intMembers-$intSingers;
     my$strMembers;
+    push @singers, qq(<A href="$CF{'index'}?$mobileQuery">携帯</A>☆) if $mobileQuery;
     if(@singers){
 	$strMembers="@singers";
     }else{
@@ -297,7 +425,6 @@ _HTML_
     #-----------------------------
     #参加者表示
     my $reload = $IN{'reload'} ? sprintf('%s秒間隔',$IN{'reload'}) : 'No Reload';
-    $reload = sprintf( '<A href="%s?%s">%s</A>', $CF{'mobile'}, $mobileQuery, $reload) if $mobileQuery;
     print<<"_HTML_";
 <TABLE class="meminfo" summary="参加者情報など"><TR>
 <TD class="reload">[ <A href="$CF{'index'}?$query">@{[sprintf('%02d:%02d:%02d',(localtime$^T)[2,1,0])]}</A> ]</TD>
@@ -454,6 +581,33 @@ _HTML_
 	print"</TABLE>";
 	&showFooter;
 	exit;
+    }elsif('del'eq$arg[0]){
+	#発言削除
+	my @result = Chatlog->delete({id=>$IN{'id'},exp=>$arg[1]});
+	&header;
+	if(@result){
+	    print"<P>削除しましたょ</P>";
+	}else{
+	    print"<P>なにも削除しなかったょ</P>";
+	}
+	&showFooter;
+    }elsif('edit'eq$arg[0]){
+	#発言編集
+	&header;
+	my $data = Chatlog->get({id=>$IN{'id'},exp=>$arg[1]});
+	if($data){
+	    for(2..$#arg){
+		my($key,$value) = split('=',$arg[$_],2);
+		index(' name color bcolo body home email opt icon '," $key ") > -1 or next;
+		# 'icon' may cause a security hole...
+		$data->{$key} = $value;
+	    }
+	    print"<P>修正しましたょ</P>";
+	}else{
+	    print"<P>なにも修正しなかったょ</P>";
+	}
+	&showFooter;
+	exit;
     }elsif(''eq$arg[0]){
 	#
     }
@@ -469,7 +623,10 @@ _HTML_
 sub modeAdmicmd{
     unless($IN{'opt'}){
 	die"「何もしない＠管理」";
+    }elsif($IN{'opt'}!~s/$::CF{'admipass'}//o){
+	die'password is not valid';
     }
+    
     #引数処理
     my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;length$_;}
     ($IN{'opt'}=~
@@ -1249,28 +1406,32 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	shift;
 	my%DT=%{shift()};
 	my%IN;
+	
 	#コマンド系
-	if($DT{'body'}){
-	    if($::CF{'admipass'}&&$DT{'body'}=~/^#$::CF{'admipass'}\s+(.*)/o){
-		$IN{'mode'}='admicmd';
-		$IN{'opt'}=$1;
-	    }elsif($DT{'body'}=~/^\$(\w.*)/o){
-		$IN{'mode'}='usercmd';
-		$IN{'opt'}=$1;
-	    }
+	unless($DT{'body'}){
+	}elsif($::CF{'admipass'}&&$DT{'body'}=~/^\s*\/admin\s*(.*)/o){
+	    $IN{'mode'}='admicmd';
+	    $IN{'opt'}=$1;
+	    $IN{'mode'}&&return\%IN;
+	}elsif($DT{'body'}=~/^ \/\w/o){
+	    $DT{'body'}=~/^ \/(.*)/o;
+	    $IN{'mode'}='usercmd';
+	    $IN{'opt'}=$1;
+	    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($::CK{'id'}||$IN{'name'});
 	    $IN{'mode'}&&return\%IN;
 	}
-
+	
 	if(!%DT||($DT{'mode'}&&'frame'eq$DT{'mode'})){
 	    #フレーム
 	    $IN{'mode'}='frame';
-	}elsif(defined$DT{'icct'}){
+	}elsif(defined$DT{'icct'} or 'icct'eq$IN{'mode'}){
 	    #アイコンカタログ
 	    $IN{'page'}=($DT{'page'}&&$DT{'page'}=~/([1-9]\d*)/o)?$1:1;
 	    $IN{'mode'}='icct';
 	}elsif($DT{'name'}){
+	    #発言
 	    &::getCookie;
-
+	    
 	    if(defined$DT{'body'}){
 		$IN{'body'}=$DT{'body'}||'';
 		$IN{'cook'}=$DT{'cook'}?1:0;
@@ -1293,13 +1454,17 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
 	    $IN{'line'}=($DT{'line'}=~/([1-9]\d*)/o)?$1:$::CF{'defline'};
 	    $IN{'reload'}=($DT{'reload'}=~/([1-9]\d+|0)/o)?$1:$::CF{'defreload'};
-	    $IN{'mode'}='south';
-	}elsif((defined$DT{'north'})||('north'eq$DT{'mode'})){
+	    if('entrance' eq $DT{'mode'}){
+		$IN{'mode'}='entrance';
+	    }else{
+		$IN{'mode'}='south';
+	    }
+	}elsif( defined$DT{'north'} or 'north'eq$DT{'mode'}){
 	    #北
 	    $IN{'mode'}='north';
 	    $IN{'line'}=$::CF{'defline'};
 	    $IN{'reload'}=$::CF{'defreload'};
-	}elsif(defined$DT{'south'}){
+	}elsif( defined$DT{'south'} or 'south'eq$IN{'mode'}){
 	    #南
 	    $IN{'mode'}='south';
 	    $IN{'line'}=$::CF{'romline'};
@@ -1496,6 +1661,21 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	unshift(@{$self},\%DT);
     }
 
+    #ログを置換
+    sub Chatlog::get{
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	my%DT=%{shift()};
+	my @result = ();
+	if($DT{'exp'}){
+	    for(@{$self}){
+		$_->{'id'} eq$DT{'id'} ||next;
+		$_->{'exp'}eq$DT{'exp'}||next;
+		return $_;
+	    }
+	}
+	return undef;
+    }
+
     #ログを削除
     sub Chatlog::delete{
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
@@ -1519,6 +1699,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	}
 	return @result;
     }
+    
     sub Chatlog::dispose{
 	$logfile||return;
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
@@ -1774,7 +1955,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     $CF{'program'} = substr($ENV{'SCRIPT_NAME'}, rindex('/'.$ENV{'SCRIPT_NAME'},'/'));
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.22 $;
+    $CF{'correv'}=qq$Revision: 1.23 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;
