@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 = Marldia - Web Chat System
 #
-# $Id: Marldia.txt,v 1.24 2004-12-05 18:35:01 naruse Exp $
+# $Id: Marldia.txt,v 1.25 2005-01-20 19:27:45 naruse Exp $
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
@@ -28,6 +28,12 @@ Airemixの掲示板で質問してみてください
 
 #------------------------------------------------------------------------------#
 == Marldia History
+:2004-12-05 Revision: 1.25
+  * デッドロックする可能性があったのを修正
+  * オプションCSS
+  * Reload周りの修正
+  * 発言での空白の扱い方を変更
+  * 色選択用のSELECTでFirefoxでも色が反映されるように
 :2004-12-05 Revision: 1.24
   * 参加者情報が消えた状態で入室状態のリロードをするとBLANKがおかしくなるバグを修正
   * 複数行BODY
