@@ -4,14 +4,15 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.8 $
+# $Revision: 1.11 $
 # "This file is written in euc-jp, CRLF." ¶õ
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.8 2002-06-12 15:11:43 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.11 2002-10-22 08:29:15 naruse Exp $;
 require 5.004;
 use strict;
 use vars qw(%CF %IN %CK %IC);
+use lib '../bbs/';
 
 #YOUR SITE NAME
 $CF{'sitename'}='Airemix';
@@ -30,7 +31,7 @@ $CF{'max'}=200;
 #¥¢¥¯¥»¥¹¶Ø»ß¤ÊÌ¾Á°
 $CF{'denyname'}='´ÉÍý¿Í';
 #»ÈÍÑ¤òµö²Ä¤¹¤ë¥¿¥°¡ÊÈ¾³Ñ¥¹¥Ú¡¼¥¹¶èÀÚ¤ê¡Ë
-$CF{'tags'} = 'DEL EM SMALL STRONG RUBY RB RB RT RP';
+$CF{'tags'}='ACRONYM CODE DEL DFN EM Q SMALL STRONG RUBY RB RB RT RP';
 #¿§¤ÎÁªÂòÊýË¡(select input)
 $CF{'colway'}='select';
 #¥¢¥¤¥³¥ó¤ÎIMG¥¿¥°¤ËÄÉ²Ã¤¹¤ëÂ°À­
@@ -44,10 +45,12 @@ $CF{'defreload'}=20;
 $CF{'index'}= 'index.cgi'; #MIREILLE MAIN CGI
 $CF{'style'} = 'style.css'; #CascadeStyleSheet
 #$CF{'help'} = 'help.html'; #HELP FILE
-$CF{'log'}  = 'log.pl'; #LOG PATH
-$CF{'rank'} = 'rank.pl'; #LOG PATH
-$CF{'icondir'} = '/icon/half/'; #ICON DIRECTORY PATH
-$CF{'icls'} = 'icon.txt'; #ICON LIST PATH
+$CF{'log'}  = 'log.cgi'; #LOG PATH
+$CF{'rank'} = 'rank.cgi'; #LOG PATH
+$CF{'iconDir'} = '/icon/half/'; #ICON DIRECTORY PATH
+$CF{'iconList'} = 'icon.txt'; #ICON LIST PATH
+
+$CF{'iconCtlg'} = 'iconctlg.cgi'; #ICON CATALOG PATH
 #$CF{'samp'} = 'icon.html'; #ICON SAMPLE PATH
 $ENV{'TZ'}  = 'JST-9'; #TimeZone
 $CF{'gzip'} = 'gzip'; #GZIP PATH
@@ -63,6 +66,41 @@ $IC{'hie'}='mie.png'; #ìÓ
 $IC{'hue'}='mue.png'; #ó¬
 $IC{'hee'}='mee.png'; #°¹
 $IC{'hoe'}='moe.png'; #Çµ³¨
+
+#-----------------------------
+# ¿§¥ê¥¹¥È
+$CF{'colorList'}=<<'_CONFIG_';
+<OPTION value="#343434" style="color:#343434">¢£ËÏ</OPTION>
+<OPTION value="#FBDADE" style="color:#FBDADE">¢£ºù¿§</OPTION>
+<OPTION value="#D53E62" style="color:#D53E62">¢£é¬é¯¿§</OPTION>
+<OPTION value="#FF7F8F" style="color:#FF7F8F">¢£»¹¸ê¿§</OPTION>
+<OPTION value="#AD3140" style="color:#AD3140">¢£çÃ»é¿§</OPTION>
+<OPTION value="#9E2236" style="color:#9E2236">¢£°«¿§</OPTION>
+<OPTION value="#905D54" style="color:#905D54">¢£¾®Æ¦¿§</OPTION>
+<OPTION value="#EF454A" style="color:#EF454A">¢£¼ë¿§</OPTION>
+<OPTION value="#F1BB93" style="color:#F1BB93">¢£È©¿§</OPTION>
+<OPTION value="#564539" style="color:#564539">¢£¾ÇÃã¿§</OPTION>
+<OPTION value="#6B3E08" style="color:#6B3E08">¢£³ì¿§</OPTION>
+<OPTION value="#AA7A40" style="color:#AA7A40">¢£àèàá¿§</OPTION>
+<OPTION value="#F8A900" style="color:#F8A900">¢£»³¿á¿§</OPTION>
+<OPTION value="#EDAE00" style="color:#EDAE00">¢£Ýµ¶â¿§</OPTION>
+<OPTION value="#C8A65D" style="color:#C8A65D">¢£³©»Ò¿§</OPTION>
+<OPTION value="#C2BD3D" style="color:#C2BD3D">¢£ó´¿§</OPTION>
+<OPTION value="#AAB300" style="color:#AAB300">¢£¼ãÁð¿§</OPTION>
+<OPTION value="#97A61E" style="color:#97A61E">¢£Ë¨²«¿§</OPTION>
+<OPTION value="#6DA895" style="color:#6DA895">¢£ÀÄ¼§¿§</OPTION>
+<OPTION value="#89BDDE" style="color:#89BDDE">¢£¶õ¿§</OPTION>
+<OPTION value="#007BC3" style="color:#007BC3">¢£ÏªÁð¿§</OPTION>
+<OPTION value="#00519A" style="color:#00519A">¢£ÎÜÍþ¿§</OPTION>
+<OPTION value="#384D98" style="color:#384D98">¢£·²ÀÄ¿§</OPTION>
+<OPTION value="#4347A2" style="color:#4347A2">¢£µË¹¼¿§</OPTION>
+<OPTION value="#A294C8" style="color:#A294C8">¢£Æ£¿§</OPTION>
+<OPTION value="#714C99" style="color:#714C99">¢£èÁ¿§</OPTION>
+<OPTION value="#744B98" style="color:#744B98">¢£¾Ô³÷¿§</OPTION>
+<OPTION value="#C573B2" style="color:#C573B2">¢£¾Ô³÷¿§</OPTION>
+<OPTION value="#EAE0D5" style="color:#EAE0D5">¢£¹á¿§</OPTION>
+<OPTION value="#DED2BF" style="color:#DED2BF">¢£¾Ý²ç¿§</OPTION>
+_CONFIG_
 
 #-------------------------------------------------
 # ¼Â¹Ô or ÆÉ¤ß¹þ¤ß¡©
@@ -115,7 +153,7 @@ _HTML_
     };
   }
   # Revision Number
-  $CF{'idxrev'}=qq$Revision: 1.8 $;
+  $CF{'idxrev'}=qq$Revision: 1.11 $;
 }
 1;
 __END__
