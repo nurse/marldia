@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.17 2004-07-30 04:35:44 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.18 2004-07-30 04:43:30 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -328,14 +328,11 @@ sub modeSouth{
     #クエリ
     my$query='south';
     if($IN{'id'}){
-	my@items=();
-	if($IN{'quit'}){
-	    @items = qw(line reload);
-	}else{
-	    @items = qw(name id line reload color);
-	}
 	$query=join(';',map{my$val=$IN{$_};$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
-		    grep{defined$IN{$_}}@items);
+		    grep{defined$IN{$_}}qw(name id line reload color));
+	if($IN{'quit'}){
+	    $query.=';quit=on';
+	}
     }
 	
     #-----------------------------
@@ -1816,7 +1813,7 @@ BEGIN{
     $CF{'ProgramDirectory'} = $1;
 	
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.17 $;
+    $CF{'correv'}=qq$Revision: 1.18 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;
