@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 # "This file is written in euc-jp, CRLF." 空
-# Scripted by NARUSE Yui.
+# Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.14 2003-03-29 19:13:51 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.15 2003-05-14 17:10:42 naruse Exp $;
 require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK %IC);
@@ -43,7 +43,6 @@ $CF{'defreload'}=20;
 
 $CF{'index'}= 'index.cgi'; #MIREILLE MAIN CGI
 $CF{'style'} = 'style.css'; #CascadeStyleSheet
-#$CF{'help'} = 'help.html'; #HELP FILE
 $CF{'log'}  = 'log.cgi'; #LOG PATH
 $CF{'rank'} = 'rank.cgi'; #LOG PATH
 $CF{'iconDir'} = '/icon/half/'; #ICON DIRECTORY PATH
@@ -54,17 +53,21 @@ $CF{'iconCtlg'} = 'iconctlg.cgi'; #ICON CATALOG PATH
 $ENV{'TZ'}  = 'JST-9'; #TimeZone
 $CF{'gzip'} = 'gzip'; #GZIP PATH
 
-#EX Iconスイッチ '1'or'0'
+#絶対指定アイコン (0 使わない 1 使う)
+$CF{'absoluteIcon'}='1';
+#相対指定アイコン (0 使わない 1 使う)
+$CF{'relativeIcon'}='1';
+#専用アイコン機能 (ON 1 OFF 0)
 $CF{'exicon'}='0';
-#ファイル名指定アイコン
-$CF{'exicfi'}='iconfile';
-
-#EX Icon
-$IC{'hae'}='mae.png'; #苗
-$IC{'hie'}='mie.png'; #贄
-$IC{'hue'}='mue.png'; #鵺
-$IC{'hee'}='mee.png'; #姐
-$IC{'hoe'}='moe.png'; #乃絵
+#専用アイコン列挙
+#$IC{'PASSWORD'}='FILENAME'; #NAME
+#$IC{'hae'}='mae.png'; #苗
+#$IC{'hie'}='mie.png'; #贄
+#$IC{'hue'}='mue.png'; #鵺
+#$IC{'hee'}='mee.png'; #姐
+#$IC{'hoe'}='moe.png'; #乃絵
+#例：コマンドに"icon=hoe"と入れると乃絵さん専用の'moe.png'が使えます
+#手入力するときは「$IC{'hoe'}='moe.png'; #乃絵」のように、最初の「#」を取るのを忘れずに
 
 #-----------------------------
 # 色リスト
@@ -137,7 +140,7 @@ BEGIN{
 		};
 	}
 	# Revision Number
-	$CF{'idxrev'}=qq$Revision: 1.14 $;
+	$CF{'idxrev'}=qq$Revision: 1.15 $;
 }
 1;
 __END__

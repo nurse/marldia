@@ -1,7 +1,7 @@
 @charset"EUC-JP";
 /* Marldia Style Sheet */
 /* "This file is written in euc-jp, CRLF." 空 */
-/* $Id: style.css,v 1.14 2003-03-29 19:13:52 naruse Exp $ */
+/* $Id: style.css,v 1.15 2003-05-14 17:10:42 naruse Exp $ */
 
 /* ==================== 要素の標準スタイル ==================== */
 /* ========== Structure Module ==========*/
@@ -166,6 +166,17 @@ INPUT.submit{
 /* Cancel/Resetボタン */
 INPUT.reset{
 	background-color: #A55;
+	border-color: #fd0;
+	border-width: 1px;
+	border-style: solid;
+	color: #333;
+	cursor: hand;
+	letter-spacing: 0.15em;
+	width: 7em;
+}
+/* 汎用ボタン */
+INPUT.button{
+	background-color: #ffa;
 	border-color: #fd0;
 	border-width: 1px;
 	border-style: solid;

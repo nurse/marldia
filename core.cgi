@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 # "This file is written in euc-jp, CRLF." 空
-# Scripted by NARUSE Yui.
+# Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.14 2003-03-29 19:13:50 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.15 2003-05-14 17:10:41 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -65,7 +65,6 @@ Connection: keep-alive
 <META http-equiv="MSThemeCompatible" content="yes">
 <LINK rel="start" href="$CF{'sitehome'}">
 <LINK rel="index" href="$CF{'index'}">
-<LINK rel="help" href="$CF{'help'}">
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
 <FRAMESET rows="120,*">
@@ -98,55 +97,125 @@ sub modeNorth{
 	(%CK)||(%CK=%IN);
 	&header;
 	&iptico($CK{'icon'},'tabindex="12"');
-	print<<'_HTML_';
+	print<<"_HTML_";
 <SCRIPT type="text/javascript" defer>
 <!--
-//--------------------------------------
+/*========================================================*/
 // 初期化
-window.onload=autoreset;
-var cook,body,preview,surface,popup;
+var iconDirectory='$CF{'iconDir'}';
+var iconSetting=@{[$CF{'absoluteIcon'}?1:0]}+@{[$CF{'relativeIcon'}?1:0]}*2;
+var myIcon=new Object({value:'$CK{'icon'}',isAbsolute:0});
 _HTML_
-	print"var icondir='$CF{'iconDir'}';",<<'_HTML_';
+	print<<'_HTML_';
+var cook,body,preview,surface,icon,opt,popup,isLoaded=null;
+window.onload=init;
 
-function autoreset(){
+/*========================================================*/
+// Init
+function init(){
 	if(document.all){
 		cook=document.all('cook');
 		body=document.all('body');
 		preview=document.all('preview');
 		surface=document.all('surface');
+		icon=document.all('icon');
+		opt =document.all('opt');
 	}else if(document.getElementById){
 		cook=document.getElementById('cook');
 		body=document.getElementById('body');
 		preview=document.getElementById('preview');
 		surface=document.getElementById('surface');
-	}else{return}
+		icon=document.getElementById('icon');
+		opt =document.getElementById('opt');
+	}else return false;
+	isLoaded=true;
+	autoreset();
+	changeOption();
+	return true;
+}
 
-	if(cook){
-		cook.checked=document.cookie?false:true;
-	}
+
+/*========================================================*/
+// Auto Reset
+function autoreset(){
+	if(!isLoaded)return false;
+	if(cook)cook.checked=document.cookie?false:true;
 	if(body){
 		body.value="";
 		body.focus();
 	}
 }
 
-//--------------------------------------
+
+/*========================================================*/
 // アイコンプレビュー
 function iconPreview(arg){
-	if(!preview&&!arg){return;}
-	preview.src=icondir+arg;
+	if(!isLoaded)return false;
+	preview.src=arg;
 	preview.title=arg;
 }
 
-//--------------------------------------
-// アイコンを変えたら
-function iconChange(arg){
-	if(!surface&&!arg){return;}
-	iconPreview(arg);
-	if(!arg.match(/^(([^\/#]*\/)*[^\/#.]+)(\.[^\/#]*)#(\d+)(-\d+)?$/)){
+
+/*========================================================*/
+// Change Option
+function changeOption(){
+	if(!isLoaded)return false;
+	
+	myIcon.value=null;
+	myIcon.isAbsolute=false;
+	if(!opt||!opt.value){
+		icon.disabled=false;
+	}else if(iconSetting&1&&opt.value.match(/(^|;)absoluteIcon=([^;]*)/)){
+		//絶対指定アイコン
+		myIcon.value=RegExp.$2;
+		myIcon.isAbsolute=true;
+		icon.disabled=true;
+	}else if(iconSetting&2&&opt.value.match(/(^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/)){
+		//相対指定アイコン
+		myIcon.value=RegExp.$2;
+		icon.disabled=true;
+	}else{
+		icon.disabled=false;
+	}
+	if(!myIcon.value)myIcon.value=icon.value;
+	
+	if(myIcon.isAbsolute){
+		preview.src=myIcon.value;
+		preview.title='+'+myIcon.value;
+	}else{
+		preview.src=iconDirectory+myIcon.value;
+		preview.title=iconDirectory+'+'+myIcon.value;
+	}
+	
+	surface.selectedIndex=0;
+	resetSurface();
+	return true;
+}
+
+
+/*========================================================*/
+// 現在指定しているアイコンを取得
+function getSelectingIcon(){
+	if(!isLoaded)return false;
+	if(!opt||!opt.value){
+	}else if(iconSetting&1&&opt.value.match(/(^|;)absoluteIcon=([^;]*)/)){
+		//絶対指定アイコン
+		return RegExp.$2
+	}else if(iconSetting&2&&opt.value.match(/(^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/)){
+		//相対指定アイコン
+		return RegExp.$2
+	}
+	return icon.value
+}
+
+
+/*========================================================*/
+// 表情アイコンのリセット
+function resetSurface(){
+	if(!myIcon.value.match(/^(([^\/#]*\/)*[^\/#.]+)(\.[^\/#]*)#(\d+)(-\d+)?$/)){
 		surface.length=1;
 		surface.options[0].text='-';
-		surface.options[0].value=arg;
+		surface.options[0].value=myIcon.value;
 		return;
 	}
 	var url=RegExp.$1;
@@ -164,55 +233,86 @@ function iconChange(arg){
 }
 
 
-//--------------------------------------
+/*========================================================*/
+// 表情アイコンを変更
+function changeSurfaceSelect(arg){
+	if(!isLoaded)return false;
+	
+	if(myIcon.value!=getSelectingIcon())return changeOption();
+	
+	if(myIcon.isAbsolute){
+		preview.src=arg;
+		preview.title='+'+arg;
+	}else{
+		preview.src=iconDirectory+arg;
+		preview.title=iconDirectory+'+'+arg;
+	}
+	return true;
+}
+
+
+/*========================================================*/
 // 表情アイコン見本
 function surfaceSample(e){
+	if(!isLoaded)return false;
+	if(myIcon.value!=getSelectingIcon())changeOption();
 	if(document.all){
 		e.returnValue=false;
 	}else if(document.getElementById){
 		e.preventDefault();
-	}else{return false;}
+	}else return false;
 	e.cancelBubble=true;
-	if(!window.createPopup){return false;}
+	if(!top.south)return false;
+	if(!window.createPopup)return false;
 	event.cancelBubble=true;
 	if(popup&&popup.isOpen){
 		popup.hide();
-		iconPreview(surface.value);
 		body.focus();
 		return false;
 	}
 	popup=window.createPopup();
 	var wid=200;
 	var hei=250;
-	var str=
-		'<BUTTON type="button" id="surface0" style="margin:0;padding:0;width:50px;border:0"'
-		+' onclick="top.north.document.all(\'surface\').selectedIndex=0;document.all(\'surfaceS\').selectedIndex=0'
-		+';top.north.document.images[\'preview\'].src=\''+icondir+surface.options[0].value+'\'"'
-		+';top.north.document.images[\'preview\'].title=\''+surface.options[0].value+'\'">'
-		+'<IMG src="'+icondir+surface.options[0].value+'" alt="" title="-"><\/button>';
-
-	for(i=1;i<surface.length;i++){
-		str+=
-		'<BUTTON type="button" id="surface'+i+'" style="margin:0;padding:0;width:50px;border:0"'
-		+' onclick="top.north.document.all(\'surface\').selectedIndex='+i+';document.all(\'surfaceS\').selectedIndex='+i
-		+';top.north.document.images[\'preview\'].src=\''+icondir+surface.options[i].value+'\'"'
-		+';top.north.document.images[\'preview\'].title=\''+surface.options[i].value+'\'">'
-		+'<IMG src="'+icondir+surface.options[i].value+'" alt="" title="'+(i-1)+'"><\/button>';
-		if(i%3==2){str+='<BR>';}
+	
+	var fragment=popup.document.createDocumentFragment();
+	for(i=0;i<surface.length;i++){
+		var aButton=popup.document.createElement('BUTTON');
+		aButton.id='surface'+i;
+		aButton.style.margin=0;
+		aButton.style.padding=0;
+		aButton.style.width='50px';
+		aButton.style.border=0;
+		aButton.title=i;
+		aButton.onclick=function(){
+			var surface=top.north.document.all('surface');
+			surface.selectedIndex=this.title;
+			popup.document.all('surfaceS').selectedIndex=this.title;
+			top.north.document.images['preview'].src=top.north.myIcon.isAbsolute?
+				surface.value:iconDirectory+surface.value;
+			top.north.document.images['preview'].title=surface.value;
+		};
+		var aImg=popup.document.createElement('IMG');
+		aImg.src=myIcon.isAbsolute?surface.options[i].value:iconDirectory+surface.options[i].value;
+		aImg.title=i?i-1:'-';
+		aButton.appendChild(aImg);
+		fragment.appendChild(aButton);
 	}
 	popup.document.body.innerHTML=
 	 '<DIV style="border:3px double ActiveBorder;height:'+hei+'px;overflow:auto;text-align:left;width:'+wid+'px">'
 	+'<DIV style="color:CaptionText;font:caption;height:15px;padding:2px;width:100%;'
 	+'filter:progid:DXImageTransform.Microsoft.Gradient(startColorstr=\'#66aaff\',endColorstr=\'#ffffff\','
-	+'gradientType=\'1\');">アイコン見本<\/div>'+str+'<SELECT name="surfaceS" id="surfaceS"'
+	+'gradientType=\'1\');">アイコン見本<\/div><div id="surfaceList"><\/div><SELECT name="surfaceS" id="surfaceS"'
 	+' onchange="document.all(\'surface\'+this.selectedIndex).click()"'
-	+' onkeypress="event.keyCode&#62;57&&top.north.document.images[\'preview\'].click()"'
+	+' onkeypress="event.keyCode&#62;57&&top.north.document.images[\'preview\'].click();return true"'
 	+' style="ime-mode:disabled">'+surface.innerHTML+'<\/select>'
 	+'<INPUT type="button" value="Close" onclick="top.north.document.images[\'preview\'].click()"><\/div>';
+	popup.document.all('surfaceList').appendChild(fragment);
 	popup.show(20,20,wid,hei,top.south.document.body);
-	popup.document.body.document.all('surfaceS').focus();
+	popup.document.all('surfaceS').focus();
 	return;
 }
+
+
 _HTML_
 	print<<"_HTML_";
 //-->
@@ -235,9 +335,9 @@ _HTML_
 <BUTTON accesskey="x" type="button" id="surfaceButton" onclick="surfaceSample(event);return false"
  onkeypress="surfaceSample(event);return false"><IMG name="preview" id="preview" alt="" title="$CK{'icon'}"
  src="$CF{'iconDir'}$CK{'icon'}" $CF{'imgatt'} style="margin:0"></BUTTON><BR>
-<LABEL accesskey="z" for="surface" title="hyoZyo\n表情アイコンを選択します（使えれば）"
-><SPAN class="ak">Z</SPAN>yo</LABEL><SELECT name="surface" id="surface"
- onchange="iconPreview(this.options[this.selectedIndex].value)" tabindex="50">
+<LABEL accesskey="z" for="surface" title="hyoZyo&#10;表情アイコンを選択します（使えれば）"
+><SPAN class="ak">Z</SPAN>yo</LABEL><SELECT name="surface" id="surface" tabindex="50"
+ onfocus="if(myIcon.value!=getSelectingIcon())changeOption()" onchange="changeSurfaceSelect(this.value)">
 _HTML_
 	if($CK{'icon'}=~/^((?:[^\/#]*\/)*)((?:[^\/#.]*\.)*?[^\/#.]+)(\.[^\/#.]*)?#(\d+)$/o){
 		print qq(<OPTION value="$1$2$3">-</OPTION>\n);
@@ -247,78 +347,78 @@ _HTML_
 	}
 	print<<"_HTML_";
 </SELECT><BR>
-<DIV style="margin:0.3em 0;text-align:center" title="reloadQ\n上フレームをリロードします"
+<DIV style="margin:0.3em 0;text-align:center" title="reloadQ&#10;上フレームをリロードします"
 >[<A href="$CF{'index'}?north" accesskey="q" tabindex="52">再読込(<SPAN class="ak">Q</SPAN>)</A>]
 <INPUT name="south" type="hidden" value="">
 </DIV>
 </TD>
-<TH><LABEL accesskey="n" for="name" title="Name\n参加者名、発言者名などで使う名前です"
+<TH><LABEL accesskey="n" for="name" title="Name&#10;参加者名、発言者名などで使う名前です"
 >名前(<SPAN class="ak">N</SPAN>)</LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="name" id="name" maxlength="20" size="20"
  style="ime-mode:active;width:100px" value="$CK{'name'}" tabindex="11"></TD>
-<TH><LABEL accesskey="c" for="color" title="name Color\n参加者名、発言者名などで使う名前の色です"
+<TH><LABEL accesskey="c" for="color" title="name Color&#10;参加者名、発言者名などで使う名前の色です"
 >名前色(<SPAN class="ak">C</SPAN>)</LABEL>:</TH>
 <TD>@{[&iptcol('color','tabindex="21"')]}</TD>
-<TH><LABEL accesskey="g" for="line" title="log Gyosu\n表示するログの行数です\n最高$CF{'max'}行"
+<TH><LABEL accesskey="g" for="line" title="log Gyosu&#10;表示するログの行数です&#10;最高$CF{'max'}行"
 >行数(<SPAN class="ak">G</SPAN>)</LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="line" id="line" maxlength="4" size="4"
  style="ime-mode:disabled;width:32px" value="$CK{'line'}行" tabindex="31"></TD>
 <TD style="text-align:center"><INPUT type="submit" accesskey="s" class="submit"
- title="Submit\n現在の内容で発言します" value="OK" tabindex="41"></TD>
+ title="Submit&#10;現在の内容で発言します" value="OK" tabindex="41"></TD>
 <TD></TD>
 </TR>
 
 <TR>
-<TH><LABEL accesskey="i" for="icon" title="Icon\n使用するアイコンを選択します"
+<TH><LABEL accesskey="i" for="icon" title="Icon&#10;使用するアイコンを選択します"
 ><A href="$CF{'index'}?icct" target="south">アイコン</A>(<SPAN class="ak">I</SPAN>)</LABEL></TH>
 <TD>@{[&iptico($CK{'icon'},'tabindex="12"')]}</TD>
-<TH><LABEL accesskey="c" for="bcolo" title="body Color\n発言した本文の色です"
+<TH><LABEL accesskey="c" for="bcolo" title="body Color&#10;発言した本文の色です"
 >文章色(<SPAN class="ak">C</SPAN>)</LABEL>:</TH>
 <TD>@{[&iptcol('bcolo','tabindex="22"')]}</TD>
-<TH><LABEL accesskey="r" for="reload" title="Reload\n何秒ごとに自動的にリロードするか、です"
+<TH><LABEL accesskey="r" for="reload" title="Reload&#10;何秒ごとに自動的にリロードするか、です"
 >間隔(<SPAN class="ak">R</SPAN>)</LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="reload" id="reload" maxlength="4" size="4"
  style="ime-mode:disabled;width:32px" value="$CK{'reload'}秒" tabindex="32"></TD>
 <TD style="text-align:center"><INPUT type="reset" class="reset"
- title="reset\n内容を初期化します" value="キャンセル" tabindex="42"></TD>
+ title="reset&#10;内容を初期化します" value="キャンセル" tabindex="42"></TD>
 </TR>
 
 <TR>
-<TH><LABEL accesskey="b" for="body" title="Body\n発言する本文の内容です\n\$rankで発言ランキング、\$memberで参加者一覧を見れます"
+<TH><LABEL accesskey="b" for="body" title="Body&#10;発言する本文の内容です&#10;\$rankで発言ランキング、\$memberで参加者一覧を見れます"
 >内容(<SPAN class="ak">B</SPAN>)</LABEL>:</TH>
 <TD colspan="5"><INPUT type="text" class="text" name="body" id="body" maxlength="300" size="100"
  style="ime-mode:active;width:450px" tabindex="1"></TD>
-<TD><LABEL accesskey="k" for="cook" title="cooKie\nチェックを入れると現在の設定をCookieに保存します"
+<TD><LABEL accesskey="k" for="cook" title="cooKie&#10;チェックを入れると現在の設定をCookieに保存します"
 ><INPUT type="checkbox" name="cook" id="cook" class="check" tabindex="51" checked="checked"
 >クッキ保存(<SPAN class="ak">K</SPAN>)</LABEL></TD>
 </TR>
 
 <TR>
-<TH><LABEL accesskey="y" for="id" title="identitY name\nCGI内部で使用する、管理用の名前を選択します
+<TH><LABEL accesskey="y" for="id" title="identitY name&#10;CGI内部で使用する、管理用の名前を選択します
 この名前が実際に表に出ることはありません\nこの登録名が同じだと同一人物だとみなされます"
 >Identit<SPAN class="ak">y</SPAN></LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="id" id="id" maxlength="20" size="20"
  style="ime-mode:active;width:150px" value="$CK{'id'}" tabindex="101"></TD>
-<TH><LABEL accesskey="l" for="email" title="e-maiL\nメールアドレスです"
+<TH><LABEL accesskey="l" for="email" title="e-maiL&#10;メールアドレスです"
 >E-mai<SPAN class="ak">l</SPAN></LABEL>:</TH>
 <TD colspan="3"><INPUT type="text" class="text" name="email" id="email" maxlength="200" size="40"
  style="ime-mode:inactive;width:200px" value="$CK{'email'}" tabindex="111"></TD>
 <TH style="text-align:center">[ <A href="$CF{'sitehome'}" target="_top"
-title="$CF{'sitename'}へ帰ります\n退室メッセージは出ないので帰りの挨拶を忘れずに"
+title="$CF{'sitename'}へ帰ります&#10;退室メッセージは出ないので帰りの挨拶を忘れずに"
 >$CF{'sitename'}へ帰る</A> ]</TH>
 </TR>
 
 <TR>
-<TH><LABEL accesskey="p" for="opt" title="oPtion\nオプション"
+<TH><LABEL accesskey="p" for="opt" title="oPtion&#10;オプション"
 >O<SPAN class="ak">p</SPAN>tion</LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="opt" id="opt" maxlength="200" style="ime-mode:inactive;width:150px"
- value="$CK{'opt'}" tabindex="102"></TD>
-<TH><LABEL accesskey="o" for="home" title="hOme\nサイトのURLです"
+ value="$CK{'opt'}" tabindex="102" onchange="changeOption()"></TD>
+<TH><LABEL accesskey="o" for="home" title="hOme&#10;サイトのURLです"
 >H<SPAN class="ak">o</SPAN>me</LABEL>:</TH>
 <TD colspan="3"><INPUT type="text" class="text" name="home" id="home" maxlength="200" size="40"
  style="ime-mode:inactive;width:200px" value="$CK{'home'}" tabindex="112"></TD>
 <TH style="letter-cpacing:-1px;text-align:center">-<A href="http://www.airemix.com/" title="Airemixへいってみる"
->Marldia $CF{'version'}</A>-</TH>
+ target="_top">Marldia $CF{'version'}</A>-</TH>
 </TR>
 </TABLE>
 </FORM>
@@ -338,203 +438,29 @@ sub modeSouth{
 	#引数の前処理
 	
 	#-----------------------------
-	#コマンドとその調整
+	#コマンドの読み込み
 	my%EX;
-	if($IN{'cmd'}){
-		for(split(/;/o,$IN{'cmd'})){
-			my($i,$j)=split('=',$_,2);
-			$i||next;
-			defined$j||($j=1);
-			$EX{$i}=$j;
-		}
+	for(split(';',$IN{'opt'})){
+		my($i,$j)=split('=',$_,2);
+		$i||next;
+		$i=~/(\S+(?:\s+\S+)*)/o||next;
+		$i=$1;
+		$j=defined$j&&$j=~/(\S+(?:\s+\S+)*)/o?$1:'';
+		$EX{$i}=$j;
 	}
 	
-	#-----------------------------
+	#専用アイコン機能。index.cgiで設定する。
+	#index.cgiで指定したアイコンパスワードに合致すれば。
+	$IN{'icon'}=$IC{$EX{'icon'}}if$CF{'exicon'}&&$IC{$EX{'icon'}};
+	
+	#絶対指定アイコン
+	$IN{'icon'}=''if$CF{'absoluteIcon'}&&$EX{'absoluteIcon'};
+	#相対指定アイコン
+	$IN{'icon'}=''if$CF{'relativeIcon'}&&$EX{'relativeIcon'};
 	#表情アイコン
-	$IN{'icon'}&&$IN{'icon'}=~/^(([^\/#]*\/)*[^\/#.]+)(\.[^\/#]*)#(\d+)(-\d+)?$/o
-	&&$IN{'surface'}=~/^$1\d*(?:\.[^\/#.]*)?$/o
-	&&($IN{'icon'}=$IN{'surface'});
+	$IN{'icon'}=$IN{'surface'}if!$IN{'icon'}&&$IN{'surface'};
 	
-	
-	#-----------------------------
-	#本文の処理
-	#form->data変換
-	unless(defined$IN{'body'}&&length$IN{'body'}){
-		$IN{'body'}='';
-	}elsif($CF{'tags'}&&'ALLALL'eq$CF{'tags'}){
-		#ALLALLは全面OK。但し強調は無効。URI自動リンクも無効。
-		#自前でリンクを張ったり、強調してあるものを、二重にリンク・強調してしまいますから
-	}else{
-		#本文のみタグを使ってもいい設定にもできる
-		my$attrdel=0;#属性を消す/消さない(1/0)
-		my$str=$IN{'body'};
-		study$str;
-		$str=~tr/"'<>/\01-\04/;
-		$str=~s/&(#?\w+;)/\05$1/go;
-		
-		#タグ処理
-		if($CF{'tags'}&&!$EX{'notag'}){
-			my$tag_regex_='[^\01-\04]*(?:\01[^\01]*\01[^\01-\04]*|\02[^\02]*\02[^\01-\04]*)*(?:\04|(?=\03)|$(?!\n))';
-			my$comment_tag_regex='\03!(?:--[^-]*-(?:[^-]+-)*?-(?:[^\04-]*(?:-[^\04-]+)*?)??)*(?:\04|$(?!\n)|--.*$)';
-			my$text_regex = '[^\03]*';
-			
-			my$tags=$CF{'tags'};
-			my%tagCom=map{m/(!\w+)(?:\(([^()]+)\))?/o;$1," $2 "||''}($tags=~/!\w+(?:\([^()]+\))?/go);
-			if($tagCom{'!SELECTABLE'}){
-				$tags.=' '.join(' ',grep{$tagCom{'!SELECTABLE'}=~/ $_ /o}grep{m/\w+/}split(/\s+/,$EX{'usetag'}));
-			}elsif(defined$tagCom{'!SELECTABLE'}){
-				$tags='\w+';
-			}
-			
-			my$result='';
-			#もし BRタグや Aタグなど特定のタグだけは削除したくない場合には， 
-			#$tag_tmp = $2; の後に，次のようにして $tag_tmp を $result に加えるようにすればできます． 
-			#$result .= $tag_tmp if $tag_tmp =~ /^<\/?(BR|A)(?![\dA-Za-z])/i;
-			my$remain=join('|',grep{m/^(?:\\w\+|\w+)$/o}split(/\s+/o,$tags));
-			#逆に FONTタグや IMGタグなど特定のタグだけ削除したい場合には， 
-			#$tag_tmp = $2; の後に，次のようにして $tag_tmp を $result に加えるようにすればできます． 
-			#$result .= $tag_tmp if $tag_tmp !~ /^<\/?(FONT|IMG)(?![\dA-Za-z])/i;
-			my$pos=length$str;
-			while($str=~/\G($text_regex)($comment_tag_regex|\03$tag_regex_)?/gso){
-				$pos=pos$str;
-				($1&&length$1)||($2&&length$2)||last;
-				$result.=$1;
-				my$tag_tmp=$2;
-				if($tag_tmp=~s/^\03((\/?(?:$remain))(?![\dA-Za-z]).*)\04/<$1>/io){
-					$tag_tmp=~tr/\01\02/"'/;
-					$result.=$attrdel?"<$2>":$tag_tmp;
-				}else{
-					$result.=$tag_tmp;
-				}
-				if($tag_tmp=~/^\03(XMP|PLAINTEXT|SCRIPT)(?![\dA-Za-z])/i){
-					$str=~/(.*?)(?:\03\/$1(?![\dA-Za-z])$tag_regex_|$)/gsi;
-					(my$tag_tmp=$1)=~tr/\01\02/"'/;
-					$result.=$tag_tmp;
-				}
-			}
-			$str=$result.substr($str,$pos);
-		}else{
-			#許可タグ無しorCommand:notag
-		}
-		
-		#語句強調
-		if($CF{'strong'}&&!$EX{'nostrong'}){
-			my%ST=map{(my$str=$_)=~tr/"'<>/\01-\04/;$str}($CF{'strong'}=~/(\S+)\s+(\S+)/go);
-			if($CF{'strong'}=~/^ /o){
-				#拡張語句強調
-				for(keys%ST){
-					if($_=~/^\/(.+)\/$/o){
-						my$regexp=$1;
-						($ST{$_}=~s/^\/(.+)\/$/$1/o)?($str=~s[$regexp][$ST{$_}]gm)
-						:($str=~s[$regexp][<STRONG  clAss="$ST{$_}"  >$1</STRONG>]gm);
-					}elsif($ST{$_}=~s/^\/(.+)\/$/$1/o){
-						$str=~s[^(\Q$_\E.*)$][$ST{$_}]gm;
-					}else{
-						$str=~s[^(\Q$_\E.*)$][<STRONG  clAss="$ST{$_}"  >$1</STRONG>]gm;
-					}
-				}
-			}else{
-				#基本語句強調
-				for(keys%ST){$str=~s[^(\Q$_\E.*)$][<STRONG  clAss="$ST{$_}"  >$1</STRONG>]gm;}
-			}
-		}
-		
-		#URI自動リンク
-		if($CF{'noautolink'}||!$EX{'noautolink'}){
-			#[-_.!~*'()a-zA-Z0-9;:&=+$,]	->[!$&-.\w:;=~]
-			#[-_.!~*'()a-zA-Z0-9:@&=+$,]	->[!$&-.\w:=@~]
-			#[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]	->[!$&-/\w:;=?@~]
-			#[-_.!~*'()a-zA-Z0-9;&=+$,]		->[!$&-.\w;=~]
-			#http URL の正規表現
-			my$http_URL_regex =
-		q{\b(?:https?|shttp)://(?:(?:[!$&-.\w:;=~]|%[\dA-Fa-f}.
-		q{][\dA-Fa-f])*@)?(?:(?:[a-zA-Z\d](?:[-a-zA-Z\d]*[a-zA-Z\d])?\.)}.
-		q{*[a-zA-Z](?:[-a-zA-Z\d]*[a-zA-Z\d])?\.?|\d+\.\d+\.\d+\.}.
-		q{\d+)(?::\d*)?(?:/(?:[!$&-.\w:=@~]|%[\dA-Fa-f]}.
-		q{[\dA-Fa-f])*(?:;(?:[!$&-.\w:=@~]|%[\dA-Fa-f][\dA-}.
-		q{Fa-f])*)*(?:/(?:[!$&-.\w:=@~]|%[\dA-Fa-f][\dA-Fa-f}.
-		q{])*(?:;(?:[!$&-.\w:=@~]|%[\dA-Fa-f][\dA-Fa-f])*)*)}.
-		q{*)?(?:\?(?:[!$&-/\w:;=?@~]|%[\dA-Fa-f][\dA-Fa-f])}.
-		q{*)?(?:#(?:[!$&-/\w:;=?@~]|%[\dA-Fa-f][\dA-Fa-f])*}.
-		q{)?};
-			#ftp URL の正規表現
-			my$ftp_URL_regex =
-		q{\bftp://(?:(?:[!$&-.\w;=~]|%[\dA-Fa-f][\dA-Fa-f])*}.
-		q{(?::(?:[!$&-.\w;=~]|%[\dA-Fa-f][\dA-Fa-f])*)?@)?(?}.
-		q{:(?:[a-zA-Z\d](?:[-a-zA-Z\d]*[a-zA-Z\d])?\.)*[a-zA-Z](?:[-a-zA-}.
-		q{Z\d]*[a-zA-Z\d])?\.?|\d+\.\d+\.\d+\.\d+)(?::\d*)?}.
-		q{(?:/(?:[!$&-.\w:=@~]|%[\dA-Fa-f][\dA-Fa-f])*(?:/(?}.
-		q{:[!$&-.\w:=@~]|%[\dA-Fa-f][\dA-Fa-f])*)*(?:;type=[}.
-		q{AIDaid])?)?(?:\?(?:[!$&-/\w:;=?@~]|%[\dA-Fa-f][\d}.
-		q{A-Fa-f])*)?(?:#(?:[!$&-/\w:;=?@~]|%[\dA-Fa-f][\dA}.
-		q{-Fa-f])*)?};
-			#メールアドレスの正規表現改
-			#"aaa@localhost"などを掲示板で「メールアドレス」として使うとは思えないので。
-			my$mail_regex=
-		q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
-		.q{\[\]\00-\037\x80-\xff])|"[^\\\\\x80-\xff\n\015"]*(?:\\\\[^\x80-\xff][}
-		.q{^\\\\\x80-\xff\n\015"]*)*")(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x}
-		.q{80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff])|"[^\\\\\x80-}
-		.q{\xff\n\015"]*(?:\\\\[^\x80-\xff][^\\\\\x80-\xff\n\015"]*)*"))*@(?:[^(}
-		.q{\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\0}
-		.q{00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[^\x80-\xff])*}
-		.q{\])(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,}
-		.q{;:".\\\\\[\]\00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[}
-		.q{^\x80-\xff])*\]))+};
-			#実稼動部
-			my$tag_regex_=q{[^"'<>]*(?:"[^"]*"[^"'<>]*|'[^']*'[^"'<>]*)*(?:>|(?=<)|$(?!\n))};
-			my$comment_tag_regex='<!(?:--[^-]*-(?:[^-]+-)*?-(?:[^>-]*(?:-[^>-]+)*?)??)*(?:>|$(?!\n)|--.*$)';
-			my$tag_regex=qq{$comment_tag_regex|<$tag_regex_};
-			my$text_regex=q{[^<]*};
-			my$result='';
-			my$skip=0;
-			my$pos=length$str;
-			while($str=~/($text_regex)($tag_regex)?/gso){
-				''eq$1&&!$2&&last;
-				$pos=pos$str;
-				my$text_tmp=$1;
-				my$tag_tmp=$2;
-				if($skip){
-					$result.=$text_tmp.$tag_tmp;
-					$skip=0 if$tag_tmp=~/^<\/[aA](?!\w)/;
-				}else{
-					$text_tmp=~s{($http_URL_regex|$ftp_URL_regex|($mail_regex))}
-					{
-						my$href=$2?'mailto:':'';
-						my$org=$1;
-						($href.=$org)=~tr/"/\01/;
-						qq{<A class="autolink" href="$href" target="_blank">$org</A>}
-					}ego;
-					$result.=$text_tmp.$tag_tmp;
-					$skip=1 if$tag_tmp=~/^<[aA](?!\w)/;
-					if($tag_tmp=~/^<(XMP|PLAINTEXT|SCRIPT)(?!\w)/i){
-						$str=~/(.*?(?:<\/$1(?!\w)$tag_regex_|$))/gis;
-						$result.=$1;
-					}
-				}
-			}
-			$str=$result.substr($str,$pos);
-		}else{
-			#Command:nolink
-		}
-		
-		#記事番号リンク「>>No.12-6」
-		if($CF{'noartno'}||!$EX{'noartno'}){
-			$str=~s{(\04\04No\.(\d+)(-\d+)?)}{<A class="autolink" href="index.cgi?read=$2#art$2$3">$1</A>}go;
-		}
-		
-		$str=~s/&/&#38;/go;
-		$str=~s/\01/&#34;/go;
-		$str=~s/\02/&#39;/go;
-		$str=~s/\03/&#60;/go;
-		$str=~s/\04/&#62;/go;
-		$str=~tr/\05/&/;
-		$IN{'body'}=$str;
-	}
-	$IN{'body'}=~s/\t/&nbsp;&nbsp;&nbsp;&nbsp;/go;
-	$IN{'body'}=~s/\n+$//o;
-	$IN{'body'}=~s/\n/<BR>/go;
-	
+	$IN{'body'}=$IN{'body'}?Filter->filteringBody($IN{'body'},%EX):'';
 	$IN{'isActive'}=$ENV{'CONTENT_LENGTH'}?1:0;
 	$IN{'time'}=$^T;
 	
@@ -625,6 +551,7 @@ _HTML_
 		:$DT{'name'};
 		#ホーム
 		my$home=$DT{'home'}?qq(<A href="$DT{'home'}" target="_blank" title="$DT{'home'}">≫</A>):'≫';
+		$DT{'_Icon'}=&getIconTag(\%DT)||'&nbsp;';
 		#レベル取得
 		$DT{'level'}=&getLevel($DT{'exp'});
 		#削除ボタン
@@ -634,7 +561,7 @@ _HTML_
 		print<<"_HTML_";
 <TABLE cellspacing="0" class="article" summary="article">
 <TR>
-<TH class="articon" rowspan="2"><IMG src="$CF{'iconDir'}$DT{'icon'}" alt="" title="$DT{'icon'}" $CF{'imgatt'}></TH>
+<TH class="articon" rowspan="2">$DT{'_Icon'}</TH>
 <TH class="artname" nowrap>$name&nbsp;$home</TH>
 <TD class="artbody" style="color:$DT{'bcolo'};">$DT{'body'}</TD>
 </TR>
@@ -672,11 +599,11 @@ sub getLevel{
 # 利用者コマンド
 #
 sub modeUsercmd{
-	unless($IN{'cmd'}){
+	unless($IN{'opt'}){
 		die"「何もしない＠管理」";
 	}
 	#引数処理
-	my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'cmd'}=~
+	my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'opt'}=~
 	/(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
 =item 利用コマンド
 
@@ -763,11 +690,11 @@ _HTML_
 # 管理コマンド
 #
 sub modeAdmicmd{
-	unless($IN{'cmd'}){
+	unless($IN{'opt'}){
 		die"「何もしない＠管理」";
 	}
 	#引数処理
-	my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'cmd'}=~
+	my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'opt'}=~
 	/(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
 
 =item 管理コマンド
@@ -1001,7 +928,7 @@ _HTML_
 			exit;
 		}
 		#GZIP圧縮転送をかけられるときはかける
-		$ENV{'HTTP_USER_AGENT'}&&(index($ENV{'HTTP_USER_AGENT'},'MSIE')>-1)&&(print ' 'x 2048); #IEのバグ対策
+		print ' 'x 2048if$ENV{'HTTP_USER_AGENT'}&&index($ENV{'HTTP_USER_AGENT'},'MSIE')+1; #IEのバグ対策
 		$status='<!-- gzip enable -->';
 	}else{
 		print"\n";
@@ -1020,7 +947,6 @@ _HTML_
 <LINK rel="stylesheet" type="text/css" href="$CF{'style'}">
 <LINK rel="start" href="$CF{'sitehome'}">
 <LINK rel="index" href="$CF{'index'}">
-<LINK rel="help" href="\$CF{'help'}">
 <TITLE>$CF{'title'}</TITLE>
 $status
 </HEAD>
@@ -1155,6 +1081,49 @@ $ $ENV{'TZ'}
 
 
 #-------------------------------------------------
+# アイコン用のIMGタグ
+#
+sub getIconTag{
+=item 引数
+
+$ 記事情報の入ったハッシュへのリファレンス
+;
+$ どのような形で返すかの設定
+
+=item 返り値設定
+「-!keyword!-」のような形式です
+具体的には以下のとおり
+:-!src!-
+  dir+file
+:-!dir!-
+  dir\
+:-!file!-
+  file
+
+=cut
+
+	my$data=shift;
+	my$text=shift||qq(<IMG src="-!src!-" alt="" title="-!dir!-+-!file!-" $CF{'imgatt'}>);
+	my%DT=(dir=>$CF{'iconDir'},file=>$data->{'icon'});
+	if($CF{'absoluteIcon'}&&$data->{'opt'}=~/(?:^|;)absoluteIcon=([^;]*)/o){
+		#絶対指定アイコン
+		$DT{'dir'}='';
+		$DT{'file'}||=$1;
+	}elsif($CF{'relativeIcon'}&&$data->{'opt'}=~/(?:^|;)relativeIcon=([^;:.]*(?:\.[^;:.]+)*)/o){
+		#相対指定アイコン
+		$DT{'file'}||=$1;
+	}
+	if($DT{'file'}){
+		$DT{'src'}=$DT{'dir'}.$DT{'file'};
+		$text=~s/(-!(\w+)!-)/defined$DT{$2}?$DT{$2}:$1/ego;
+	}else{
+		$text=undef;
+	}
+	return$text;
+}
+
+
+#-------------------------------------------------
 # アイコンリスト
 #
 sub iptico{
@@ -1176,8 +1145,8 @@ $CF{'iconList'}の最初の一文字が' '（半角空白）だった場合複数リストモードになりま
 '"icon.txt" "exicon.txt"'
 ・複数とみなされる例
 ' "icon.txt" "exicon.txt"'
-' "icon.txt" exicon.txt'
-' icon.txt exicon.txt'
+│"icon.txt" exicon.txt'
+↓icon.txt exicon.txt'
 
 =cut
 
@@ -1211,28 +1180,38 @@ $CF{'iconList'}の最初の一文字が' '（半角空白）だった場合複数リストモードになりま
 	}
 	
 	#選択アイコンの決定＋SELECTタグの中身
-	my$isEconomy=$CK{'opt'}=~/\biconlist=economy(?:\s*;|$)/o;
+	my$isEconomy=$CK{'opt'}=~/(?:^|;)iconlist=economy(?:\s*;|$)/o;
+	my$isAbsolute=0;
+	my$isDisabled='';
 	unless(@_){
-	}elsif($CF{'exicon'}&&($CK{'opt'}=~/\bicon=([^;]*)/o)&&$IC{$1}){
+	}elsif($CF{'exicon'}&&($CK{'opt'}=~/(?:^|;)icon=([^;]*)/o)&&$IC{$1}){
 		#パスワード型
 		$_[0]=$IC{$1};
-		$iconlist.=qq(<OPTION value="$_[0]" selected>専用アイコン</OPTION>\n);
-	}elsif($CF{'exicfi'}&&($CK{'opt'}=~/\b$CF{'exicfi'}=([^;]*)/o)&&index($1,':')<0&&index($1,'..')<0){
-		#ファイル指定型
-		$_[0]=$1;
 		if($isEconomy){
-			$iconlist=qq(<OPTION value="$_[0]" selected>ファイル指定</OPTION>\n);
+			$iconlist=qq(<OPTION value="$_[0]" selected>専用アイコン</OPTION>\n);
 		}else{
-			$iconlist.=qq(<OPTION value="$_[0]" selected>ファイル指定</OPTION>\n);
+			$iconlist.=qq(<OPTION value="$_[0]" selected>専用アイコン</OPTION>\n);
 		}
+	}elsif($CF{'absoluteIcon'}&&$CK{'opt'}=~/(?:^|;)absoluteIcon=([^;]*)/o){
+		#絶対指定アイコン
+		$_[0]=$1;
+		$isAbsolute=1;
+		$isDisabled=1;
+		$iconlist=qq(<OPTION value="$_[0]" selected>絶対指定</OPTION>\n)if$isEconomy;
+	}elsif($CF{'relativeIcon'}&&$CK{'opt'}=~/(?:^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/o){
+		#相対指定アイコン
+		$_[0]=$1;
+		$iconlist=qq(<OPTION value="$1" selected>相対指定</OPTION>\n)if$isEconomy;
+		$isDisabled=1;
 	}elsif($_[0]and$iconlist=~s/^(.*value=(["'])$_[0]\2)(.*)$/$1 selected$3/imo){
 		$iconlist="$1 selected$3"if$isEconomy;
 	}elsif($iconlist=~s/value=(["'])(.+?)\1/value=$1$2$1 selected/io){
 		$_[0]=$2;
 	}
-	
+	$_[0]=$CF{'icondir'}.$_[0]unless$isAbsolute;
+	$isDisabled&&=' disabled';
 	$CF{'-CacheIconList'}=<<"_HTML_";
-<SELECT name="icon" id="icon" onchange="iconChange(this.value)"$opt>
+<SELECT name="icon" id="icon" onchange="document.images['preview'].src=iconDirectory+this.value;document.images['preview'].title=this.value;"$opt$isDisabled>
 $iconlist</SELECT>
 _HTML_
 	return$CF{'-CacheIconList'};
@@ -1335,18 +1314,19 @@ _HTML_
 			study$j;
 			$j=~tr/+/\ /;
 			$j=~s/%([\dA-Fa-f]{2})/pack('H2',$1)/ego;
-			$j=($j=~/($eucchar*)/o)?$1:'';
+			$j=$j=~/($eucchar*)/o?$1:'';
+			#メインフレームの改行は\x85らしいけど、対応する必要ないよね？
 			$j=~s/\x0D\x0A/\n/go;$j=~tr/\r/\n/;
 			if('body'ne$i){
 				#本文以外は全面タグ禁止
-				$j=~s/\t/&nbsp;&nbsp;&nbsp;&nbsp;/go;
+				$j=~s/\t/&nbsp;&nbsp;/go;
 				$j=~s/&(#?\w+;)?/$1?"&$1":'&#38;'/ego;
 				$j=~s/"/&#34;/go;
 				$j=~s/'/&#39;/go;
 				$j=~s/</&#60;/go;
 				$j=~s/>/&#62;/go;
+				$j=~s/\n+$//o;
 				$j=~s/\n/<BR>/go;
-				$j=~s/(<BR>)+$//o;
 			}#本文は後でまとめて
 			$DT{$i}=$j;
 		}
@@ -1371,42 +1351,46 @@ _HTML_
 {package Filter;
 	# EUC-JP文字
 	my$eucchar=qr((?:[\x09\x0A\x0D\x20-\x7E]|[\x8E\xA1-\xFE][\xA1-\xFE]|\x8F[\xA1-\xFE]{2}))x;
+	#[-_.!~*'()a-zA-Z0-9;:&=+$,]	->[!$&-.\w:;=~]
+	#[-_.!~*'()a-zA-Z0-9:@&=+$,]	->[!$&-.\w:=@~]
+	#[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]	->[!$&-/\w:;=?@~]
+	#[-_.!~*'()a-zA-Z0-9;&=+$,]		->[!$&-.\w;=~]
 	#http URL の正規表現
 	my$http_URL_regex =
- q{\b(?:https?|shttp)://(?:(?:[-_.!~*'()a-zA-Z0-9;:&=+$,]|%[0-9A-Fa-f}.
- q{][0-9A-Fa-f])*@)?(?:(?:[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?\.)}.
- q{*[a-zA-Z](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?\.?|[0-9]+\.[0-9]+\.[0-9]+\.}.
- q{[0-9]+)(?::[0-9]*)?(?:/(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f]}.
- q{[0-9A-Fa-f])*(?:;(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-}.
- q{Fa-f])*)*(?:/(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f}.
- q{])*(?:;(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*)*)}.
- q{*)?(?:\?(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])}.
- q{*)?(?:#(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*}.
- q{)?};
+q{\b(?:https?|shttp)://(?:(?:[!$&-.\w:;=~]|%[\dA-Fa-f}.
+q{][\dA-Fa-f])*@)?(?:(?:[a-zA-Z\d](?:[-a-zA-Z\d]*[a-zA-Z\d])?\.)}.
+q{*[a-zA-Z](?:[-a-zA-Z\d]*[a-zA-Z\d])?\.?|\d+\.\d+\.\d+\.}.
+q{\d+)(?::\d*)?(?:/(?:[!$&-.\w:=@~]|%[\dA-Fa-f]}.
+q{[\dA-Fa-f])*(?:;(?:[!$&-.\w:=@~]|%[\dA-Fa-f][\dA-}.
+q{Fa-f])*)*(?:/(?:[!$&-.\w:=@~]|%[\dA-Fa-f][\dA-Fa-f}.
+q{])*(?:;(?:[!$&-.\w:=@~]|%[\dA-Fa-f][\dA-Fa-f])*)*)}.
+q{*)?(?:\?(?:[!$&-/\w:;=?@~]|%[\dA-Fa-f][\dA-Fa-f])}.
+q{*)?(?:#(?:[!$&-/\w:;=?@~]|%[\dA-Fa-f][\dA-Fa-f])*}.
+q{)?};
 	#ftp URL の正規表現
 	my$ftp_URL_regex =
- q{\bftp://(?:(?:[-_.!~*'()a-zA-Z0-9;&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*}.
- q{(?::(?:[-_.!~*'()a-zA-Z0-9;&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*)?@)?(?}.
- q{:(?:[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?\.)*[a-zA-Z](?:[-a-zA-}.
- q{Z0-9]*[a-zA-Z0-9])?\.?|[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(?::[0-9]*)?}.
- q{(?:/(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*(?:/(?}.
- q{:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*)*(?:;type=[}.
- q{AIDaid])?)?(?:\?(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9}.
- q{A-Fa-f])*)?(?:#(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9A}.
- q{-Fa-f])*)?};
+q{\bftp://(?:(?:[!$&-.\w;=~]|%[\dA-Fa-f][\dA-Fa-f])*}.
+q{(?::(?:[!$&-.\w;=~]|%[\dA-Fa-f][\dA-Fa-f])*)?@)?(?}.
+q{:(?:[a-zA-Z\d](?:[-a-zA-Z\d]*[a-zA-Z\d])?\.)*[a-zA-Z](?:[-a-zA-}.
+q{Z\d]*[a-zA-Z\d])?\.?|\d+\.\d+\.\d+\.\d+)(?::\d*)?}.
+q{(?:/(?:[!$&-.\w:=@~]|%[\dA-Fa-f][\dA-Fa-f])*(?:/(?}.
+q{:[!$&-.\w:=@~]|%[\dA-Fa-f][\dA-Fa-f])*)*(?:;type=[}.
+q{AIDaid])?)?(?:\?(?:[!$&-/\w:;=?@~]|%[\dA-Fa-f][\d}.
+q{A-Fa-f])*)?(?:#(?:[!$&-/\w:;=?@~]|%[\dA-Fa-f][\dA}.
+q{-Fa-f])*)?};
 	#メールアドレスの正規表現改
-	#"aaa@localhost"などはWWW上で「メールアドレス」として使うとは思えないので
+	#"aaa@localhost"などを掲示板で「メールアドレス」として使うとは思えないので。
 	my$mail_regex=
- q{(?:[^(\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
- .q{\[\]\000-\037\x80-\xff])|"[^\\\\\x80-\xff\n\015"]*(?:\\\\[^\x80-\xff][}
- .q{^\\\\\x80-\xff\n\015"]*)*")(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\000-\037\x}
- .q{80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff])|"[^\\\\\x80-}
- .q{\xff\n\015"]*(?:\\\\[^\x80-\xff][^\\\\\x80-\xff\n\015"]*)*"))*@(?:[^(}
- .q{\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\0}
- .q{00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[^\x80-\xff])*}
- .q{\])(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,}
- .q{;:".\\\\\[\]\000-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[}
- .q{^\x80-\xff])*\]))+};
+q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
+.q{\[\]\00-\037\x80-\xff])|"[^\\\\\x80-\xff\n\015"]*(?:\\\\[^\x80-\xff][}
+.q{^\\\\\x80-\xff\n\015"]*)*")(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x}
+.q{80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff])|"[^\\\\\x80-}
+.q{\xff\n\015"]*(?:\\\\[^\x80-\xff][^\\\\\x80-\xff\n\015"]*)*"))*@(?:[^(}
+.q{\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\0}
+.q{00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[^\x80-\xff])*}
+.q{\])(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,}
+.q{;:".\\\\\[\]\00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[}
+.q{^\x80-\xff])*\]))+};
 	sub Filter::filtering{
 		shift;
 		my%DT=%{shift()};
@@ -1415,10 +1399,10 @@ _HTML_
 		if($DT{'body'}){
 			if($::CF{'admipass'}&&$DT{'body'}=~/^#$::CF{'admipass'}\s+(.*)/o){
 				$IN{'mode'}='admicmd';
-				$IN{'cmd'}=$1;
+				$IN{'opt'}=$1;
 			}elsif($DT{'body'}=~/^\$(\w.*)/o){
 				$IN{'mode'}='usercmd';
-				$IN{'cmd'}=$1;
+				$IN{'opt'}=$1;
 			}
 			$IN{'mode'}&&return\%IN;
 		}
@@ -1469,6 +1453,124 @@ _HTML_
 		$IN{'hua'}=($ENV{'HTTP_USER_AGENT'}&&$ENV{'HTTP_USER_AGENT'}=~/($eucchar+)/o)?"$1":'';
 		$IN{'hua'}=~tr/\x09\x0A\x0D/\x20\x20\x20/;
 		return\%IN;
+	}
+	sub Filter::filteringBody{
+		my$pkg=shift;
+		my$str=shift;
+		my%EX=@_;
+		#-----------------------------
+		#本文の処理
+		#form->data変換
+		unless(defined$str&&length$str){
+			$str='';
+		}elsif($::CF{'tags'}&&'ALLALL'eq$::CF{'tags'}){
+			#ALLALLは全面OK。但し強調は無効。URI自動リンクも無効。
+			#自前でリンクを張ったり、強調してあるものを、二重にリンク・強調してしまいますから
+		}else{
+			#本文のみタグを使ってもいい設定にもできる
+			my$attrdel=0;#属性を消す/消さない(1/0)
+			study$str;
+			$str=~tr/"'<>/\01-\04/;
+			$str=~s/&(#?\w+;)/\05$1/go;
+			
+			#タグ処理
+			if($::CF{'tags'}&&!$EX{'notag'}){
+				my$tag_regex_='[^\01-\04]*(?:\01[^\01]*\01[^\01-\04]*|\02[^\02]*\02[^\01-\04]*)*(?:\04|(?=\03)|$(?!\n))';
+				my$comment_tag_regex='\03!(?:--[^-]*-(?:[^-]+-)*?-(?:[^\04-]*(?:-[^\04-]+)*?)??)*(?:\04|$(?!\n)|--.*$)';
+				my$text_regex='[^\03]*';
+				
+				my$tags=$::CF{'tags'};
+				my%tagCom=map{m/(!\w+)(?:\(([^()]+)\))?/o;$1," $2 "||''}($tags=~/!\w+(?:\([^()]+\))?/go);
+				if($tagCom{'!SELECTABLE'}){
+					$tags.=' '.join(' ',grep{$tagCom{'!SELECTABLE'}=~/ $_ /o}grep{m/\w+/}split(/\s+/,$EX{'usetag'}));
+				}elsif(defined$tagCom{'!SELECTABLE'}){
+					$tags='\w+';
+				}
+				
+				my$result='';
+				#もし BRタグや Aタグなど特定のタグだけは削除したくない場合には， 
+				#$tag_tmp = $2; の後に，次のようにして $tag_tmp を $result に加えるようにすればできます． 
+				#$result .= $tag_tmp if $tag_tmp =~ /^<\/?(BR|A)(?![\dA-Za-z])/io;
+				my$remain=join('|',grep{m/^(?:\\w\+|\w+)$/o}split(/\s+/o,$tags));
+				#逆に FONTタグや IMGタグなど特定のタグだけ削除したい場合には， 
+				#$tag_tmp = $2; の後に，次のようにして $tag_tmp を $result に加えるようにすればできます． 
+				#$result .= $tag_tmp if $tag_tmp !~ /^<\/?(FONT|IMG)(?![\dA-Za-z])/io;
+				my$pos=length$str;
+				while($str=~/\G($text_regex)($comment_tag_regex|\03$tag_regex_)?/gso){
+					$pos=pos$str;
+					''eq$1&&!$2&&last;
+					$result.=$1;
+					my$tag_tmp=$2;
+					if($tag_tmp=~s/^\03((\/?(?:$remain))(?![\dA-Za-z]).*)\04/<$1>/io){
+						$tag_tmp=~tr/\01\02/"'/;
+						$result.=$attrdel?"<$2>":$tag_tmp;
+					}else{
+						$result.=$tag_tmp;
+					}
+					if($tag_tmp=~/^\03(XMP|PLAINTEXT|SCRIPT)(?![\dA-Za-z])/io){
+						$str=~/(.*?)(?:\03\/$1(?![\dA-Za-z])$tag_regex_|$)/gsi;
+						(my$tag_tmp=$1)=~tr/\01\02/"'/;
+						$result.=$tag_tmp;
+					}
+				}
+				$str=$result.substr($str,$pos);
+			}else{
+				#許可タグ無しorCommand:notag
+			}
+			
+			#URI自動リンク
+			if($::CF{'noautolink'}||!$EX{'noautolink'}){
+				#[-_.!~*'()a-zA-Z0-9;:&=+$,]	->[!$&-.\w:;=~]
+				#[-_.!~*'()a-zA-Z0-9:@&=+$,]	->[!$&-.\w:=@~]
+				#[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]	->[!$&-/\w:;=?@~]
+				#[-_.!~*'()a-zA-Z0-9;&=+$,]		->[!$&-.\w;=~]
+				#実稼動部
+				my$tag_regex_=q{[^"'<>]*(?:"[^"]*"[^"'<>]*|'[^']*'[^"'<>]*)*(?:>|(?=<)|$(?!\n))};
+				my$comment_tag_regex='<!(?:--[^-]*-(?:[^-]+-)*?-(?:[^>-]*(?:-[^>-]+)*?)??)*(?:>|$(?!\n)|--.*$)';
+				my$tag_regex=qq{$comment_tag_regex|<$tag_regex_};
+				my$text_regex=q{[^<]*};
+				my$result='';
+				my$skip=0;
+				my$pos=length$str;
+				while($str=~/($text_regex)($tag_regex)?/gso){
+					$pos=pos$str;
+					''eq$1&&!$2&&last;
+					my$text_tmp=$1;
+					my$tag_tmp=$2;
+					if($skip){
+						$result.=$text_tmp.$tag_tmp;
+						$skip=0 if$tag_tmp=~/^<\/[aA](?!\w)/o;
+					}else{
+						$text_tmp=~s{($http_URL_regex|$ftp_URL_regex|($mail_regex))}
+						{
+							my$href=$2?'mailto:':'';
+							my$text=$1;
+							($href.=$text)=~tr/"/\01/;
+							qq{<A class="autolink" href="$href" target="_blank">$text</A>}
+						}ego;
+						$result.=$text_tmp.$tag_tmp;
+						$skip=1 if$tag_tmp=~/^<[aA](?!\w)/o;
+						if($tag_tmp=~/^<(XMP|PLAINTEXT|SCRIPT)(?!\w)/i){
+							$str=~/(.*?(?:<\/$1(?!\w)$tag_regex_|$))/gis;
+							$result.=$1;
+						}
+					}
+				}
+				$str=$result.substr($str,$pos);
+			}else{
+				#Command:nolink
+			}
+			
+			$str=~s/&/&#38;/go;
+			$str=~s/\01/&#34;/go;
+			$str=~s/\02/&#39;/go;
+			$str=~s/\03/&#60;/go;
+			$str=~s/\04/&#62;/go;
+			$str=~tr/\05/&/;
+		}
+		$str=~s/\t/&nbsp;&nbsp;/go;
+		$str=~s/\n/<BR>/go;
+		return$str;
 	}
 }
 
@@ -1556,7 +1658,7 @@ _HTML_
 	sub Chatlog::add{
 		my$self=ref($_[0])?$_[0]:getInstance();shift;
 		my%DT=%{shift()};
-		%DT=map{$_=>$DT{$_}}qw(Mar1 id name color bcolo body icon home email exp hua ra time);
+		%DT=map{$_=>$DT{$_}}grep{$DT{$_}}qw(Mar1 id name color bcolo body icon home email exp hua ra time opt);
 		splice(@{$self},$::CF{'max'}-1);
 		unshift(@{$self},\%DT);
 	}
@@ -1790,7 +1892,7 @@ BEGIN{
 			."\n\n<PRE>\t:: Marldia ::\n   * Error Screen 1.4 (o__)o// *\n\n";
 			print"ERROR: $_[0]\n"if@_;
 			print join('',map{"$_\t: $CF{$_}\n"}grep{$CF{"$_"}}qw(idxrev correv))
-			."\n".join('',map{"$_\t: $CF{$_}\n"}grep{$CF{"$_"}}qw(log icon icls style));
+			."\n".join('',map{"$_\t: $CF{$_}\n"}grep{$CF{"$_"}}qw(log icon iconList style));
 			print"\ngetlogin\t: ".getlogin;
 			print"\n".join('',map{"$$_[0]\t: $$_[1]\n"}
 			([PerlVer=>$]],[PerlPath=>$^X],[BaseTime=>$^T],[OSName=>$^O],[FileName=>$0],[__FILE__=>__FILE__]))
@@ -1806,7 +1908,7 @@ BEGIN{
 		};
 	}
 	#Revision Number
-	$CF{'correv'}=qq$Revision: 1.14 $;
+	$CF{'correv'}=qq$Revision: 1.15 $;
 	$CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;
