@@ -4,25 +4,16 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.18 $
+# $Revision: 1.19 $
 # "This file is written in euc-jp, CRLF." ¶õ
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.18 2004-07-30 04:43:30 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.19 2004-08-10 04:44:40 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
 #use Data::Dumper;
 
-# Change Chat
-if($0=~/naruse/o){
-    $CF{'this_chat'}='http://airemix.jp/~naruse/airemix.com/chat/index.cgi';
-    $CF{'change_to'}='http://www.airemix.com/chat/index.cgi';
-}else{
-    $CF{'this_chat'}='http://www.airemix.com/chat/index.cgi';
-    $CF{'change_to'}='http://airemix.jp/~naruse/airemix.com/chat/index.cgi';
-}
-$CF{'ChangeChat'}=0;
 
 #-------------------------------------------------
 # MAIN SWITCH
@@ -32,35 +23,17 @@ sub main{
     #	$IN{'name'}&&index(" $IN{'name'} "," $CF{'denyname'} ")&&&locate($CF{'sitehome'});
     #	$ENV{'REMOT_ADDR'}&&index(" $IN{'REMOT_ADDR'} "," $CF{'denyra'} ")&&(&locate($CF{'sitehome'}));
     #	$ENV{'REMOT_HOST'}&&index(" $ENV{'REMOT_HOST'} "," $CF{'denyrh'} ")&&(&locate($CF{'sitehome'}));
-	
-    if(-e"$CF{'ProgramDirectory'}/change"){
-	$CF{'ChangeChat'}=1;
-	$CF{'LogCGI'} = $CF{'change_to'};
-    }else{
-	$CF{'LogCGI'} = $CF{'index'};
-    }
-	
+
     if('south'eq$IN{'mode'}){
     }elsif('frame'eq$IN{'mode'}){
 	&modeFrame;
     }elsif('north'eq$IN{'mode'}){
 	&modeNorth;
-    }elsif('change'eq$IN{'mode'}){
-	if(-e"$CF{'ProgramDirectory'}/change"){
-	    unlink("$CF{'ProgramDirectory'}/change");
-	}else{
-	    open(CHG,'>>'."$CF{'ProgramDirectory'}/change");
-	    print"transfer";
-	    close(CHG);
-	}
-	die 'Change Chat succeed. Please Check whether chat happens error.';
     }elsif('icct'eq$IN{'mode'}){
 	require($CF{'icct'}||'iconctlg.cgi');
 	&iconctlg;
     }
-	
-    $CF{'ChangeChat'} and &changeChat;
-	
+
     if('admicmd'eq$IN{'mode'}){
 	&modeAdmicmd;
     }elsif('usercmd'eq$IN{'mode'}){
@@ -96,20 +69,20 @@ Content-type: text/html; charset=euc-jp
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
 <FRAMESET rows="120,*">
-	<FRAME frameborder="0" name="north" src="$CF{'index'}?north">
-	<FRAME frameborder="0" name="south" src="$CF{'LogCGI'}?south">
-	<NOFRAMES>
-	<BODY>
-	<PRE>
-	¤³¤Î¥Ú¡¼¥¸¤ÏMicrosoft Internet Explorer 6.0 ¸þ¤±¤Ëºî¤é¤ì¤Æ¤¤¤Þ¤¹
-	MSIE5.01¤äNetscape6¡¢Mozilla0.9°Ê¾å¤Ç¤â¤½¤³¤½¤³¤Ë¸«¤ë¤³¤È¤¬½ÐÍè¤ë¤È»×¤¤¤Þ¤¹
-	Netscape4.x¤Ç¤ÏÉ½¼¨¤Î°ìÉô¤¬Êø¤ì¤ë²ÄÇ½À­¤¬¤¢¤ê¤Þ¤¹
-	¥Æ¡¼¥Ö¥ë¤ä¥Õ¥ì¡¼¥à¤ËÂÐ±þ¤·¤Æ¤¤¤Ê¤¤¥Ö¥é¥¦¥¶¤Ç¤Ï¡¢É½¼¨¤ÎÂçÉôÊ¬¤¬Êø¤ì¤Æ¤·¤Þ¤¦¤¿¤á¡¢
-	¼Â¼ÁÅª¤Ë±ÜÍ÷¤¹¤ë¤³¤È¤¬¤Ç¤­¤Þ¤»¤ó
-	Mozilla4°Ê¾å¸ß´¹¤Î¥Ö¥é¥¦¥¶¤Ç¤Þ¤¿Íè¤Æ¤¯¤À¤µ¤¤
-	</PRE>
-	</BODY>
-	</NOFRAMES>
+<FRAME frameborder="0" name="north" src="$CF{'index'}?north">
+<FRAME frameborder="0" name="south" src="$CF{'LogCGI'}?south">
+<NOFRAMES>
+<BODY>
+<PRE>
+¤³¤Î¥Ú¡¼¥¸¤ÏMicrosoft Internet Explorer 6.0 ¸þ¤±¤Ëºî¤é¤ì¤Æ¤¤¤Þ¤¹
+MSIE5.01¤äNetscape6¡¢Mozilla0.9°Ê¾å¤Ç¤â¤½¤³¤½¤³¤Ë¸«¤ë¤³¤È¤¬½ÐÍè¤ë¤È»×¤¤¤Þ¤¹
+Netscape4.x¤Ç¤ÏÉ½¼¨¤Î°ìÉô¤¬Êø¤ì¤ë²ÄÇ½À­¤¬¤¢¤ê¤Þ¤¹
+¥Æ¡¼¥Ö¥ë¤ä¥Õ¥ì¡¼¥à¤ËÂÐ±þ¤·¤Æ¤¤¤Ê¤¤¥Ö¥é¥¦¥¶¤Ç¤Ï¡¢É½¼¨¤ÎÂçÉôÊ¬¤¬Êø¤ì¤Æ¤·¤Þ¤¦¤¿¤á¡¢
+¼Â¼ÁÅª¤Ë±ÜÍ÷¤¹¤ë¤³¤È¤¬¤Ç¤­¤Þ¤»¤ó
+Mozilla4°Ê¾å¸ß´¹¤Î¥Ö¥é¥¦¥¶¤Ç¤Þ¤¿Íè¤Æ¤¯¤À¤µ¤¤
+</PRE>
+</BODY>
+</NOFRAMES>
 </FRAMESET>
 </HTML>
 _HTML_
@@ -132,7 +105,7 @@ sub modeNorth{
     close(JS);
     print<<"_HTML_";
 <FORM name="north" id="north" method="post" action="$CF{'LogCGI'}" target="south"
- onsubmit="setTimeout(autoreset,20)" onreset="setTimeout(autoreset,20)">
+onsubmit="setTimeout(autoreset,20)" onreset="setTimeout(autoreset,20)">
 <TABLE cellspacing="0" style="width:770px" summary="È¯¸À¥Õ¥©¡¼¥à">
 <COL style="width:130px">
 <COL style="width: 60px">
@@ -147,11 +120,11 @@ sub modeNorth{
 <TD rowspan="5" style="text-align:center;white-space:nowrap" nowrap>
 <H1 contentEditable="true">$CF{'pgtit'}</H1>
 <BUTTON accesskey="x" type="button" id="surfaceButton" onclick="surfaceSample(event);return false"
- onkeypress="surfaceSample(event);return false"><IMG name="preview" id="preview" alt="" title="$CK{'icon'}"
- src="$CF{'iconDir'}$CK{'icon'}" $CF{'imgatt'} style="margin:0"></BUTTON><BR>
+onkeypress="surfaceSample(event);return false"><IMG name="preview" id="preview" alt="" title="$CK{'icon'}"
+src="$CF{'iconDir'}$CK{'icon'}" $CF{'imgatt'} style="margin:0"></BUTTON><BR>
 <LABEL accesskey="z" for="surface" title="sUrface&#10;É½¾ð¥¢¥¤¥³¥ó¤òÁªÂò¤·¤Þ¤¹¡Ê»È¤¨¤ì¤Ð¡Ë"
 >S<SPAN class="ak">u</SPAN>rface</LABEL><SELECT name="surface" id="surface" tabindex="50"
- onfocus="if(myIcon.value!=getSelectingIcon())changeOption()" onchange="changeSurface(this.selectedIndex)">
+onfocus="if(myIcon.value!=getSelectingIcon())changeOption()" onchange="changeSurface(this.selectedIndex)">
 _HTML_
     if($CK{'icon'}=~/^((?:[^\/#]*\/)*)((?:[^\/#.]*\.)*?[^\/#.]+)(\.[^\/#.]*)?#(\d+)$/o){
 	print qq(<OPTION value="$1$2$3">-</OPTION>\n);
@@ -170,9 +143,9 @@ _HTML_
 <TH><LABEL accesskey="n" for="name" title="Name&#10;»²²Ã¼ÔÌ¾¡¢È¯¸À¼ÔÌ¾¤Ê¤É¤Ç»È¤¦Ì¾Á°¤Ç¤¹"
 >Ì¾Á°(<SPAN class="ak">N</SPAN>)</LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="name" id="name" maxlength="20" size="20"
- style="ime-mode:active;width:80px" value="$CK{'name'}" tabindex="11">
+style="ime-mode:active;width:80px" value="$CK{'name'}" tabindex="11">
 <LABEL accesskey="k" for="cook" title="cooKie&#10;¥Á¥§¥Ã¥¯¤òÆþ¤ì¤ë¤È¸½ºß¤ÎÀßÄê¤òCookie¤ËÊÝÂ¸¤·¤Þ¤¹"
-><INPUT type="checkbox" name="cook" id="cook" class="check" tabindex="12" checked onclick="document.getElementById('north').action='$CF{'this_chat'}';"
+><INPUT type="checkbox" name="cook" id="cook" class="check" tabindex="12" checked
 >Coo<SPAN class="ak">k</SPAN>ie</LABEL></TD>
 <TH><LABEL accesskey="c" for="color" title="name Color&#10;»²²Ã¼ÔÌ¾¡¢È¯¸À¼ÔÌ¾¤Ê¤É¤Ç»È¤¦Ì¾Á°¤Î¿§¤Ç¤¹"
 >Ì¾Á°¿§(<SPAN class="ak">C</SPAN>)</LABEL>:</TH>
@@ -180,9 +153,9 @@ _HTML_
 <TH><LABEL accesskey="g" for="line" title="log Gyosu&#10;É½¼¨¤¹¤ë¥í¥°¤Î¹Ô¿ô¤Ç¤¹&#10;ºÇ¹â$CF{'max'}¹Ô"
 >¹Ô¿ô(<SPAN class="ak">G</SPAN>)</LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="line" id="line" maxlength="4" size="4"
- style="ime-mode:disabled;width:32px" value="$CK{'line'}¹Ô" tabindex="31"></TD>
+style="ime-mode:disabled;width:32px" value="$CK{'line'}¹Ô" tabindex="31"></TD>
 <TD style="text-align:center"><INPUT type="submit" accesskey="s" class="submit"
- title="Submit&#10;¸½ºß¤ÎÆâÍÆ¤ÇÈ¯¸À¤·¤Þ¤¹" value="OK" tabindex="41"></TD>
+title="Submit&#10;¸½ºß¤ÎÆâÍÆ¤ÇÈ¯¸À¤·¤Þ¤¹" value="OK" tabindex="41"></TD>
 <TD></TD>
 </TR>
 
@@ -196,15 +169,15 @@ _HTML_
 <TH><LABEL accesskey="r" for="reload" title="Reload&#10;²¿ÉÃ¤´¤È¤Ë¼«Æ°Åª¤Ë¥ê¥í¡¼¥É¤¹¤ë¤«¡¢¤Ç¤¹"
 >´Ö³Ö(<SPAN class="ak">R</SPAN>)</LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="reload" id="reload" maxlength="4" size="4"
- style="ime-mode:disabled;width:32px" value="$CK{'reload'}ÉÃ" tabindex="32"></TD>
+style="ime-mode:disabled;width:32px" value="$CK{'reload'}ÉÃ" tabindex="32"></TD>
 <TD style="text-align:center"><INPUT type="reset" class="reset"
- title="reset&#10;ÆâÍÆ¤ò½é´ü²½¤·¤Þ¤¹" value="¥­¥ã¥ó¥»¥ë" tabindex="42"></TD>
+title="reset&#10;ÆâÍÆ¤ò½é´ü²½¤·¤Þ¤¹" value="¥­¥ã¥ó¥»¥ë" tabindex="42"></TD>
 </TR>
 
 <TR>
 <TH><LABEL accesskey="b" for="body" title="Body&#10;È¯¸À¤¹¤ëËÜÊ¸¤ÎÆâÍÆ¤Ç¤¹&#10;\$rank¤ÇÈ¯¸À¥é¥ó¥­¥ó¥°¡¢\$member¤Ç»²²Ã¼Ô°ìÍ÷¤ò¸«¤ì¤Þ¤¹">ÆâÍÆ(<SPAN class="ak">B</SPAN>)</LABEL>:</TH>
 <TD colspan="5"><INPUT type="text" class="text" name="body" id="body" maxlength="300" size="100"
- style="ime-mode:active;width:450px" tabindex="1"></TD>
+style="ime-mode:active;width:450px" tabindex="1"></TD>
 <TD style="text-align:center"><INPUT type="checkbox" name="quit" id="quit" class="check" tabindex="51"
 ><LABEL accesskey="Q" for="quit" title="Quit&#10;¥Á¥§¥Ã¥¯¤òÆþ¤ì¤ë¤È»²²Ã¼Ô¤«¤éÌ¾Á°¤ò¾Ã¤·¤Þ¤¹¡£"
 >Âà¼¼¥â¡¼¥É(<SPAN class="ak">Q</SPAN>)</LABEL></TD>
@@ -215,11 +188,11 @@ _HTML_
 ¤³¤ÎÌ¾Á°¤¬¼ÂºÝ¤ËÉ½¤Ë½Ð¤ë¤³¤È¤Ï¤¢¤ê¤Þ¤»¤ó\n¤³¤ÎÅÐÏ¿Ì¾¤¬Æ±¤¸¤À¤ÈÆ±°ì¿ÍÊª¤À¤È¤ß¤Ê¤µ¤ì¤Þ¤¹"
 >Identit<SPAN class="ak">y</SPAN></LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="id" id="id" maxlength="20" size="20"
- style="ime-mode:active;width:150px" value="$CK{'id'}" tabindex="101"></TD>
+style="ime-mode:active;width:150px" value="$CK{'id'}" tabindex="101"></TD>
 <TH><LABEL accesskey="l" for="email" title="e-maiL&#10;¥á¡¼¥ë¥¢¥É¥ì¥¹¤Ç¤¹"
 >E-mai<SPAN class="ak">l</SPAN></LABEL>:</TH>
 <TD colspan="3"><INPUT type="text" class="text" name="email" id="email" maxlength="200" size="40"
- style="ime-mode:inactive;width:200px" value="$CK{'email'}" tabindex="111"></TD>
+style="ime-mode:inactive;width:200px" value="$CK{'email'}" tabindex="111"></TD>
 <TH style="text-align:center">[ <A href="$CF{'sitehome'}" target="_top"
 title="$CF{'sitename'}¤Øµ¢¤ê¤Þ¤¹&#10;Âà¼¼¥á¥Ã¥»¡¼¥¸¤Ï½Ð¤Ê¤¤¤Î¤Çµ¢¤ê¤Î°§»¢¤òËº¤ì¤º¤Ë"
 >$CF{'sitename'}¤Øµ¢¤ë</A> ]</TH>
@@ -229,13 +202,13 @@ title="$CF{'sitename'}¤Øµ¢¤ê¤Þ¤¹&#10;Âà¼¼¥á¥Ã¥»¡¼¥¸¤Ï½Ð¤Ê¤¤¤Î¤Çµ¢¤ê¤Î°§»¢¤òËº¤ì¤
 <TH><LABEL accesskey="p" for="opt" title="oPtion&#10;¥ª¥×¥·¥ç¥ó"
 >O<SPAN class="ak">p</SPAN>tion</LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="opt" id="opt" maxlength="200" style="ime-mode:inactive;width:150px"
- value="$CK{'opt'}" tabindex="102" onchange="changeOption()"></TD>
+value="$CK{'opt'}" tabindex="102" onchange="changeOption()"></TD>
 <TH><LABEL accesskey="o" for="home" title="hOme&#10;¥µ¥¤¥È¤ÎURL¤Ç¤¹"
 >H<SPAN class="ak">o</SPAN>me</LABEL>:</TH>
 <TD colspan="3"><INPUT type="text" class="text" name="home" id="home" maxlength="200" size="40"
- style="ime-mode:inactive;width:200px" value="$CK{'home'}" tabindex="112"></TD>
+style="ime-mode:inactive;width:200px" value="$CK{'home'}" tabindex="112"></TD>
 <TH style="letter-cpacing:-1px;text-align:center">-<A href="http://www.airemix.com/" title="Airemix¤Ø¤¤¤Ã¤Æ¤ß¤ë"
- target="_top">Marldia $CF{'version'}</A>-</TH>
+target="_top">Marldia $CF{'version'}</A>-</TH>
 </TR>
 </TABLE>
 </FORM>
@@ -262,10 +235,10 @@ _HTML_
 # South
 #
 sub modeSouth{
-	
+
     #---------------------------------------
     #°ú¿ô¤ÎÁ°½èÍý
-	
+
     #-----------------------------
     #¥³¥Þ¥ó¥É¤ÎÆÉ¤ß¹þ¤ß
     my%EX;
@@ -277,36 +250,36 @@ sub modeSouth{
 	$j=defined$j&&$j=~/(\S+(?:\s+\S+)*)/o?$1:'';
 	$EX{$i}=$j;
     }
-	
+
     #ÀìÍÑ¥¢¥¤¥³¥óµ¡Ç½¡£index.cgi¤ÇÀßÄê¤¹¤ë¡£
     #index.cgi¤Ç»ØÄê¤·¤¿¥¢¥¤¥³¥ó¥Ñ¥¹¥ï¡¼¥É¤Ë¹çÃ×¤¹¤ì¤Ð¡£
     $IN{'icon'}=$IC{$EX{'icon'}}if$CF{'exicon'}&&$IC{$EX{'icon'}};
-	
+
     #ÀäÂÐ»ØÄê¥¢¥¤¥³¥ó
     $IN{'icon'}=''if$CF{'absoluteIcon'}&&$EX{'absoluteIcon'};
     #ÁêÂÐ»ØÄê¥¢¥¤¥³¥ó
     $IN{'icon'}=''if$CF{'relativeIcon'}&&$EX{'relativeIcon'};
     #É½¾ð¥¢¥¤¥³¥ó
     $IN{'icon'}=$IN{'surface'}if!$IN{'icon'}&&$IN{'surface'};
-	
+
     $IN{'body'}=$IN{'body'}?Filter->filteringBody($IN{'body'},%EX):'';
     $IN{'isActive'}=$ENV{'CONTENT_LENGTH'}?1:0;
     $IN{'time'}=$^T;
-	
-	
+
+
     #-----------------------------
     #¥¯¥Ã¥­¡¼½ñ¤­¹þ¤ß
     $IN{'cook'}&&&setCookie;
-	
+
     #---------------------------------------
     #»²²Ã¼Ô¡¦¥é¥ó¥­¥ó¥°¡¦½ñ¤­¹þ¤ß½èÍý
     my$chatlog=Chatlog->getInstance;
     my$members=Members->getInstance;
-	
+
     #-----------------------------
     #¼«Ê¬¤Î¥Ç¡¼¥¿¤òÄÉ²Ã
     $IN{'reload'}=$members->add(\%IN);
-	
+
     #-----------------------------
     #½ñ¤­¹þ¤ß
     if(length$IN{'body'}){
@@ -321,9 +294,9 @@ sub modeSouth{
 	#È¯¸Àºï½ü
 	$chatlog->delete({id=>$IN{'id'},exp=>$IN{'del'}});
     }
-	
-	
-	
+
+
+
     #-----------------------------
     #¥¯¥¨¥ê
     my$query='south';
@@ -334,7 +307,7 @@ sub modeSouth{
 	    $query.=';quit=on';
 	}
     }
-	
+
     #-----------------------------
     #»²²Ã¼Ô¾ðÊó
     my@singers=map{qq(<A style="color:$_->{'color'}" title="$_->{'blank'}ÉÃ">$_->{'name'}</A>¡ù)}
@@ -349,13 +322,13 @@ sub modeSouth{
 	my@wabisabi=(qw(¤«¤ó¤³¤É¤ê ¤ß¤Æ¤ë¤À¤±¡© (-_¡ù)Ž·Ž×Ž°ŽÝ),"@{[('|_Ž¥)ŽÁŽ×¡ù')x$intAudiences]}");
 	$strMembers=$wabisabi[int(rand@wabisabi)];
     }
-	
+
     #---------------------------------------
     #¥Ç¡¼¥¿É½¼¨
     #-----------------------------
     #¥Ø¥Ã¥À½ÐÎÏ
     &header($IN{'reload'}&&!$IN{'quit'}?
-	qq(<META http-equiv="refresh" content="$IN{'reload'};url='$CF{'index'}?$query'">\n):'');
+qq(<META http-equiv="refresh" content="$IN{'reload'};url='$CF{'index'}?$query'">\n):'');
     #-----------------------------
     #»²²Ã¼ÔÉ½¼¨
     print<<"_HTML_";
@@ -372,12 +345,12 @@ _HTML_
 	my%DT=%{$_};
 	'del'eq$DT{'Mar1'}&&next;
 	++$i>$IN{'line'}&&last;
-		
+
 	#ÆüÉÕ
 	my$date=&date($DT{'time'});
 	#Ì¾Á°¡¦¥á¡¼¥ë¥¢¥É¥ì¥¹¡¦Ì¾Á°¿§
 	my$name=$DT{'email'}&&$DT{'color'}?
-		qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}">$DT{'name'}</A>)
+qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}">$DT{'name'}</A>)
 	    :$DT{'email'}?qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}">$DT{'name'}</A>)
 	    :$DT{'color'}?qq(<A style="color:$DT{'color'}">$DT{'name'}</A>)
 	    :$DT{'name'};
@@ -440,13 +413,13 @@ sub modeUsercmd{
 =item ÍøÍÑ¥³¥Þ¥ó¥É
 
 ¡þrank
- ¥é¥ó¥­¥ó¥°¤òÉ½¼¨
+¥é¥ó¥­¥ó¥°¤òÉ½¼¨
 
 ¡þmem
- »²²Ã¼Ô¾ðÊó¤òÉ½¼¨
+»²²Ã¼Ô¾ðÊó¤òÉ½¼¨
 
 ¡þdel <exp>
- È¯¸Àºï½ü
+È¯¸Àºï½ü
 
 =cut
 
@@ -458,18 +431,18 @@ sub modeUsercmd{
 <TABLE class="table" summary="È¯¸À¥é¥ó¥­¥ó¥°">
 <CAPTION>¥Ï¥Ä¥²¥ó¤é¤ó¤­¤ó¤°¡Ê¤æ¡¼¤¶¡¼¤â¡¼¤É¡Ë</CAPTION>
 <COL span="4">
-	<TH scope="col">¤Ê¤Þ¤¨</TH>
-	<TH scope="col">¤±¤¤¤±¤ó¤Á</TH>
-	<TH scope="col">¤·¤ç¤¦¤½¤¯</TH>
-	<TH scope="col">¤Ï¤Ä¤È¤¦¤¸¤ç¤¦</TH>
+<TH scope="col">¤Ê¤Þ¤¨</TH>
+<TH scope="col">¤±¤¤¤±¤ó¤Á</TH>
+<TH scope="col">¤·¤ç¤¦¤½¤¯</TH>
+<TH scope="col">¤Ï¤Ä¤È¤¦¤¸¤ç¤¦</TH>
 _HTML_
 	for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash}){
 	    print<<"_HTML_";
 <TR>
-	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
-	<TD style="color:$_->{'bcolo'}">$_->{'exp'}</TD>
-	<TD style="color:$_->{'bcolo'}">@{[$_->{'lastContact'}?&datef($_->{'lastContact'},'dateTime'):'<HR>']}</TD>
-	<TD style="color:$_->{'bcolo'}">@{[$_->{'firstContact'}?&datef($_->{'firstContact'},'dateTime'):'<HR>']}</TD>
+<TD style="color:$_->{'color'}">$_->{'name'}</TD>
+<TD style="color:$_->{'bcolo'}">$_->{'exp'}</TD>
+<TD style="color:$_->{'bcolo'}">@{[$_->{'lastContact'}?&datef($_->{'lastContact'},'dateTime'):'<HR>']}</TD>
+<TD style="color:$_->{'bcolo'}">@{[$_->{'firstContact'}?&datef($_->{'firstContact'},'dateTime'):'<HR>']}</TD>
 </TR>
 _HTML_
 	}
@@ -483,25 +456,25 @@ _HTML_
 <TABLE class="table" summary="»²²Ã¼Ô¤Î°ìÍ÷">
 <CAPTION>¤µ¤ó¤«¤·¤ã ¤¤¤Á¤é¤ó¡Ê¤æ¡¼¤¶¡¼¤â¡¼¤É¡Ë</CAPTION>
 <COL span="3">
-	<TH scope="col">¤Ê¤Þ¤¨</TH>
-	<TH scope="col">¤Ö¤é¤ó¤¯</TH>
-	<TH scope="col">¤ª¤È¤µ¤¿</TH>
+<TH scope="col">¤Ê¤Þ¤¨</TH>
+<TH scope="col">¤Ö¤é¤ó¤¯</TH>
+<TH scope="col">¤ª¤È¤µ¤¿</TH>
 _HTML_
 	for(values%{Members->getOnlyHash}){
 	    if($_->{'name'}){
 		print<<"_HTML_";
 <TR>
-	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
-	<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'lastModified'}]}</TD>
-	<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'time'}]}</TD>
+<TD style="color:$_->{'color'}">$_->{'name'}</TD>
+<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'lastModified'}]}</TD>
+<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'time'}]}</TD>
 </TR>
 _HTML_
 	    }else{
 		print<<"_HTML_";
 <TR>
-	<TD>ROM</TD>
-	<TD>null</TD>
-	<TD>@{[$^T-$_->{'time'}]}</TD>
+<TD>ROM</TD>
+<TD>null</TD>
+<TD>@{[$^T-$_->{'time'}]}</TD>
 </TR>
 _HTML_
 	    }
@@ -526,9 +499,10 @@ sub modeAdmicmd{
 	die"¡Ö²¿¤â¤·¤Ê¤¤¡÷´ÉÍý¡×";
     }
     #°ú¿ô½èÍý
-    my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'opt'}=~
-					      /(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
-
+    my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;length$_;}
+    ($IN{'opt'}=~
+     /(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
+    
 =item ´ÉÍý¥³¥Þ¥ó¥É
 
 $CF{'admipass'}='admicmd';¤Ê¤é¡¢
@@ -536,19 +510,19 @@ $CF{'admipass'}='admicmd';¤Ê¤é¡¢
 ¤Ç...¤È¤¤¤¦¥³¥Þ¥ó¥É¤¬È¯Æ°
 
 ¡þrank (del|cat|conv) <id ...>
- ¥é¥ó¥­¥ó¥°¤òÉ½¼¨
+¥é¥ó¥­¥ó¥°¤òÉ½¼¨
 ¡¦del
- °ú¿ô¤È¤·¤Æ»ØÄê¤µ¤ì¤¿ID¤Î¾ðÊó¤òºï½ü
+°ú¿ô¤È¤·¤Æ»ØÄê¤µ¤ì¤¿ID¤Î¾ðÊó¤òºï½ü
 ¡¦cat
- Âè°ì°ú¿ô¤ÎID¤Ë¡¢¤½¤ì°Ê¹ß¤ÎID¤òÅý¹ç¤¹¤ë
+Âè°ì°ú¿ô¤ÎID¤Ë¡¢¤½¤ì°Ê¹ß¤ÎID¤òÅý¹ç¤¹¤ë
 ¡¦conv
- 1.5°ÊÁ°¤Î¥é¥ó¥­¥ó¥°¥Ç¡¼¥¿¤ò1.6·Á¼°¤ËÊÑ´¹¤¹¤ë
+1.5°ÊÁ°¤Î¥é¥ó¥­¥ó¥°¥Ç¡¼¥¿¤ò1.6·Á¼°¤ËÊÑ´¹¤¹¤ë
 
 ¡þmem
- »²²Ã¼Ô¾ðÊó¤òÉ½¼¨
+»²²Ã¼Ô¾ðÊó¤òÉ½¼¨
 
 ¡þdel <id> <exp>
- È¯¸Àºï½ü
+È¯¸Àºï½ü
 
 =cut
 
@@ -570,31 +544,31 @@ $CF{'admipass'}='admicmd';¤Ê¤é¡¢
 		$rank->delete($arg[$_]);
 	    }
 	}
-		
+
 	#¥é¥ó¥­¥ó¥°É½¼¨
 	&header;
 	print<<'_HTML_';
 <TABLE class="table" summary="È¯¸À¥é¥ó¥­¥ó¥°">
 <CAPTION>Ä¶¡ªÈ¯¸À¥é¥ó¥­¥ó¥°</CAPTION>
 <COL span="7">
-	<TH scope="col">NAME</TH>
-	<TH scope="col">ID</TH>
-	<TH scope="col">EXP</TH>
-	<TH scope="col">LAST CONTACT</TH>
-	<TH scope="col">FIRST CONTACT</TH>
-	<TH scope="col">REMOTE_ADDR</TH>
-	<TH scope="col">HTTP_USER_AGENT</TH>
+<TH scope="col">NAME</TH>
+<TH scope="col">ID</TH>
+<TH scope="col">EXP</TH>
+<TH scope="col">LAST CONTACT</TH>
+<TH scope="col">FIRST CONTACT</TH>
+<TH scope="col">REMOTE_ADDR</TH>
+<TH scope="col">HTTP_USER_AGENT</TH>
 _HTML_
 	for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash()}){
 	    print<<"_HTML_";
 <TR>
-	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
-	<TD style="color:$_->{'bcolo'}">$_->{'id'}</TD>
-	<TD style="color:$_->{'bcolo'}">$_->{'exp'}</TD>
-	<TD style="color:$_->{'bcolo'}">@{[$_->{'lastContact'}?&datef($_->{'lastContact'},'dateTime'):'<HR>']}</TD>
-	<TD style="color:$_->{'bcolo'}">@{[$_->{'firstContact'}?&datef($_->{'firstContact'},'dateTime'):'<HR>']}</TD>
-	<TD style="color:$_->{'bcolo'}">$_->{'ra'}</TD>
-	<TD style="color:$_->{'bcolo'}">$_->{'hua'}</TD>
+<TD style="color:$_->{'color'}">$_->{'name'}</TD>
+<TD style="color:$_->{'bcolo'}">$_->{'id'}</TD>
+<TD style="color:$_->{'bcolo'}">$_->{'exp'}</TD>
+<TD style="color:$_->{'bcolo'}">@{[$_->{'lastContact'}?&datef($_->{'lastContact'},'dateTime'):'<HR>']}</TD>
+<TD style="color:$_->{'bcolo'}">@{[$_->{'firstContact'}?&datef($_->{'firstContact'},'dateTime'):'<HR>']}</TD>
+<TD style="color:$_->{'bcolo'}">$_->{'ra'}</TD>
+<TD style="color:$_->{'bcolo'}">$_->{'hua'}</TD>
 </TR>
 _HTML_
 	}
@@ -608,33 +582,33 @@ _HTML_
 <TABLE class="table" summary="»²²Ã¼Ô¤Î°ìÍ÷">
 <CAPTION>Ä¶¡ª»²²Ã¼Ô°ìÍ÷</CAPTION>
 <COL span="6">
-	<TH scope="col">NAME</TH>
-	<TH scope="col">ID</TH>
-	<TH scope="col">BLANK</TH>
-	<TH scope="col">OTOSATA</TH>
-	<TH scope="col">REMOTE_ADDR</TH>
-	<TH scope="col">HTTP_USER_AGENT</TH>
+<TH scope="col">NAME</TH>
+<TH scope="col">ID</TH>
+<TH scope="col">BLANK</TH>
+<TH scope="col">OTOSATA</TH>
+<TH scope="col">REMOTE_ADDR</TH>
+<TH scope="col">HTTP_USER_AGENT</TH>
 _HTML_
 	for(values%{Members->getOnlyHash}){
 	    if($_->{'name'}){
 		print<<"_HTML_";
 <TR>
-	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
-	<TD style="color:$_->{'bcolo'}">$_->{'id'}</TD>
-	<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'lastModified'}]}</TD>
-	<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'time'}]}</TD>
-	<TD style="color:$_->{'bcolo'}">$_->{'ra'}</TD>
-	<TD style="color:$_->{'bcolo'}">$_->{'hua'}</TD>
+<TD style="color:$_->{'color'}">$_->{'name'}</TD>
+<TD style="color:$_->{'bcolo'}">@{[$_->{'id'} or '']}</TD>
+<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'lastModified'}]}</TD>
+<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'time'}]}</TD>
+<TD style="color:$_->{'bcolo'}">$_->{'ra'}</TD>
+<TD style="color:$_->{'bcolo'}">$_->{'hua'}</TD>
 </TR>
 _HTML_
 	    }else{
 		print<<"_HTML_";
 <TR>
-	<TD>ROM</TD>
-	<TD>null</TD>
-	<TD>@{[$^T-$_->{'time'}]}</TD>
-	<TD>$_->{'ra'}</TD>
-	<TD>$_->{'hua'}</TD>
+<TD>ROM</TD>
+<TD>null</TD>
+<TD>@{[$^T-$_->{'time'}]}</TD>
+<TD>$_->{'ra'}</TD>
+<TD>$_->{'hua'}</TD>
 </TR>
 _HTML_
 	    }
@@ -644,100 +618,19 @@ _HTML_
 	exit;
     }elsif('del'eq$arg[0]){
 	#È¯¸Àºï½ü
-	Chatlog->delete({id=>$arg[1],exp=>$arg[2]});
+	my @result = Chatlog->delete({id=>$arg[1],exp=>$arg[2]});
 	&header;
-	print"<P>ºï½ü¤·¤Þ¤·¤¿¤ç</P>";
+	if(@result){
+	    print"<P>ºï½ü¤·¤Þ¤·¤¿¤ç</P>";
+	}else{
+	    print"<P>¤Ê¤Ë¤âºï½ü¤·¤Ê¤«¤Ã¤¿¤ç</P>";
+	}
 	&showFooter;
 	#	}elsif(''eq$arg[0]){
 	#		#
     }
     #Ìµ¸ú¤Ê¥³¥Þ¥ó¥É
     die"'$arg[0]'¤Ï¥³¥Þ¥ó¥É¤È¤·¤Æ¤È¤·¤ÆÇ§¼±¤µ¤ì¤Æ¤¤¤Þ¤»¤ó";
-    exit;
-}
-
-sub changeChat{
-    #---------------------------------------
-    #¥¯¥Ã¥­¡¼¤Î½ñ¤­¹þ¤ß
-    if($IN{'cook'}){
-	
-	#-----------------------------
-	#¥³¥Þ¥ó¥É¤ÎÆÉ¤ß¹þ¤ß
-	my%EX;
-	for(split(';',$IN{'opt'})){
-	    my($i,$j)=split('=',$_,2);
-	    $i||next;
-	    $i=~/(\S+(?:\s+\S+)*)/o||next;
-	    $i=$1;
-	    $j=defined$j&&$j=~/(\S+(?:\s+\S+)*)/o?$1:'';
-	    $EX{$i}=$j;
-	}
-	
-	#ÀìÍÑ¥¢¥¤¥³¥óµ¡Ç½¡£index.cgi¤ÇÀßÄê¤¹¤ë¡£
-	#index.cgi¤Ç»ØÄê¤·¤¿¥¢¥¤¥³¥ó¥Ñ¥¹¥ï¡¼¥É¤Ë¹çÃ×¤¹¤ì¤Ð¡£
-	$IN{'icon'}=$IC{$EX{'icon'}}if$CF{'exicon'}&&$IC{$EX{'icon'}};
-	
-	#ÀäÂÐ»ØÄê¥¢¥¤¥³¥ó
-	$IN{'icon'}=''if$CF{'absoluteIcon'}&&$EX{'absoluteIcon'};
-	#ÁêÂÐ»ØÄê¥¢¥¤¥³¥ó
-	$IN{'icon'}=''if$CF{'relativeIcon'}&&$EX{'relativeIcon'};
-	#É½¾ð¥¢¥¤¥³¥ó
-	$IN{'icon'}=$IN{'surface'}if!$IN{'icon'}&&$IN{'surface'};
-	
-	$IN{'body'}=$IN{'body'}?Filter->filteringBody($IN{'body'},%EX):'';
-	$IN{'isActive'}=$ENV{'CONTENT_LENGTH'}?1:0;
-	$IN{'time'}=$^T;
-	
-	
-	#-----------------------------
-	#¥¯¥Ã¥­¡¼½ñ¤­¹þ¤ß
-	&setCookie;
-    }
-    print <<"_HTML_";
-Status: 200 OK
-Content-Language: ja-JP
-Content-type: text/html; charset=$CF{'encoding'}
-
-
-<HTML>
-<HEAD>
-<META http-equiv="Content-type" content="text/html; charset=$CF{'encoding'}">
-<TITLE>Marldia Transport Screen</TITLE>
-<SCRIPT type="text/javascript">
-<!--
-var chat = '$CF{'change_to'}';
-
-function changeChat(){
-	if(parent.north){
-		var formNorth = parent.north.document.getElementById('north');
-		var mainBody = parent.north.document.getElementById('body');
-		var previousBody = parent.north.document.getElementById('previousBody');
-		if(formNorth){
-			formNorth.action = chat;
-			if(mainBody && previousBody){
-				mainBody.value = previousBody.value;
-			}
-			formNorth.submit();
-			mainBody.value = '';
-		}else{
-		}
-	}else{
-		document.location = chat;
-	}
-	return true;
-}
-
-if(parent.north)
-	changeChat();
-//-->
-</SCRIPT>
-<META http-equiv="Refresh" content="3;URL=$CF{'change_to'}?south">
-</HEAD>
-<BODY>
-goto <a href="$CF{'change_to'}" target="_blank">$CF{'change_to'}</a> please.
-</BODY>
-</HTML>
-_HTML_
     exit;
 }
 
@@ -832,15 +725,15 @@ _HTML_
 	    #GZIP¼ºÇÔ»þ¤Î¥¨¥é¡¼¥á¥Ã¥»¡¼¥¸
 	    binmode STDOUT;
 	    print unpack("u",#GZIP°µ½Ì-uuencode¤µ¤ì¤¿¥¨¥é¡¼¥á¥Ã¥»¡¼¥¸
-			q|M'XL(``3U_#P""UV134O#0!"&[X'\AR45HBUM$&]I(TBIXD&4>O-20KJTD>;#|.
-			q|M[=96Q1\3F;0'*WCQHUJD%*W%0/'@R8OB2>RA$$$\FDU$U+GL[KS/O#/,9@Q,|.
-			q|M552FU$[BK9J^K0A9RZ38I$FZ8V,!:=%+$2AN4*E,C4H::6655#%5<$U+;MK"|.
-			q|M/,]E;(*#`T4ARVA%)96BK@;7,!M'.4(L@M8U@K&)9E-S:-HJ%&8L24)QGN.Y|.
-			q|M7#Z_FI<1RJJF2%&MBM'2QO(:4FDP`,$IK:0SZOST^--IA1*T>R=7$_"Z_<X#|.
-			q|MW,(1#`#@#H!A_?N+#Z?%<TXS)/W+(4R8!J_0!`\Z,`XT1S>+N,&<!R\P"L%1|.
-			q|M[^GZ#7R>F\HN[HFE7=T6]Q513#,:AM]UWY[_NH__>KMG;L<=N,_@,1?P77#?|.
-			q|M@\S0Z;ICQL"A<\"X7XW`OVGW'L$+9PAM>"X1BQ:ZH!-LZ(V?K8812T0`^SM9|.
-			q|6DNKU>DJ-N)1F&5($?`$-3&-TWP$`````|);
+q|M'XL(``3U_#P""UV134O#0!"&[X'\AR45HBUM$&]I(TBIXD&4>O-20KJTD>;#|.
+q|M[=96Q1\3F;0'*WCQHUJD%*W%0/'@R8OB2>RA$$$\FDU$U+GL[KS/O#/,9@Q,|.
+q|M552FU$[BK9J^K0A9RZ38I$FZ8V,!:=%+$2AN4*E,C4H::6655#%5<$U+;MK"|.
+q|M/,]E;(*#`T4ARVA%)96BK@;7,!M'.4(L@M8U@K&)9E-S:-HJ%&8L24)QGN.Y|.
+q|M7#Z_FI<1RJJF2%&MBM'2QO(:4FDP`,$IK:0SZOST^--IA1*T>R=7$_"Z_<X#|.
+q|MW,(1#`#@#H!A_?N+#Z?%<TXS)/W+(4R8!J_0!`\Z,`XT1S>+N,&<!R\P"L%1|.
+q|M[^GZ#7R>F\HN[HFE7=T6]Q513#,:AM]UWY[_NH__>KMG;L<=N,_@,1?P77#?|.
+q|M@\S0Z;ICQL"A<\"X7XW`OVGW'L$+9PAM>"X1BQ:ZH!-LZ(V?K8812T0`^SM9|.
+q|6DNKU>DJ-N)1F&5($?`$-3&-TWP$`````|);
 	    exit;
 	}
 	#GZIP°µ½ÌÅ¾Á÷¤ò¤«¤±¤é¤ì¤ë¤È¤­¤Ï¤«¤±¤ë
@@ -890,10 +783,10 @@ sub getCookie{
     $ENV{'HTTP_COOKIE'}||return undef;
     # EUC-JPÊ¸»ú
     my$eucchar=qr((?:
-		[\x0A\x0D\x20-\x7E]			# 1¥Ð¥¤¥È EUC-JPÊ¸»ú²þ-\x09
-		|(?:[\x8E\xA1-\xFE][\xA1-\xFE])	# 2¥Ð¥¤¥È EUC-JPÊ¸»ú
-		|(?:\x8F[\xA1-\xFE]{2})			# 3¥Ð¥¤¥È EUC-JPÊ¸»ú
-	))x;
+[\x0A\x0D\x20-\x7E]			# 1¥Ð¥¤¥È EUC-JPÊ¸»ú²þ-\x09
+|(?:[\x8E\xA1-\xFE][\xA1-\xFE])	# 2¥Ð¥¤¥È EUC-JPÊ¸»ú
+|(?:\x8F[\xA1-\xFE]{2})			# 3¥Ð¥¤¥È EUC-JPÊ¸»ú
+))x;
     for(split('; ',$ENV{'HTTP_COOKIE'})){
 	my($i,$j)=split('=',$_,2);
 	'Marldia'eq$i||next;
@@ -1009,11 +902,11 @@ $ ¤É¤Î¤è¤¦¤Ê·Á¤ÇÊÖ¤¹¤«¤ÎÀßÄê
 ¡Ö-!keyword!-¡×¤Î¤è¤¦¤Ê·Á¼°¤Ç¤¹
 ¶ñÂÎÅª¤Ë¤Ï°Ê²¼¤Î¤È¤ª¤ê
 :-!src!-
-  dir+file
+dir+file
 :-!dir!-
-  dir\
+dir\
 :-!file!-
-  file
+file
 
 =cut
 
@@ -1070,7 +963,7 @@ $CF{'iconList'}¤ÎºÇ½é¤Î°ìÊ¸»ú¤¬' '¡ÊÈ¾³Ñ¶õÇò¡Ë¤À¤Ã¤¿¾ì¹çÊ£¿ô¥ê¥¹¥È¥â¡¼¥É¤Ë¤Ê¤ê¤Þ
 	#¥­¥ã¥Ã¥·¥å¤Ç¤¢¤ë$CF{'-CacheIconList'}¤òÊÖ¤¹
 	return$CF{'-CacheIconList'};
     }
-	
+
     #¥¢¥¤¥³¥ó¥ê¥¹¥ÈÆÉ¤ß¹þ¤ß
     my$iconlist='';
     if($CK{'opt'}=~/\biconlist=nolist(;|$)/o){
@@ -1093,7 +986,7 @@ $CF{'iconList'}¤ÎºÇ½é¤Î°ìÊ¸»ú¤¬' '¡ÊÈ¾³Ñ¶õÇò¡Ë¤À¤Ã¤¿¾ì¹çÊ£¿ô¥ê¥¹¥È¥â¡¼¥É¤Ë¤Ê¤ê¤Þ
 	read(RD,$iconlist,-s$CF{'iconList'});
 	close(RD);
     }
-	
+
     #ÁªÂò¥¢¥¤¥³¥ó¤Î·èÄê¡ÜSELECT¥¿¥°¤ÎÃæ¿È
     my$isEconomy=$CK{'opt'}=~/(?:^|;)iconlist=economy(?:\s*;|$)/o;
     my$isAbsolute=0;
@@ -1150,7 +1043,7 @@ $_[1]: 'tabindex=12'
     if('input'eq$CF{'colway'}){
 	return<<"_HTML_";
 <INPUT type="text" class="text" name="$id" id="$id" class="blur" maxlength="20" style="ime-mode:disabled; width:90px;"
- onFocus="this.className='focus'" onBlur="this.className='blur'" value="$CK{$id}"$opt>
+onFocus="this.className='focus'" onBlur="this.className='blur'" value="$CK{$id}"$opt>
 _HTML_
     }else{
 	my$list=$CF{'colorList'};
@@ -1199,7 +1092,7 @@ _HTML_
     sub Input::new{#private
 	$singleton&&die '¤³¤ì¤ÏSingleton¤Ê¤Î¤Çnew¤ò¾¡¼ê¤Ë¸Æ¤Ð¤Ê¤¤¤Ç¡ªgetInstance¤ò»È¤¦¤³¤È';
 	my$class=ref($_[0])||$_[0];shift;
-		
+
 	my$params;
 	my@params;
 	#°ú¿ô¼èÆÀ
@@ -1209,7 +1102,7 @@ _HTML_
 	elsif('GET'eq$ENV{'REQUEST_METHOD'}){$params=$ENV{'QUERY_STRING'}}
 	# EUC-JPÊ¸»ú
 	my$eucchar=qr((?:[\x09\x0A\x0D\x20-\x7E]|[\x8E\xA1-\xFE][\xA1-\xFE]|\x8F[\xA1-\xFE]{2}))x;
-		
+
 	#°ú¿ô¤ò¥Ï¥Ã¥·¥å¤Ë
 	if(!$params){
 	}elsif(length$params>262114){ # 262114:°ú¿ô¥µ¥¤¥º¤Î¾å¸Â(byte)
@@ -1219,7 +1112,7 @@ _HTML_
 	    #ÆþÎÏ¤òÅ¸³«
 	    @params=split(/[&;]/o,$params);
 	}
-		
+
 	#ÆþÎÏ¤òÅ¸³«¤·¤Æ¥Ï¥Ã¥·¥å¤ËÆþ¤ì¤ë
 	my%DT;
 	while(@params){
@@ -1245,10 +1138,10 @@ _HTML_
 	    }#ËÜÊ¸¤Ï¸å¤Ç¤Þ¤È¤á¤Æ
 	    $DT{$i}=$j;
 	}
-		
+
 	$singleton=bless\%DT,$class;
     }
-	
+
     sub Input::getInstance{$singleton||Input->new}
     sub Input::filtering{
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
@@ -1321,7 +1214,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    }
 	    $IN{'mode'}&&return\%IN;
 	}
-		
+
 	if(!%DT||($DT{'mode'}&&'frame'eq$DT{'mode'})){
 	    #¥Õ¥ì¡¼¥à
 	    $IN{'mode'}='frame';
@@ -1331,7 +1224,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $IN{'mode'}='icct';
 	}elsif($DT{'name'}){
 	    &::getCookie;
-			
+
 	    if(defined$DT{'body'}){
 		$IN{'body'}=$DT{'body'}||'';
 		$IN{'cook'}=$DT{'cook'}?1:0;
@@ -1392,13 +1285,13 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    study$str;
 	    $str=~tr/"'<>/\01-\04/;
 	    $str=~s/&(#?\w+;)/\05$1/go;
-			
+
 	    #¥¿¥°½èÍý
 	    if($::CF{'tags'}&&!$EX{'notag'}){
 		my$tag_regex_='[^\01-\04]*(?:\01[^\01]*\01[^\01-\04]*|\02[^\02]*\02[^\01-\04]*)*(?:\04|(?=\03)|$(?!\n))';
 		my$comment_tag_regex='\03!(?:--[^-]*-(?:[^-]+-)*?-(?:[^\04-]*(?:-[^\04-]+)*?)??)*(?:\04|$(?!\n)|--.*$)';
 		my$text_regex='[^\03]*';
-				
+
 		my$tags=$::CF{'tags'};
 		my%tagCom=map{/(!\w+)(?:\(([^()]+)\))?/o;$1," $2 "||''}($tags=~/!\w+(?:\([^()]+\))?/go);
 		if($tagCom{'!SELECTABLE'}){
@@ -1406,7 +1299,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		}elsif(defined$tagCom{'!SELECTABLE'}){
 		    $tags='\w+';
 		}
-				
+
 		my$result='';
 		#¤â¤· BR¥¿¥°¤ä A¥¿¥°¤Ê¤ÉÆÃÄê¤Î¥¿¥°¤À¤±¤Ïºï½ü¤·¤¿¤¯¤Ê¤¤¾ì¹ç¤Ë¤Ï¡¤ 
 		#$tag_tmp = $2; ¤Î¸å¤Ë¡¤¼¡¤Î¤è¤¦¤Ë¤·¤Æ $tag_tmp ¤ò $result ¤Ë²Ã¤¨¤ë¤è¤¦¤Ë¤¹¤ì¤Ð¤Ç¤­¤Þ¤¹¡¥ 
@@ -1437,7 +1330,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    }else{
 		#µö²Ä¥¿¥°Ìµ¤·orCommand:notag
 	    }
-			
+
 	    #URI¼«Æ°¥ê¥ó¥¯
 	    if($::CF{'noautolink'}||!$EX{'noautolink'}){
 		#¼Â²ÔÆ°Éô
@@ -1452,7 +1345,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    }else{
 		#Command:nolink
 	    }
-			
+
 	    $str=~s/&/&#38;/go;
 	    $str=~s/\01/&#34;/go;
 	    $str=~s/\02/&#39;/go;
@@ -1476,7 +1369,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
     my@members;
     my@chatlog;
     my$singleton;
-	
+
     #---------------------------------------
     # Class Methods
     sub Logfile::new{#private
@@ -1499,19 +1392,19 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    @members=();
 	    @chatlog=();
 	}
-		
+
 	$singleton=bless[\@chatlog,\@members],$class;
     }
-	
+
     sub Logfile::getInstance{$singleton||Logfile->new}
     sub Logfile::getChatlog	{$singleton||Logfile->new;return@chatlog}
     sub Logfile::getMembers	{$singleton||Logfile->new;return@members}
-	
+
     sub Logfile::setChatlog	{@chatlog=(@_[1..$#_])if$#_}
     sub Logfile::setMembers	{@members=(@_[1..$#_])if$#_}
-	
+
     sub Logfile::DESTROY{shift->dispose}
-	
+
     #dispose -- ÊÑ¹¹ºÑ¤ß¥Ç¡¼¥¿¤ò¥Õ¥¡¥¤¥ë¤ËÊÝÂ¸
     sub Logfile::dispose{
 	(@members&&@chatlog)||return;
@@ -1531,7 +1424,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 {package Chatlog;
     my$logfile;
     my$singleton;
-	
+
     #---------------------------------------
     # Class Methods
     sub Chatlog::new{#private
@@ -1542,11 +1435,11 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		 map{{/([^\t]+)=\t([^\t]*);\t/go}}
 		 grep{/^Mar1=\t[^\t]*;\t(?:[^\t]*=\t[^\t]*;\t)*$/o}$logfile->getChatlog
 		];
-		
+
 	$singleton=bless$self,$class;
     }
     sub Chatlog::getInstance{$singleton||Chatlog->new;}
-	
+
     #¥í¥°¤òÄÉ²Ã
     sub Chatlog::add{
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
@@ -1555,17 +1448,29 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	splice(@{$self},$::CF{'max'}-1);
 	unshift(@{$self},\%DT);
     }
-	
+
     #¥í¥°¤òºï½ü
     sub Chatlog::delete{
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
 	my%DT=%{shift()};
-	for(@{$self}){
-	    $_->{'id'} eq$DT{'id'} ||next;
-	    $_->{'exp'}eq$DT{'exp'}||next;
-	    $_->{'Mar1'}='del';
-	    last;
+	my @result = ();
+	if($_->{'exp'}){
+	    for(@{$self}){
+		$_->{'id'} eq$DT{'id'} ||next;
+		$_->{'exp'}eq$DT{'exp'}||next;
+		$_->{'Mar1'}='del';
+		push @result, $DT{'id'}, $DT{'exp'};
+		last;
+	    }
+	}else{
+	    for(@{$self}){
+		$_->{'id'}eq$DT{'id'}||next;
+		$_->{'Mar1'}='del';
+		push @result, $DT{'id'} unless @result;
+		push @result, $DT{'exp'};
+	    }
 	}
+	return @result;
     }
     sub Chatlog::dispose{
 	$logfile||return;
@@ -1580,7 +1485,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 			    );
 	undef$logfile;undef$singleton;
     }
-	
+
     sub Chatlog::DESTROY{my$self=shift;$self->dispose;}
 }
 
@@ -1592,7 +1497,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 {package Members;
     my$logfile;
     my$singleton;
-	
+
     #---------------------------------------
     # Class Methods
     sub Members::new{#private
@@ -1607,7 +1512,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	$singleton=bless$self,$class;
     }
     sub Members::getInstance{$singleton||Members->new;}
-	
+
     sub Members::dispose{
 	$logfile||return;
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
@@ -1620,7 +1525,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 			    );
 	undef$logfile;undef$singleton;
     }
-	
+
     #»²²Ã¼Ô¤ò¼èÆÀ
     sub Members::getSingersInfo{
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
@@ -1635,7 +1540,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	}
 	return@singers;
     }
-	
+
     #°ú¿ô¤Î¿Í¤òÄÉ²Ã
     sub Members::add{
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
@@ -1664,7 +1569,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	}
 	return$DT{'reload'};
     }
-	
+
     #ÆÉ¤ß¹þ¤ßÀìÍÑ¥Ï¥Ã¥·¥å¤òÊÖ¤¹
     sub Members::getOnlyHash{
 	my%members;
@@ -1676,15 +1581,15 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    my@tmp;
 	    while(<MEMBER>){/\S/o?push(@tmp,$_):last}
 	    close(MEMBER);
-			
+
 	    %members=map{$_->[1]=>{($_->[0]=~/([^\t]+)=\t([^\t]*);\t/go)}}
 	    map{[/^(id=\t([^\t]+);\t(?:[^\t]+=\t[^\t]*;\t)+)/o]}
 	    grep{/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}@tmp;
-		
+
 	}
 	return\%members;
     }
-	
+
     sub Members::DESTROY{my$self=shift;$self->dispose;}
 }
 
@@ -1696,7 +1601,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
     my$fh;
     my$path=$::CF{'rank'};
     my$singleton;
-	
+
     #---------------------------------------
     # Class Methods
     sub Rank::new{#private
@@ -1720,7 +1625,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	$singleton=bless \%rank,$class;
     }
     sub Rank::getInstance{$singleton||Rank->new;}
-	
+
     sub Rank::dispose{
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
 	truncate($path,0);#$fh¤¸¤ã¥À¥á
@@ -1735,25 +1640,32 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	close($fh);
 	undef$fh;undef$singleton;
     }
-	
+
     #·Ð¸³ÃÍ¤ò+1
     sub Rank::plusExp{
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
 	my%DT=%{shift()};
-		
-	if(!$singleton->{"$DT{'id'}"}||!$singleton->{"$DT{'id'}"}->{'exp'}){
-	    $singleton->{"$DT{'id'}"}={name=>$DT{'name'},exp=>1};
+	
+	if(!$self->{"$DT{'id'}"}||!$self->{"$DT{'id'}"}->{'exp'}){
+	    $self->{"$DT{'id'}"}={name=>$DT{'name'},exp=>1};
 	}else{
-	    $singleton->{"$DT{'id'}"}{'exp'}++;
-	    $singleton->{"$DT{'id'}"}{'name'}=$DT{'name'};
+	    $self->{"$DT{'id'}"}{'exp'}++;
+	    $self->{"$DT{'id'}"}{'name'}=$DT{'name'};
 	}
-	$singleton->{"$DT{'id'}"}{'lastContact'}=$^T;
-	$singleton->{"$DT{'id'}"}{'firstContact'}||=$^T;
-	$singleton->{"$DT{'id'}"}{'hua'}=$DT{'hua'};
-	$singleton->{"$DT{'id'}"}{'ra'}=$DT{'ra'};
-	$singleton->{"$DT{'id'}"}{'color'}=$DT{'color'};
-	$singleton->{"$DT{'id'}"}{'bcolo'}=$DT{'bcolo'};
-	return$singleton->{"$DT{'id'}"}->{'exp'};
+	$self->{"$DT{'id'}"}{'lastContact'}=$^T;
+	$self->{"$DT{'id'}"}{'firstContact'}||=$^T;
+	$self->{"$DT{'id'}"}{'hua'}=$DT{'hua'};
+	$self->{"$DT{'id'}"}{'ra'}=$DT{'ra'};
+	$self->{"$DT{'id'}"}{'color'}=$DT{'color'};
+	$self->{"$DT{'id'}"}{'bcolo'}=$DT{'bcolo'};
+	return$self->{"$DT{'id'}"}->{'exp'};
+    }
+    #¥í¥°¤òºï½ü
+    sub Rank::delete{
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	my $id =shift();
+	
+	delete $self->{$id};
     }
     sub Rank::getOnlyHash{
 	my%rank;
@@ -1770,7 +1682,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	}
 	return\%rank;
     }
-	
+
     sub Rank::DESTROY{shift->dispose;}
 }
 
@@ -1800,7 +1712,7 @@ BEGIN{
 		for([PerlVer=>$]],[PerlPath=>$^X],[BaseTime=>$^T],[OSName=>$^O],[FileName=>$0],[__FILE__=>__FILE__]);
 	    print "\n = = = ENVIRONMENTAL VARIABLE = = =\n";
 	    printf"%-20.20s : %s\n",$_,$ENV{$_} for grep{$ENV{$_}}
-		qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME OS SERVER_SOFTWARE);
+qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME OS SERVER_SOFTWARE);
 	    print "\n+#      Airemix  Marldia     #+\n+#  http://www.airemix.com/  #+\n</PRE>\n</BODY>\n</HTML>\n";
 	    exit;
 	}:sub{
@@ -1811,9 +1723,9 @@ BEGIN{
     }
     __FILE__ =~ /^(.*[\\\/:])/o;
     $CF{'ProgramDirectory'} = $1;
-	
+
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.18 $;
+    $CF{'correv'}=qq$Revision: 1.19 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;
