@@ -4,40 +4,70 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 # "This file is written in euc-jp, CRLF." ¶õ
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.16 2003-09-04 12:29:14 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.17 2004-07-30 04:35:44 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
-#require Data::Dumper;
+#use Data::Dumper;
+
+# Change Chat
+if($0=~/naruse/o){
+    $CF{'this_chat'}='http://airemix.jp/~naruse/airemix.com/chat/index.cgi';
+    $CF{'change_to'}='http://www.airemix.com/chat/index.cgi';
+}else{
+    $CF{'this_chat'}='http://www.airemix.com/chat/index.cgi';
+    $CF{'change_to'}='http://airemix.jp/~naruse/airemix.com/chat/index.cgi';
+}
+$CF{'ChangeChat'}=0;
 
 #-------------------------------------------------
 # MAIN SWITCH
 #
 sub main{
-	&getParams;
-#	$IN{'name'}&&index(" $IN{'name'} "," $CF{'denyname'} ")&&&locate($CF{'sitehome'});
-#	$ENV{'REMOT_ADDR'}&&index(" $IN{'REMOT_ADDR'} "," $CF{'denyra'} ")&&(&locate($CF{'sitehome'}));
-#	$ENV{'REMOT_HOST'}&&index(" $ENV{'REMOT_HOST'} "," $CF{'denyrh'} ")&&(&locate($CF{'sitehome'}));
+    &getParams;
+    #	$IN{'name'}&&index(" $IN{'name'} "," $CF{'denyname'} ")&&&locate($CF{'sitehome'});
+    #	$ENV{'REMOT_ADDR'}&&index(" $IN{'REMOT_ADDR'} "," $CF{'denyra'} ")&&(&locate($CF{'sitehome'}));
+    #	$ENV{'REMOT_HOST'}&&index(" $ENV{'REMOT_HOST'} "," $CF{'denyrh'} ")&&(&locate($CF{'sitehome'}));
 	
-	if('south'eq$IN{'mode'}){
-	}elsif('frame'eq$IN{'mode'}){
-		&modeFrame;
-	}elsif('north'eq$IN{'mode'}){
-		&modeNorth;
-	}elsif('admicmd'eq$IN{'mode'}){
-		&modeAdmicmd;
-	}elsif('usercmd'eq$IN{'mode'}){
-		&modeUsercmd;
-	}elsif('icct'eq$IN{'mode'}){
-		require($CF{'icct'}||'iconctlg.cgi');
-		&iconctlg;
+    if(-e"$CF{'ProgramDirectory'}/change"){
+	$CF{'ChangeChat'}=1;
+	$CF{'LogCGI'} = $CF{'change_to'};
+    }else{
+	$CF{'LogCGI'} = $CF{'index'};
+    }
+	
+    if('south'eq$IN{'mode'}){
+    }elsif('frame'eq$IN{'mode'}){
+	&modeFrame;
+    }elsif('north'eq$IN{'mode'}){
+	&modeNorth;
+    }elsif('change'eq$IN{'mode'}){
+	if(-e"$CF{'ProgramDirectory'}/change"){
+	    unlink("$CF{'ProgramDirectory'}/change");
+	}else{
+	    open(CHG,'>>'."$CF{'ProgramDirectory'}/change");
+	    print"transfer";
+	    close(CHG);
 	}
-	&modeSouth;
-	exit;
+	die 'Change Chat succeed. Please Check whether chat happens error.';
+    }elsif('icct'eq$IN{'mode'}){
+	require($CF{'icct'}||'iconctlg.cgi');
+	&iconctlg;
+    }
+	
+    $CF{'ChangeChat'} and &changeChat;
+	
+    if('admicmd'eq$IN{'mode'}){
+	&modeAdmicmd;
+    }elsif('usercmd'eq$IN{'mode'}){
+	&modeUsercmd;
+    }
+    &modeSouth;
+    exit;
 }
 
 
@@ -50,7 +80,7 @@ sub main{
 # Frame
 #
 sub modeFrame{
-	print<<"_HTML_";
+    print<<"_HTML_";
 Status: 200 OK
 Content-Language: ja
 Content-type: text/html; charset=euc-jp
@@ -67,7 +97,7 @@ Content-type: text/html; charset=euc-jp
 </HEAD>
 <FRAMESET rows="120,*">
 	<FRAME frameborder="0" name="north" src="$CF{'index'}?north">
-	<FRAME frameborder="0" name="south" src="$CF{'index'}?south">
+	<FRAME frameborder="0" name="south" src="$CF{'LogCGI'}?south">
 	<NOFRAMES>
 	<BODY>
 	<PRE>
@@ -83,7 +113,7 @@ Content-type: text/html; charset=euc-jp
 </FRAMESET>
 </HTML>
 _HTML_
-	exit;
+    exit;
 }
 
 
@@ -91,231 +121,17 @@ _HTML_
 # North
 #
 sub modeNorth{
-	&getCookie;
-	(%CK)||(%CK=%IN);
-	&header;
-	&iptico($CK{'icon'},'tabindex="12"');
-	print<<"_HTML_";
-<SCRIPT type="text/javascript" defer>
-<!--
-/*========================================================*/
-// ½é´ü²½
-var iconDirectory='$CF{'iconDir'}';
-var iconSetting=@{[$CF{'absoluteIcon'}?1:0]}+@{[$CF{'relativeIcon'}?1:0]}*2;
-var myIcon=new Object({value:'$CK{'icon'}',isAbsolute:0});
-_HTML_
-	print<<'_HTML_';
-var cook,body,preview,surface,icon,opt,popup,isLoaded=null;
-window.onload=init;
-
-/*========================================================*/
-// Init
-function init(){
-	if(document.all){
-		cook=document.all('cook');
-		body=document.all('body');
-		preview=document.all('preview');
-		surface=document.all('surface');
-		icon=document.all('icon');
-		opt =document.all('opt');
-	}else if(document.getElementById){
-		cook=document.getElementById('cook');
-		body=document.getElementById('body');
-		preview=document.getElementById('preview');
-		surface=document.getElementById('surface');
-		icon=document.getElementById('icon');
-		opt =document.getElementById('opt');
-	}else return false;
-	isLoaded=true;
-	autoreset();
-	changeOption();
-	return true;
-}
-
-
-/*========================================================*/
-// Auto Reset
-function autoreset(){
-	if(!isLoaded)return false;
-	if(cook)cook.checked=document.cookie?false:true;
-	if(body){
-		body.value="";
-		body.focus();
-	}
-}
-
-
-/*========================================================*/
-// ¥¢¥¤¥³¥ó¥×¥ì¥Ó¥å¡¼
-function iconPreview(arg){
-	if(!isLoaded)return false;
-	preview.src=arg;
-	preview.title=arg;
-}
-
-
-/*========================================================*/
-// Change Option
-function changeOption(){
-	if(!isLoaded)return false;
-	
-	myIcon.value=null;
-	myIcon.isAbsolute=false;
-	if(!opt||!opt.value){
-		icon.disabled=false;
-	}else if(iconSetting&1&&opt.value.match(/(^|;)absoluteIcon=([^;]*)/)){
-		//ÀäÂÐ»ØÄê¥¢¥¤¥³¥ó
-		myIcon.value=RegExp.$2;
-		myIcon.isAbsolute=true;
-		icon.disabled=true;
-	}else if(iconSetting&2&&opt.value.match(/(^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/)){
-		//ÁêÂÐ»ØÄê¥¢¥¤¥³¥ó
-		myIcon.value=RegExp.$2;
-		icon.disabled=true;
-	}else{
-		icon.disabled=false;
-	}
-	if(!myIcon.value)myIcon.value=icon.value;
-	
-	if(myIcon.isAbsolute){
-		preview.src=myIcon.value;
-		preview.title='+'+myIcon.value;
-	}else{
-		preview.src=iconDirectory+myIcon.value;
-		preview.title=iconDirectory+'+'+myIcon.value;
-	}
-	
-	surface.selectedIndex=0;
-	resetSurface();
-	return true;
-}
-
-
-/*========================================================*/
-// ¸½ºß»ØÄê¤·¤Æ¤¤¤ë¥¢¥¤¥³¥ó¤ò¼èÆÀ
-function getSelectingIcon(){
-	if(!isLoaded)return false;
-	if(!opt||!opt.value){
-	}else if(iconSetting&1&&opt.value.match(/(^|;)absoluteIcon=([^;]*)/)){
-		//ÀäÂÐ»ØÄê¥¢¥¤¥³¥ó
-		return RegExp.$2
-	}else if(iconSetting&2&&opt.value.match(/(^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/)){
-		//ÁêÂÐ»ØÄê¥¢¥¤¥³¥ó
-		return RegExp.$2
-	}
-	return icon.value
-}
-
-
-/*========================================================*/
-// É½¾ð¥¢¥¤¥³¥ó¤Î¥ê¥»¥Ã¥È
-function resetSurface(){
-	if(!myIcon.value.match(/^(([^\/#]*\/)*[^\/#.]+)(\.[^\/#]*)#(\d+)(-\d+)?$/)){
-		surface.length=1;
-		surface.options[0].text='-';
-		surface.options[0].value=myIcon.value;
-		return;
-	}
-	var url=RegExp.$1;
-	var ext=RegExp.$3;
-	var str=RegExp.$5?parseInt(RegExp.$4):0;
-	var end=RegExp.$5?-parseInt(RegExp.$5):parseInt(RegExp.$4);
-	surface.length=end-str+2;
-	surface.options[0].text='-';
-	surface.options[0].value=url+ext;
-	if(RegExp.$5)url=url.replace(/([1-9]\d*)$/,'');
-	for(i=str;i<=end;i++){
-		surface.options[i-str+1].text=i;
-		surface.options[i-str+1].value=url+i+ext;
-	}
-}
-
-
-/*========================================================*/
-// É½¾ð¥¢¥¤¥³¥ó¤òÊÑ¹¹
-function changeSurfaceSelect(arg){
-	if(!isLoaded)return false;
-	
-	if(myIcon.value!=getSelectingIcon())return changeOption();
-	
-	if(myIcon.isAbsolute){
-		preview.src=arg;
-		preview.title='+'+arg;
-	}else{
-		preview.src=iconDirectory+arg;
-		preview.title=iconDirectory+'+'+arg;
-	}
-	return true;
-}
-
-
-/*========================================================*/
-// É½¾ð¥¢¥¤¥³¥ó¸«ËÜ
-function surfaceSample(e){
-	if(!isLoaded)return false;
-	if(myIcon.value!=getSelectingIcon())changeOption();
-	if(document.all){
-		e.returnValue=false;
-	}else if(document.getElementById){
-		e.preventDefault();
-	}else return false;
-	e.cancelBubble=true;
-	if(!top.south)return false;
-	if(!window.createPopup)return false;
-	event.cancelBubble=true;
-	if(popup&&popup.isOpen){
-		popup.hide();
-		body.focus();
-		return false;
-	}
-	popup=window.createPopup();
-	var wid=200;
-	var hei=250;
-	
-	var fragment=popup.document.createDocumentFragment();
-	for(i=0;i<surface.length;i++){
-		var aButton=popup.document.createElement('BUTTON');
-		aButton.id='surface'+i;
-		aButton.style.margin=0;
-		aButton.style.padding=0;
-		aButton.style.width='50px';
-		aButton.style.border=0;
-		aButton.title=i;
-		aButton.onclick=function(){
-			var surface=top.north.document.all('surface');
-			surface.selectedIndex=this.title;
-			popup.document.all('surfaceS').selectedIndex=this.title;
-			top.north.document.images['preview'].src=top.north.myIcon.isAbsolute?
-				surface.value:iconDirectory+surface.value;
-			top.north.document.images['preview'].title=surface.value;
-		};
-		var aImg=popup.document.createElement('IMG');
-		aImg.src=myIcon.isAbsolute?surface.options[i].value:iconDirectory+surface.options[i].value;
-		aImg.title=i?i-1:'-';
-		aButton.appendChild(aImg);
-		fragment.appendChild(aButton);
-	}
-	popup.document.body.innerHTML=
-	 '<DIV style="border:3px double ActiveBorder;height:'+hei+'px;overflow:auto;text-align:left;width:'+wid+'px">'
-	+'<DIV style="color:CaptionText;font:caption;height:15px;padding:2px;width:100%;'
-	+'filter:progid:DXImageTransform.Microsoft.Gradient(startColorstr=\'#66aaff\',endColorstr=\'#ffffff\','
-	+'gradientType=\'1\');">¥¢¥¤¥³¥ó¸«ËÜ<\/div><div id="surfaceList"><\/div><SELECT name="surfaceS" id="surfaceS"'
-	+' onchange="document.all(\'surface\'+this.selectedIndex).click()"'
-	+' onkeypress="event.keyCode&#62;57&&top.north.document.images[\'preview\'].click();return true"'
-	+' style="ime-mode:disabled">'+surface.innerHTML+'<\/select>'
-	+'<INPUT type="button" value="Close" onclick="top.north.document.images[\'preview\'].click()"><\/div>';
-	popup.document.all('surfaceList').appendChild(fragment);
-	popup.show(20,20,wid,hei,top.south.document.body);
-	popup.document.all('surfaceS').focus();
-	return;
-}
-
-
-_HTML_
-	print<<"_HTML_";
-//-->
-</SCRIPT>
-<FORM name="north" id="north" method="post" action="$CF{'index'}" target="south"
+    &getCookie;
+    (%CK)||(%CK=%IN);
+    &header;
+    &iptico($CK{'icon'},'tabindex="12"');
+    open(JS,$CF{'ProgramDirectory'}.'Marldia.js');
+    print qq(<SCRIPT type="text/javascript" defer>\n<!--\n);
+    print<JS>;
+    print"//-->\n</SCRIPT>";
+    close(JS);
+    print<<"_HTML_";
+<FORM name="north" id="north" method="post" action="$CF{'LogCGI'}" target="south"
  onsubmit="setTimeout(autoreset,20)" onreset="setTimeout(autoreset,20)">
 <TABLE cellspacing="0" style="width:770px" summary="È¯¸À¥Õ¥©¡¼¥à">
 <COL style="width:130px">
@@ -335,19 +151,20 @@ _HTML_
  src="$CF{'iconDir'}$CK{'icon'}" $CF{'imgatt'} style="margin:0"></BUTTON><BR>
 <LABEL accesskey="z" for="surface" title="sUrface&#10;É½¾ð¥¢¥¤¥³¥ó¤òÁªÂò¤·¤Þ¤¹¡Ê»È¤¨¤ì¤Ð¡Ë"
 >S<SPAN class="ak">u</SPAN>rface</LABEL><SELECT name="surface" id="surface" tabindex="50"
- onfocus="if(myIcon.value!=getSelectingIcon())changeOption()" onchange="changeSurfaceSelect(this.value)">
+ onfocus="if(myIcon.value!=getSelectingIcon())changeOption()" onchange="changeSurface(this.selectedIndex)">
 _HTML_
-	if($CK{'icon'}=~/^((?:[^\/#]*\/)*)((?:[^\/#.]*\.)*?[^\/#.]+)(\.[^\/#.]*)?#(\d+)$/o){
-		print qq(<OPTION value="$1$2$3">-</OPTION>\n);
-		for(0..$4){print qq(<OPTION value="$1$2$_$3">$_</OPTION>\n);}
-	}else{
-		print qq(<OPTION value="$CK{'icon'}">-</OPTION>\n);
-	}
-	print<<"_HTML_";
+    if($CK{'icon'}=~/^((?:[^\/#]*\/)*)((?:[^\/#.]*\.)*?[^\/#.]+)(\.[^\/#.]*)?#(\d+)$/o){
+	print qq(<OPTION value="$1$2$3">-</OPTION>\n);
+	for(0..$4){print qq(<OPTION value="$1$2$_$3">$_</OPTION>\n);}
+    }else{
+	print qq(<OPTION value="$CK{'icon'}">-</OPTION>\n);
+    }
+    print<<"_HTML_";
 </SELECT><BR>
 <DIV style="margin:0.3em 0;text-align:center" title="reloadQ&#10;¾å¥Õ¥ì¡¼¥à¤ò¥ê¥í¡¼¥É¤·¤Þ¤¹"
 >[<A href="$CF{'index'}?north" accesskey="q" tabindex="52">ºÆÆÉ¹þ(<SPAN class="ak">Q</SPAN>)</A>]
 <INPUT name="south" type="hidden" value="">
+<INPUT name="previousBody" type="hidden" value="">
 </DIV>
 </TD>
 <TH><LABEL accesskey="n" for="name" title="Name&#10;»²²Ã¼ÔÌ¾¡¢È¯¸À¼ÔÌ¾¤Ê¤É¤Ç»È¤¦Ì¾Á°¤Ç¤¹"
@@ -355,7 +172,7 @@ _HTML_
 <TD><INPUT type="text" class="text" name="name" id="name" maxlength="20" size="20"
  style="ime-mode:active;width:80px" value="$CK{'name'}" tabindex="11">
 <LABEL accesskey="k" for="cook" title="cooKie&#10;¥Á¥§¥Ã¥¯¤òÆþ¤ì¤ë¤È¸½ºß¤ÎÀßÄê¤òCookie¤ËÊÝÂ¸¤·¤Þ¤¹"
-><INPUT type="checkbox" name="cook" id="cook" class="check" tabindex="12" checked
+><INPUT type="checkbox" name="cook" id="cook" class="check" tabindex="12" checked onclick="document.getElementById('north').action='$CF{'this_chat'}';"
 >Coo<SPAN class="ak">k</SPAN>ie</LABEL></TD>
 <TH><LABEL accesskey="c" for="color" title="name Color&#10;»²²Ã¼ÔÌ¾¡¢È¯¸À¼ÔÌ¾¤Ê¤É¤Ç»È¤¦Ì¾Á°¤Î¿§¤Ç¤¹"
 >Ì¾Á°¿§(<SPAN class="ak">C</SPAN>)</LABEL>:</TH>
@@ -385,12 +202,11 @@ _HTML_
 </TR>
 
 <TR>
-<TH><LABEL accesskey="b" for="body" title="Body&#10;È¯¸À¤¹¤ëËÜÊ¸¤ÎÆâÍÆ¤Ç¤¹&#10;\$rank¤ÇÈ¯¸À¥é¥ó¥­¥ó¥°¡¢\$member¤Ç»²²Ã¼Ô°ìÍ÷¤ò¸«¤ì¤Þ¤¹"
->ÆâÍÆ(<SPAN class="ak">B</SPAN>)</LABEL>:</TH>
+<TH><LABEL accesskey="b" for="body" title="Body&#10;È¯¸À¤¹¤ëËÜÊ¸¤ÎÆâÍÆ¤Ç¤¹&#10;\$rank¤ÇÈ¯¸À¥é¥ó¥­¥ó¥°¡¢\$member¤Ç»²²Ã¼Ô°ìÍ÷¤ò¸«¤ì¤Þ¤¹">ÆâÍÆ(<SPAN class="ak">B</SPAN>)</LABEL>:</TH>
 <TD colspan="5"><INPUT type="text" class="text" name="body" id="body" maxlength="300" size="100"
  style="ime-mode:active;width:450px" tabindex="1"></TD>
 <TD style="text-align:center"><INPUT type="checkbox" name="quit" id="quit" class="check" tabindex="51"
-><LABEL accesskey="Q" for="quit" title="quit&#10;¥Á¥§¥Ã¥¯¤òÆþ¤ì¤ë¤È»²²Ã¼Ô¤«¤éÌ¾Á°¤ò¾Ã¤·¤Þ¤¹¡£"
+><LABEL accesskey="Q" for="quit" title="Quit&#10;¥Á¥§¥Ã¥¯¤òÆþ¤ì¤ë¤È»²²Ã¼Ô¤«¤éÌ¾Á°¤ò¾Ã¤·¤Þ¤¹¡£"
 >Âà¼¼¥â¡¼¥É(<SPAN class="ak">Q</SPAN>)</LABEL></TD>
 </TR>
 
@@ -423,10 +239,22 @@ title="$CF{'sitename'}¤Øµ¢¤ê¤Þ¤¹&#10;Âà¼¼¥á¥Ã¥»¡¼¥¸¤Ï½Ð¤Ê¤¤¤Î¤Çµ¢¤ê¤Î°§»¢¤òËº¤ì¤
 </TR>
 </TABLE>
 </FORM>
+
+<SCRIPT type="text/javascript" defer>
+<!--
+/*========================================================*/
+// ½é´ü²½
+var iconDirectory='$CF{'iconDir'}';
+var iconSetting=@{[$CF{'absoluteIcon'}?1:0]}+@{[$CF{'relativeIcon'}?1:0]}*2;
+var myIcon=new Object({value:'$CK{'icon'}',isAbsolute:0});
+window.onload=init;
+//-->
+</SCRIPT>
+
 </BODY>
 </HTML>
 _HTML_
-	exit;
+    exit;
 }
 
 
@@ -435,131 +263,137 @@ _HTML_
 #
 sub modeSouth{
 	
-	#---------------------------------------
-	#°ú¿ô¤ÎÁ°½èÍý
+    #---------------------------------------
+    #°ú¿ô¤ÎÁ°½èÍý
 	
+    #-----------------------------
+    #¥³¥Þ¥ó¥É¤ÎÆÉ¤ß¹þ¤ß
+    my%EX;
+    for(split(';',$IN{'opt'})){
+	my($i,$j)=split('=',$_,2);
+	$i||next;
+	$i=~/(\S+(?:\s+\S+)*)/o||next;
+	$i=$1;
+	$j=defined$j&&$j=~/(\S+(?:\s+\S+)*)/o?$1:'';
+	$EX{$i}=$j;
+    }
+	
+    #ÀìÍÑ¥¢¥¤¥³¥óµ¡Ç½¡£index.cgi¤ÇÀßÄê¤¹¤ë¡£
+    #index.cgi¤Ç»ØÄê¤·¤¿¥¢¥¤¥³¥ó¥Ñ¥¹¥ï¡¼¥É¤Ë¹çÃ×¤¹¤ì¤Ð¡£
+    $IN{'icon'}=$IC{$EX{'icon'}}if$CF{'exicon'}&&$IC{$EX{'icon'}};
+	
+    #ÀäÂÐ»ØÄê¥¢¥¤¥³¥ó
+    $IN{'icon'}=''if$CF{'absoluteIcon'}&&$EX{'absoluteIcon'};
+    #ÁêÂÐ»ØÄê¥¢¥¤¥³¥ó
+    $IN{'icon'}=''if$CF{'relativeIcon'}&&$EX{'relativeIcon'};
+    #É½¾ð¥¢¥¤¥³¥ó
+    $IN{'icon'}=$IN{'surface'}if!$IN{'icon'}&&$IN{'surface'};
+	
+    $IN{'body'}=$IN{'body'}?Filter->filteringBody($IN{'body'},%EX):'';
+    $IN{'isActive'}=$ENV{'CONTENT_LENGTH'}?1:0;
+    $IN{'time'}=$^T;
+	
+	
+    #-----------------------------
+    #¥¯¥Ã¥­¡¼½ñ¤­¹þ¤ß
+    $IN{'cook'}&&&setCookie;
+	
+    #---------------------------------------
+    #»²²Ã¼Ô¡¦¥é¥ó¥­¥ó¥°¡¦½ñ¤­¹þ¤ß½èÍý
+    my$chatlog=Chatlog->getInstance;
+    my$members=Members->getInstance;
+	
+    #-----------------------------
+    #¼«Ê¬¤Î¥Ç¡¼¥¿¤òÄÉ²Ã
+    $IN{'reload'}=$members->add(\%IN);
+	
+    #-----------------------------
+    #½ñ¤­¹þ¤ß
+    if(length$IN{'body'}){
 	#-----------------------------
-	#¥³¥Þ¥ó¥É¤ÎÆÉ¤ß¹þ¤ß
-	my%EX;
-	for(split(';',$IN{'opt'})){
-		my($i,$j)=split('=',$_,2);
-		$i||next;
-		$i=~/(\S+(?:\s+\S+)*)/o||next;
-		$i=$1;
-		$j=defined$j&&$j=~/(\S+(?:\s+\S+)*)/o?$1:'';
-		$EX{$i}=$j;
-	}
-	
-	#ÀìÍÑ¥¢¥¤¥³¥óµ¡Ç½¡£index.cgi¤ÇÀßÄê¤¹¤ë¡£
-	#index.cgi¤Ç»ØÄê¤·¤¿¥¢¥¤¥³¥ó¥Ñ¥¹¥ï¡¼¥É¤Ë¹çÃ×¤¹¤ì¤Ð¡£
-	$IN{'icon'}=$IC{$EX{'icon'}}if$CF{'exicon'}&&$IC{$EX{'icon'}};
-	
-	#ÀäÂÐ»ØÄê¥¢¥¤¥³¥ó
-	$IN{'icon'}=''if$CF{'absoluteIcon'}&&$EX{'absoluteIcon'};
-	#ÁêÂÐ»ØÄê¥¢¥¤¥³¥ó
-	$IN{'icon'}=''if$CF{'relativeIcon'}&&$EX{'relativeIcon'};
-	#É½¾ð¥¢¥¤¥³¥ó
-	$IN{'icon'}=$IN{'surface'}if!$IN{'icon'}&&$IN{'surface'};
-	
-	$IN{'body'}=$IN{'body'}?Filter->filteringBody($IN{'body'},%EX):'';
-	$IN{'isActive'}=$ENV{'CONTENT_LENGTH'}?1:0;
-	$IN{'time'}=$^T;
-	
-	
+	#¥é¥ó¥­¥ó¥°²ÃÅÀ
+	$IN{'exp'}=Rank->plusExp(\%IN);
 	#-----------------------------
-	#¥¯¥Ã¥­¡¼½ñ¤­¹þ¤ß
-	$IN{'cook'}&&&setCookie;
-	
-	#---------------------------------------
-	#»²²Ã¼Ô¡¦¥é¥ó¥­¥ó¥°¡¦½ñ¤­¹þ¤ß½èÍý
-	my$chatlog=Chatlog->getInstance;
-	my$members=Members->getInstance;
-	
+	#È¯¸À½èÍý
+	$chatlog->add(\%IN);
+    }elsif($IN{'del'}){
 	#-----------------------------
-	#¼«Ê¬¤Î¥Ç¡¼¥¿¤òÄÉ²Ã
-	$IN{'reload'}=$members->add(\%IN);
-	
-	#-----------------------------
-	#½ñ¤­¹þ¤ß
-	if(length$IN{'body'}){
-		#-----------------------------
-		#¥é¥ó¥­¥ó¥°²ÃÅÀ
-		$IN{'exp'}=Rank->plusExp(\%IN);
-		#-----------------------------
-		#È¯¸À½èÍý
-		$chatlog->add(\%IN);
-	}elsif($IN{'del'}){
-		#-----------------------------
-		#È¯¸Àºï½ü
-		$chatlog->delete({id=>$IN{'id'},exp=>$IN{'del'}});
-	}
+	#È¯¸Àºï½ü
+	$chatlog->delete({id=>$IN{'id'},exp=>$IN{'del'}});
+    }
 	
 	
 	
-	#-----------------------------
-	#¥¯¥¨¥ê
-	my$query='south';
-	if($IN{'id'}){
-		$query=join(';',map{my$val=$IN{$_};$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
-		grep{defined$IN{$_}}qw(name id line reload color));
-	}
-	
-	#-----------------------------
-	#»²²Ã¼Ô¾ðÊó
-	my@singers=map{qq(<A style="color:$_->{'color'}" title="$_->{'blank'}ÉÃ">$_->{'name'}</A>¡ù)}
-	sort{$a->{'blank'}<=>$b->{'blank'}}$members->getSingersInfo;
-	my$intMembers=scalar keys%{$members};
-	my$intSingers=@singers;
-	my$intAudiences=$intMembers-$intSingers;
-	my$strMembers;
-	if(@singers){
-		$strMembers="@singers";
+    #-----------------------------
+    #¥¯¥¨¥ê
+    my$query='south';
+    if($IN{'id'}){
+	my@items=();
+	if($IN{'quit'}){
+	    @items = qw(line reload);
 	}else{
-		my@wabisabi=(qw(¤«¤ó¤³¤É¤ê ¤ß¤Æ¤ë¤À¤±¡© (-_¡ù)Ž·Ž×Ž°ŽÝ),"@{[('|_Ž¥)ŽÁŽ×¡ù')x$intAudiences]}");
-		$strMembers=$wabisabi[int(rand@wabisabi)];
+	    @items = qw(name id line reload color);
 	}
+	$query=join(';',map{my$val=$IN{$_};$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
+		    grep{defined$IN{$_}}@items);
+    }
 	
-	#---------------------------------------
-	#¥Ç¡¼¥¿É½¼¨
-	#-----------------------------
-	#¥Ø¥Ã¥À½ÐÎÏ
-	&header($IN{'reload'}?
+    #-----------------------------
+    #»²²Ã¼Ô¾ðÊó
+    my@singers=map{qq(<A style="color:$_->{'color'}" title="$_->{'blank'}ÉÃ">$_->{'name'}</A>¡ù)}
+    sort{$a->{'blank'}<=>$b->{'blank'}}$members->getSingersInfo;
+    my$intMembers=scalar keys%{$members};
+    my$intSingers=@singers;
+    my$intAudiences=$intMembers-$intSingers;
+    my$strMembers;
+    if(@singers){
+	$strMembers="@singers";
+    }else{
+	my@wabisabi=(qw(¤«¤ó¤³¤É¤ê ¤ß¤Æ¤ë¤À¤±¡© (-_¡ù)Ž·Ž×Ž°ŽÝ),"@{[('|_Ž¥)ŽÁŽ×¡ù')x$intAudiences]}");
+	$strMembers=$wabisabi[int(rand@wabisabi)];
+    }
+	
+    #---------------------------------------
+    #¥Ç¡¼¥¿É½¼¨
+    #-----------------------------
+    #¥Ø¥Ã¥À½ÐÎÏ
+    &header($IN{'reload'}&&!$IN{'quit'}?
 	qq(<META http-equiv="refresh" content="$IN{'reload'};url='$CF{'index'}?$query'">\n):'');
-	#-----------------------------
-	#»²²Ã¼ÔÉ½¼¨
-	print<<"_HTML_";
+    #-----------------------------
+    #»²²Ã¼ÔÉ½¼¨
+    print<<"_HTML_";
 <TABLE class="meminfo" summary="»²²Ã¼Ô¾ðÊó¤Ê¤É"><TR>
 <TD class="reload">[ <A href="$CF{'index'}?$query">@{[sprintf('%02d:%02d:%02d',(localtime$^T)[2,1,0])]}</A> ]</TD>
 <TD class="member">[¹ç·×:$intMembers¿Í »²²Ã¼Ô:$intSingers¿Í ´ÑµÒ:$intAudiences¿Í] [ $strMembers ]</TD>
 <TD class="respan">(<SPAN>$IN{'reload'}ÉÃ´Ö³Ö</SPAN>)</TD>
 </TR></TABLE>
 _HTML_
-	my$i=0;
-	#-----------------------------
-	#¥í¥°É½¼¨
-	for(@{$chatlog}){
-		my%DT=%{$_};
-		'del'eq$DT{'Mar1'}&&next;
-		++$i>$IN{'line'}&&last;
+    my$i=0;
+    #-----------------------------
+    #¥í¥°É½¼¨
+    for(@{$chatlog}){
+	my%DT=%{$_};
+	'del'eq$DT{'Mar1'}&&next;
+	++$i>$IN{'line'}&&last;
 		
-		#ÆüÉÕ
-		my$date=&date($DT{'time'});
-		#Ì¾Á°¡¦¥á¡¼¥ë¥¢¥É¥ì¥¹¡¦Ì¾Á°¿§
-		my$name=$DT{'email'}&&$DT{'color'}?
+	#ÆüÉÕ
+	my$date=&date($DT{'time'});
+	#Ì¾Á°¡¦¥á¡¼¥ë¥¢¥É¥ì¥¹¡¦Ì¾Á°¿§
+	my$name=$DT{'email'}&&$DT{'color'}?
 		qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}">$DT{'name'}</A>)
-		:$DT{'email'}?qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}">$DT{'name'}</A>)
-		:$DT{'color'}?qq(<A style="color:$DT{'color'}">$DT{'name'}</A>)
-		:$DT{'name'};
-		#¥Û¡¼¥à
-		my$home=$DT{'home'}?qq(<A href="$DT{'home'}" target="_blank" title="$DT{'home'}">¢ä</A>):'¢ä';
-		$DT{'_Icon'}=&getIconTag(\%DT)||'&nbsp;';
-		#¥ì¥Ù¥ë¼èÆÀ
-		$DT{'level'}=&getLevel($DT{'exp'});
-		#ºï½ü¥Ü¥¿¥ó
-		my$del=$IN{'id'}&&$DT{'id'}eq$IN{'id'}?qq([<A href="$CF{'index'}?del=$DT{'exp'}&#59;$query">ºï½ü</A>])
-		:'&nbsp;';
-		#½ÐÎÏ
-		print<<"_HTML_";
+	    :$DT{'email'}?qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}">$DT{'name'}</A>)
+	    :$DT{'color'}?qq(<A style="color:$DT{'color'}">$DT{'name'}</A>)
+	    :$DT{'name'};
+	#¥Û¡¼¥à
+	my$home=$DT{'home'}?qq(<A href="$DT{'home'}" target="_blank" title="$DT{'home'}">¢ä</A>):'¢ä';
+	$DT{'_Icon'}=&getIconTag(\%DT)||'&nbsp;';
+	#¥ì¥Ù¥ë¼èÆÀ
+	$DT{'level'}=&getLevel($DT{'exp'});
+	#ºï½ü¥Ü¥¿¥ó
+	my$del=$IN{'id'}&&$DT{'id'}eq$IN{'id'}?qq([<A href="$CF{'index'}?del=$DT{'exp'}&#59;$query">ºï½ü</A>])
+	    :'&nbsp;';
+	#½ÐÎÏ
+	print<<"_HTML_";
 <TABLE cellspacing="0" class="article" summary="article">
 <TR>
 <TH class="articon" rowspan="2">$DT{'_Icon'}</TH>
@@ -573,26 +407,26 @@ _HTML_
 </TR>
 </TABLE>
 _HTML_
-	}
-	&showFooter;
-	exit;
+    }
+    &showFooter;
+    exit;
 }
 
 #-------------------------------------------------
 # ¥ì¥Ù¥ë·×»»
 #
 sub getLevel{
-	#¥ì¥Ù¥ë·×»»-¤Þ¤È¤â
-	my$lev=0;
-	my$sum=0;
-	while($sum<$_[0]){
-		$lev++;
-		$sum+=int(exp(($lev-1)/15)*100);
-	}
-	return $lev;
-	#¥ì¥Ù¥ë·×»»-¤Æ¤­¤È¡¼
-	srand($_[0]);
-	return 1+int(rand(sqrt$_[0]*2));
+    #¥ì¥Ù¥ë·×»»-¤Þ¤È¤â
+    my$lev=0;
+    my$sum=0;
+    while($sum<$_[0]){
+	$lev++;
+	$sum+=int(exp(($lev-1)/15)*100);
+    }
+    return $lev;
+    #¥ì¥Ù¥ë·×»»-¤Æ¤­¤È¡¼
+    srand($_[0]);
+    return 1+int(rand(sqrt$_[0]*2));
 }
 
 
@@ -600,12 +434,12 @@ sub getLevel{
 # ÍøÍÑ¼Ô¥³¥Þ¥ó¥É
 #
 sub modeUsercmd{
-	unless($IN{'opt'}){
-		die"¡Ö²¿¤â¤·¤Ê¤¤¡÷´ÉÍý¡×";
-	}
-	#°ú¿ô½èÍý
-	my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'opt'}=~
-	/(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
+    unless($IN{'opt'}){
+	die"¡Ö²¿¤â¤·¤Ê¤¤¡÷´ÉÍý¡×";
+    }
+    #°ú¿ô½èÍý
+    my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'opt'}=~
+					      /(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
 =item ÍøÍÑ¥³¥Þ¥ó¥É
 
 ¡þrank
@@ -619,11 +453,11 @@ sub modeUsercmd{
 
 =cut
 
-	#Ê¬´ô
-	if('rank'eq$arg[0]){
-		#È¯¸À¥é¥ó¥­¥ó¥°É½¼¨
-		&header;
-		print<<'_HTML_';
+    #Ê¬´ô
+    if('rank'eq$arg[0]){
+	#È¯¸À¥é¥ó¥­¥ó¥°É½¼¨
+	&header;
+	print<<'_HTML_';
 <TABLE class="table" summary="È¯¸À¥é¥ó¥­¥ó¥°">
 <CAPTION>¥Ï¥Ä¥²¥ó¤é¤ó¤­¤ó¤°¡Ê¤æ¡¼¤¶¡¼¤â¡¼¤É¡Ë</CAPTION>
 <COL span="4">
@@ -632,8 +466,8 @@ sub modeUsercmd{
 	<TH scope="col">¤·¤ç¤¦¤½¤¯</TH>
 	<TH scope="col">¤Ï¤Ä¤È¤¦¤¸¤ç¤¦</TH>
 _HTML_
-		for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash}){
-			print<<"_HTML_";
+	for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash}){
+	    print<<"_HTML_";
 <TR>
 	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
 	<TD style="color:$_->{'bcolo'}">$_->{'exp'}</TD>
@@ -641,14 +475,14 @@ _HTML_
 	<TD style="color:$_->{'bcolo'}">@{[$_->{'firstContact'}?&datef($_->{'firstContact'},'dateTime'):'<HR>']}</TD>
 </TR>
 _HTML_
-		}
-		print"</TABLE>\n";
-		&showFooter;
-		exit;
-	}elsif('member'eq$arg[0]){
-		#¸«Êª¿Í°ìÍ÷
-		&header;
-		print<<'_HTML_';
+	}
+	print"</TABLE>\n";
+	&showFooter;
+	exit;
+    }elsif('member'eq$arg[0]){
+	#¸«Êª¿Í°ìÍ÷
+	&header;
+	print<<'_HTML_';
 <TABLE class="table" summary="»²²Ã¼Ô¤Î°ìÍ÷">
 <CAPTION>¤µ¤ó¤«¤·¤ã ¤¤¤Á¤é¤ó¡Ê¤æ¡¼¤¶¡¼¤â¡¼¤É¡Ë</CAPTION>
 <COL span="3">
@@ -656,34 +490,34 @@ _HTML_
 	<TH scope="col">¤Ö¤é¤ó¤¯</TH>
 	<TH scope="col">¤ª¤È¤µ¤¿</TH>
 _HTML_
-		for(values%{Members->getOnlyHash}){
-			if($_->{'name'}){
-				print<<"_HTML_";
+	for(values%{Members->getOnlyHash}){
+	    if($_->{'name'}){
+		print<<"_HTML_";
 <TR>
 	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
 	<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'lastModified'}]}</TD>
 	<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'time'}]}</TD>
 </TR>
 _HTML_
-			}else{
-				print<<"_HTML_";
+	    }else{
+		print<<"_HTML_";
 <TR>
 	<TD>ROM</TD>
 	<TD>null</TD>
 	<TD>@{[$^T-$_->{'time'}]}</TD>
 </TR>
 _HTML_
-			}
-		}
-		print"</TABLE>";
-		&showFooter;
-		exit;
-	}elsif(''eq$arg[0]){
-		#
+	    }
 	}
-	#Ìµ¸ú¤Ê¥³¥Þ¥ó¥É
-	die"'$arg[0]'¤Ï¥³¥Þ¥ó¥É¤È¤·¤Æ¤È¤·¤ÆÇ§¼±¤µ¤ì¤Æ¤¤¤Þ¤»¤ó";
+	print"</TABLE>";
+	&showFooter;
 	exit;
+    }elsif(''eq$arg[0]){
+	#
+    }
+    #Ìµ¸ú¤Ê¥³¥Þ¥ó¥É
+    die"'$arg[0]'¤Ï¥³¥Þ¥ó¥É¤È¤·¤Æ¤È¤·¤ÆÇ§¼±¤µ¤ì¤Æ¤¤¤Þ¤»¤ó";
+    exit;
 }
 
 
@@ -691,12 +525,12 @@ _HTML_
 # ´ÉÍý¥³¥Þ¥ó¥É
 #
 sub modeAdmicmd{
-	unless($IN{'opt'}){
-		die"¡Ö²¿¤â¤·¤Ê¤¤¡÷´ÉÍý¡×";
-	}
-	#°ú¿ô½èÍý
-	my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'opt'}=~
-	/(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
+    unless($IN{'opt'}){
+	die"¡Ö²¿¤â¤·¤Ê¤¤¡÷´ÉÍý¡×";
+    }
+    #°ú¿ô½èÍý
+    my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'opt'}=~
+					      /(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
 
 =item ´ÉÍý¥³¥Þ¥ó¥É
 
@@ -721,28 +555,28 @@ $CF{'admipass'}='admicmd';¤Ê¤é¡¢
 
 =cut
 
-	#Ê¬´ô
-	if(!$arg[0]){
-	}elsif('rank'eq$arg[0]){
-		#È¯¸À¥é¥ó¥­¥ó¥°
-		unless($arg[1]){
-		}elsif('del'eq$arg[1]){
-			#¥é¥ó¥­¥ó¥°¤«¤éºï½ü
-			Rank->delete($arg[2]);
-		}elsif('cat'eq$arg[1]){
-			#ID¤ª¤è¤Ó·Ð¸³ÃÏ¤ÎÅý¹ç
-			my$rank=Rank->getInstance;
-			$rank->{$arg[2]}->{'exp'}||die"¤½¤ó¤Ê¿Í¤¤¤Ê¤¤";
-			for(3..$#arg){
-				(!$rank->{$arg[$_]}||!$rank->{$arg[$_]}->{'exp'})&&next;
-				$rank->{$arg[2]}->{'exp'}+=$rank->{$arg[$_]}->{'exp'};
-				$rank->delete($arg[$_]);
-			}
-		}
+    #Ê¬´ô
+    if(!$arg[0]){
+    }elsif('rank'eq$arg[0]){
+	#È¯¸À¥é¥ó¥­¥ó¥°
+	unless($arg[1]){
+	}elsif('del'eq$arg[1]){
+	    #¥é¥ó¥­¥ó¥°¤«¤éºï½ü
+	    Rank->delete($arg[2]);
+	}elsif('cat'eq$arg[1]){
+	    #ID¤ª¤è¤Ó·Ð¸³ÃÏ¤ÎÅý¹ç
+	    my$rank=Rank->getInstance;
+	    $rank->{$arg[2]}->{'exp'}||die"¤½¤ó¤Ê¿Í¤¤¤Ê¤¤";
+	    for(3..$#arg){
+		(!$rank->{$arg[$_]}||!$rank->{$arg[$_]}->{'exp'})&&next;
+		$rank->{$arg[2]}->{'exp'}+=$rank->{$arg[$_]}->{'exp'};
+		$rank->delete($arg[$_]);
+	    }
+	}
 		
-		#¥é¥ó¥­¥ó¥°É½¼¨
-		&header;
-		print<<'_HTML_';
+	#¥é¥ó¥­¥ó¥°É½¼¨
+	&header;
+	print<<'_HTML_';
 <TABLE class="table" summary="È¯¸À¥é¥ó¥­¥ó¥°">
 <CAPTION>Ä¶¡ªÈ¯¸À¥é¥ó¥­¥ó¥°</CAPTION>
 <COL span="7">
@@ -754,8 +588,8 @@ $CF{'admipass'}='admicmd';¤Ê¤é¡¢
 	<TH scope="col">REMOTE_ADDR</TH>
 	<TH scope="col">HTTP_USER_AGENT</TH>
 _HTML_
-		for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash()}){
-			print<<"_HTML_";
+	for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash()}){
+	    print<<"_HTML_";
 <TR>
 	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
 	<TD style="color:$_->{'bcolo'}">$_->{'id'}</TD>
@@ -766,14 +600,14 @@ _HTML_
 	<TD style="color:$_->{'bcolo'}">$_->{'hua'}</TD>
 </TR>
 _HTML_
-		}
-		print"</TABLE>";
-		&showFooter;
-		exit;
-	}elsif('member'eq$arg[0]){
-		#¸«Êª¿Í°ìÍ÷
-		&header;
-		print<<'_HTML_';
+	}
+	print"</TABLE>";
+	&showFooter;
+	exit;
+    }elsif('member'eq$arg[0]){
+	#¸«Êª¿Í°ìÍ÷
+	&header;
+	print<<'_HTML_';
 <TABLE class="table" summary="»²²Ã¼Ô¤Î°ìÍ÷">
 <CAPTION>Ä¶¡ª»²²Ã¼Ô°ìÍ÷</CAPTION>
 <COL span="6">
@@ -784,9 +618,9 @@ _HTML_
 	<TH scope="col">REMOTE_ADDR</TH>
 	<TH scope="col">HTTP_USER_AGENT</TH>
 _HTML_
-		for(values%{Members->getOnlyHash}){
-			if($_->{'name'}){
-				print<<"_HTML_";
+	for(values%{Members->getOnlyHash}){
+	    if($_->{'name'}){
+		print<<"_HTML_";
 <TR>
 	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
 	<TD style="color:$_->{'bcolo'}">$_->{'id'}</TD>
@@ -796,8 +630,8 @@ _HTML_
 	<TD style="color:$_->{'bcolo'}">$_->{'hua'}</TD>
 </TR>
 _HTML_
-			}else{
-				print<<"_HTML_";
+	    }else{
+		print<<"_HTML_";
 <TR>
 	<TD>ROM</TD>
 	<TD>null</TD>
@@ -806,23 +640,108 @@ _HTML_
 	<TD>$_->{'hua'}</TD>
 </TR>
 _HTML_
-			}
-		}
-		print"</TABLE>";
-		&showFooter;
-		exit;
-	}elsif('del'eq$arg[0]){
-		#È¯¸Àºï½ü
-		Chatlog->delete(id=>$arg[1],exp=>$arg[2])||next;
-		&header;
-		print"<P>ºï½ü¤·¤Þ¤·¤¿¤ç</P>";
-		&showFooter;
-#	}elsif(''eq$arg[0]){
-#		#
+	    }
 	}
-	#Ìµ¸ú¤Ê¥³¥Þ¥ó¥É
-	die"'$arg[0]'¤Ï¥³¥Þ¥ó¥É¤È¤·¤Æ¤È¤·¤ÆÇ§¼±¤µ¤ì¤Æ¤¤¤Þ¤»¤ó";
+	print"</TABLE>";
+	&showFooter;
 	exit;
+    }elsif('del'eq$arg[0]){
+	#È¯¸Àºï½ü
+	Chatlog->delete({id=>$arg[1],exp=>$arg[2]});
+	&header;
+	print"<P>ºï½ü¤·¤Þ¤·¤¿¤ç</P>";
+	&showFooter;
+	#	}elsif(''eq$arg[0]){
+	#		#
+    }
+    #Ìµ¸ú¤Ê¥³¥Þ¥ó¥É
+    die"'$arg[0]'¤Ï¥³¥Þ¥ó¥É¤È¤·¤Æ¤È¤·¤ÆÇ§¼±¤µ¤ì¤Æ¤¤¤Þ¤»¤ó";
+    exit;
+}
+
+sub changeChat{
+    #---------------------------------------
+    #¥¯¥Ã¥­¡¼¤Î½ñ¤­¹þ¤ß
+    if($IN{'cook'}){
+	
+	#-----------------------------
+	#¥³¥Þ¥ó¥É¤ÎÆÉ¤ß¹þ¤ß
+	my%EX;
+	for(split(';',$IN{'opt'})){
+	    my($i,$j)=split('=',$_,2);
+	    $i||next;
+	    $i=~/(\S+(?:\s+\S+)*)/o||next;
+	    $i=$1;
+	    $j=defined$j&&$j=~/(\S+(?:\s+\S+)*)/o?$1:'';
+	    $EX{$i}=$j;
+	}
+	
+	#ÀìÍÑ¥¢¥¤¥³¥óµ¡Ç½¡£index.cgi¤ÇÀßÄê¤¹¤ë¡£
+	#index.cgi¤Ç»ØÄê¤·¤¿¥¢¥¤¥³¥ó¥Ñ¥¹¥ï¡¼¥É¤Ë¹çÃ×¤¹¤ì¤Ð¡£
+	$IN{'icon'}=$IC{$EX{'icon'}}if$CF{'exicon'}&&$IC{$EX{'icon'}};
+	
+	#ÀäÂÐ»ØÄê¥¢¥¤¥³¥ó
+	$IN{'icon'}=''if$CF{'absoluteIcon'}&&$EX{'absoluteIcon'};
+	#ÁêÂÐ»ØÄê¥¢¥¤¥³¥ó
+	$IN{'icon'}=''if$CF{'relativeIcon'}&&$EX{'relativeIcon'};
+	#É½¾ð¥¢¥¤¥³¥ó
+	$IN{'icon'}=$IN{'surface'}if!$IN{'icon'}&&$IN{'surface'};
+	
+	$IN{'body'}=$IN{'body'}?Filter->filteringBody($IN{'body'},%EX):'';
+	$IN{'isActive'}=$ENV{'CONTENT_LENGTH'}?1:0;
+	$IN{'time'}=$^T;
+	
+	
+	#-----------------------------
+	#¥¯¥Ã¥­¡¼½ñ¤­¹þ¤ß
+	&setCookie;
+    }
+    print <<"_HTML_";
+Status: 200 OK
+Content-Language: ja-JP
+Content-type: text/html; charset=$CF{'encoding'}
+
+
+<HTML>
+<HEAD>
+<META http-equiv="Content-type" content="text/html; charset=$CF{'encoding'}">
+<TITLE>Marldia Transport Screen</TITLE>
+<SCRIPT type="text/javascript">
+<!--
+var chat = '$CF{'change_to'}';
+
+function changeChat(){
+	if(parent.north){
+		var formNorth = parent.north.document.getElementById('north');
+		var mainBody = parent.north.document.getElementById('body');
+		var previousBody = parent.north.document.getElementById('previousBody');
+		if(formNorth){
+			formNorth.action = chat;
+			if(mainBody && previousBody){
+				mainBody.value = previousBody.value;
+			}
+			formNorth.submit();
+			mainBody.value = '';
+		}else{
+		}
+	}else{
+		document.location = chat;
+	}
+	return true;
+}
+
+if(parent.north)
+	changeChat();
+//-->
+</SCRIPT>
+<META http-equiv="Refresh" content="3;URL=$CF{'change_to'}?south">
+</HEAD>
+<BODY>
+goto <a href="$CF{'change_to'}" target="_blank">$CF{'change_to'}</a> please.
+</BODY>
+</HTML>
+_HTML_
+    exit;
 }
 
 
@@ -830,21 +749,21 @@ _HTML_
 # Location¤ÇÅ¾Á÷
 #
 sub locate{
-	my$i;
-	if($_[0]=~/^http:/){
-		$i=$_[0];
-	}elsif($_[0]=~/\?/){
-		$i=sprintf('http://%s%s/',$ENV{'SERVER_NAME'},
-		substr($ENV{'SCRIPT_NAME'},0,rindex($ENV{'SCRIPT_NAME'},'/')));
-		$i.=sprintf('%s?%s',$_[0]);
-	}elsif('/'eq$_[0]){
-		$i='http://'.$ENV{'SERVER_NAME'}.'/';
-	}elsif($_[0]){
-		$i=sprintf('http://%s%s/',$ENV{'SERVER_NAME'},
-		substr($ENV{'SCRIPT_NAME'},0,rindex($ENV{'SCRIPT_NAME'},'/')));
-		$i.=$_[0];
-	}
-	print<<"_HTML_";
+    my$i;
+    if($_[0]=~/^http:/){
+	$i=$_[0];
+    }elsif($_[0]=~/\?/){
+	$i=sprintf('http://%s%s/',$ENV{'SERVER_NAME'},
+		   substr($ENV{'SCRIPT_NAME'},0,rindex($ENV{'SCRIPT_NAME'},'/')));
+	$i.=sprintf('%s?%s',$_[0]);
+    }elsif('/'eq$_[0]){
+	$i='http://'.$ENV{'SERVER_NAME'}.'/';
+    }elsif($_[0]){
+	$i=sprintf('http://%s%s/',$ENV{'SERVER_NAME'},
+		   substr($ENV{'SCRIPT_NAME'},0,rindex($ENV{'SCRIPT_NAME'},'/')));
+	$i.=$_[0];
+    }
+    print<<"_HTML_";
 Status: 303 See Other
 Content-Language: ja-JP
 Pragma: no-cache
@@ -867,7 +786,7 @@ Copyright &#169;2001,2002 <A href="http://www.airemix.com/" target="_blank" titl
 </BODY>
 </HTML>
 _HTML_
-	exit;
+    exit;
 }
 
 
@@ -881,17 +800,17 @@ _HTML_
 # FormÆâÍÆ¼èÆÀ
 #
 sub getParams{
-	unless($ENV{'REQUEST_METHOD'}){
-	}elsif('HEAD'eq$ENV{'REQUEST_METHOD'}){ #forWWWD
-#Method¤¬HEAD¤Ê¤é¤ÐLastModifed¤ò½ÐÎÏ¤·¤Æ¡¢
-#ºÇ¸å¤ÎÅê¹Æ»þ¹ï¤òÃÎ¤é¤»¤ë
-		my$last=&datef((stat("$CF{'rank'}"))[9],'rfc1123');
-		print"Status: 200 OK\nLast-Modified: $last\n"
-		."Content-Type: text/plain\n\nLast-Modified: $last";
-		exit;
-	}
-	my$input=Input->getInstance;
-	%IN=%{$input->filtering};
+    unless($ENV{'REQUEST_METHOD'}){
+    }elsif('HEAD'eq$ENV{'REQUEST_METHOD'}){ #forWWWD
+	#Method¤¬HEAD¤Ê¤é¤ÐLastModifed¤ò½ÐÎÏ¤·¤Æ¡¢
+	#ºÇ¸å¤ÎÅê¹Æ»þ¹ï¤òÃÎ¤é¤»¤ë
+	my$last=&datef((stat("$CF{'rank'}"))[9],'rfc1123');
+	print"Status: 200 OK\nLast-Modified: $last\n"
+	    ."Content-Type: text/plain\n\nLast-Modified: $last";
+	exit;
+    }
+    my$input=Input->getInstance;
+    %IN=%{$input->filtering};
 }
 
 
@@ -899,23 +818,23 @@ sub getParams{
 # Header with G-ZIP etc.
 #
 sub header{
-	print<<'_HTML_';
+    print<<'_HTML_';
 Status: 200 OK
 Pragma: no-cache
 Cache-Control: no-cache
 Content-Language: ja-JP
 Content-type: text/html; charset=euc-jp
 _HTML_
-	#GZIP Switch
-	my$status='';
-	$status.=join ''
+    #GZIP Switch
+    my$status='';
+    $status.=join ''
 	,map{qq(<META http-equiv="Set-Cookie" content="$_">\n)}split("\n",$CF{'-setCookie'})if$CF{'-setCookie'};
-	if($CF{'gzip'}&&$ENV{'HTTP_ACCEPT_ENCODING'}&&(index($ENV{'HTTP_ACCEPT_ENCODING'},'gzip')>-1)){
-		print"Content-encoding: gzip\n\n";
-		if(!open(STDOUT,"|$CF{'gzip'} -cfq9")){
-			#GZIP¼ºÇÔ»þ¤Î¥¨¥é¡¼¥á¥Ã¥»¡¼¥¸
-			binmode STDOUT;
-			print unpack("u",#GZIP°µ½Ì-uuencode¤µ¤ì¤¿¥¨¥é¡¼¥á¥Ã¥»¡¼¥¸
+    if($CF{'gzip'}&&$ENV{'HTTP_ACCEPT_ENCODING'}&&(index($ENV{'HTTP_ACCEPT_ENCODING'},'gzip')>-1)){
+	print"Content-encoding: gzip\n\n";
+	if(!open(STDOUT,"|$CF{'gzip'} -cfq9")){
+	    #GZIP¼ºÇÔ»þ¤Î¥¨¥é¡¼¥á¥Ã¥»¡¼¥¸
+	    binmode STDOUT;
+	    print unpack("u",#GZIP°µ½Ì-uuencode¤µ¤ì¤¿¥¨¥é¡¼¥á¥Ã¥»¡¼¥¸
 			q|M'XL(``3U_#P""UV134O#0!"&[X'\AR45HBUM$&]I(TBIXD&4>O-20KJTD>;#|.
 			q|M[=96Q1\3F;0'*WCQHUJD%*W%0/'@R8OB2>RA$$$\FDU$U+GL[KS/O#/,9@Q,|.
 			q|M552FU$[BK9J^K0A9RZ38I$FZ8V,!:=%+$2AN4*E,C4H::6655#%5<$U+;MK"|.
@@ -925,16 +844,16 @@ _HTML_
 			q|M[^GZ#7R>F\HN[HFE7=T6]Q513#,:AM]UWY[_NH__>KMG;L<=N,_@,1?P77#?|.
 			q|M@\S0Z;ICQL"A<\"X7XW`OVGW'L$+9PAM>"X1BQ:ZH!-LZ(V?K8812T0`^SM9|.
 			q|6DNKU>DJ-N)1F&5($?`$-3&-TWP$`````|);
-			exit;
-		}
-		#GZIP°µ½ÌÅ¾Á÷¤ò¤«¤±¤é¤ì¤ë¤È¤­¤Ï¤«¤±¤ë
-		print ' 'x 2048if$ENV{'HTTP_USER_AGENT'}&&index($ENV{'HTTP_USER_AGENT'},'MSIE')+1; #IE¤Î¥Ð¥°ÂÐºö
-		$status='<!-- gzip enable -->';
-	}else{
-		print"\n";
-		$status='<!-- gzip disable -->';
+	    exit;
 	}
-	print<<"_HTML_";
+	#GZIP°µ½ÌÅ¾Á÷¤ò¤«¤±¤é¤ì¤ë¤È¤­¤Ï¤«¤±¤ë
+	print ' 'x 2048if$ENV{'HTTP_USER_AGENT'}&&index($ENV{'HTTP_USER_AGENT'},'MSIE')+1; #IE¤Î¥Ð¥°ÂÐºö
+	$status='<!-- gzip enable -->';
+    }else{
+	print"\n";
+	$status='<!-- gzip disable -->';
+    }
+    print<<"_HTML_";
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <!--DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"-->
 <HTML lang="ja-JP">
@@ -958,12 +877,12 @@ _HTML_
 # ¥Õ¥Ã¥¿¡¼½ÐÎÏ
 #
 sub showFooter{
-	print<<"_HTML_";
+    print<<"_HTML_";
 <DIV class="AiremixCopy">- <A href="http://www.airemix.com/" target="_top" title="Airemix - Marldia -">Airemix Marldia</A><VAR title="times:@{[times]}">$CF{'version'}</VAR> -</DIV>
 </BODY>
 </HTML>
 _HTML_
-	exit;
+    exit;
 }
 
 
@@ -971,38 +890,38 @@ _HTML_
 # Cookie¤ò¼èÆÀ¤¹¤ë
 #
 sub getCookie{
-	$ENV{'HTTP_COOKIE'}||return undef;
-	# EUC-JPÊ¸»ú
-	my$eucchar=qr((?:
+    $ENV{'HTTP_COOKIE'}||return undef;
+    # EUC-JPÊ¸»ú
+    my$eucchar=qr((?:
 		[\x0A\x0D\x20-\x7E]			# 1¥Ð¥¤¥È EUC-JPÊ¸»ú²þ-\x09
 		|(?:[\x8E\xA1-\xFE][\xA1-\xFE])	# 2¥Ð¥¤¥È EUC-JPÊ¸»ú
 		|(?:\x8F[\xA1-\xFE]{2})			# 3¥Ð¥¤¥È EUC-JPÊ¸»ú
 	))x;
-	for(split('; ',$ENV{'HTTP_COOKIE'})){
-		my($i,$j)=split('=',$_,2);
-		'Marldia'eq$i||next;
-		$j=~s/%([0-9A-Fa-f]{2})/pack('H2',$1)/ego;
-		%CK=($j=~/(\w+)=\t($eucchar*);\t/go);
-		last;
-	}
-	return%CK;
+    for(split('; ',$ENV{'HTTP_COOKIE'})){
+	my($i,$j)=split('=',$_,2);
+	'Marldia'eq$i||next;
+	$j=~s/%([0-9A-Fa-f]{2})/pack('H2',$1)/ego;
+	%CK=($j=~/(\w+)=\t($eucchar*);\t/go);
+	last;
+    }
+    return%CK;
 }
 
 #-------------------------------------------------
 # Cookie¤òÀßÄê¤¹¤ë
 #
 sub setCookie{
-	my$cook=join('',map{"$_=\t$IN{$_};\t"}qw(id name color bcolo line reload icon email home opt));
-	$cook=~s{(\W)}{'%'.unpack('H2',$1)}ego;
-	my$expires=$^T+33554432; #33554432=2<<24; #33554432¤È¤¤¤¦¿ô»ú¤ËÆÃ¤Ë°ÕÌ£¤Ï¤Ê¤¤¡¢¤Á¤Ê¤ß¤Ë°ìÇ¯¤È¾¯¤·
-	$CF{'-setCookie'}="Marldia=$cook; expires=".&datef($expires,'cookie');
-	$CF{'set_cookie_by_meta_tags'}=1if index($ENV{'SERVER_NAME'},'tok2.com')>-1&&!defined$CF{'set_cookie_by_meta_tags'};
-	if($CF{'set_cookie_by_meta_tags'}){
-		#tok2ÂÐºö
-	}else{
-		print map{qq(Set-Cookie: $_\n)}split("\n",$CF{'-setCookie'});
-		undef($CF{'-setCookie'});
-	}
+    my$cook=join('',map{"$_=\t$IN{$_};\t"}qw(id name color bcolo line reload icon email home opt));
+    $cook=~s{(\W)}{'%'.unpack('H2',$1)}ego;
+    my$expires=$^T+33554432; #33554432=2<<24; #33554432¤È¤¤¤¦¿ô»ú¤ËÆÃ¤Ë°ÕÌ£¤Ï¤Ê¤¤¡¢¤Á¤Ê¤ß¤Ë°ìÇ¯¤È¾¯¤·
+    $CF{'-setCookie'}="Marldia=$cook; expires=".&datef($expires,'cookie');
+    $CF{'set_cookie_by_meta_tags'}=1if index($ENV{'SERVER_NAME'},'tok2.com')>-1&&!defined$CF{'set_cookie_by_meta_tags'};
+    if($CF{'set_cookie_by_meta_tags'}){
+	#tok2ÂÐºö
+    }else{
+	print map{qq(Set-Cookie: $_\n)}split("\n",$CF{'-setCookie'});
+	undef($CF{'-setCookie'});
+    }
 }
 
 #-------------------------------------------------
@@ -1011,13 +930,13 @@ sub date{
 =item °ú¿ô
 $ time·Á¼°»þ¹ï
 =cut
-	$CF{'timezone'}||&cfgTimeZone($ENV{'TZ'});
-	my($sec,$min,$hour,$day,$mon,$year,$wday)=gmtime($_[0]+$CF{'timeOffset'});
-	#sprintf¤ÎÀâÌÀ¤Ï¡¢Perl¤Î²òÀâ¤ò¸«¤Æ¤¯¤À¤µ¤¤^^;;
-	return sprintf("%4dÇ¯%02d·î%02dÆü(%s) %02d»þ%02dÊ¬%s" #"1970Ç¯01·î01Æü(ÌÚ) 09»þ00Ê¬"¤ÎÎã
-	,$year+1900,$mon+1,$day,('Æü','·î','²Ð','¿å','ÌÚ','¶â','ÅÚ')[$wday],$hour,$min,$ENV{'TZ'});
-#	return sprintf("%1d:%01d:%2d %4d/%02d/%02d(%s)" #"9:0: 0 1970/01/01(Thu)"¤ÎÎã
-#	,$hour,$min,$sec,$year+1900,$mon+1,$day,('Sun','Mon','Tue','Wed','Thu','Fri','Sat')[$wday]);
+    $CF{'timezone'}||&cfgTimeZone($ENV{'TZ'});
+    my($sec,$min,$hour,$day,$mon,$year,$wday)=gmtime($_[0]+$CF{'timeOffset'});
+    #sprintf¤ÎÀâÌÀ¤Ï¡¢Perl¤Î²òÀâ¤ò¸«¤Æ¤¯¤À¤µ¤¤^^;;
+    return sprintf("%4dÇ¯%02d·î%02dÆü(%s) %02d»þ%02dÊ¬%s" #"1970Ç¯01·î01Æü(ÌÚ) 09»þ00Ê¬"¤ÎÎã
+		   ,$year+1900,$mon+1,$day,('Æü','·î','²Ð','¿å','ÌÚ','¶â','ÅÚ')[$wday],$hour,$min,$ENV{'TZ'});
+    #	return sprintf("%1d:%01d:%2d %4d/%02d/%02d(%s)" #"9:0: 0 1970/01/01(Thu)"¤ÎÎã
+    #	,$hour,$min,$sec,$year+1900,$mon+1,$day,('Sun','Mon','Tue','Wed','Thu','Fri','Sat')[$wday]);
 }
 
 
@@ -1030,23 +949,23 @@ $ time·Á¼°¤Î»þ¹ï
 ;
 $ ½ÐÎÏ·Á¼°(cookie|last|dateTime)
 =cut
-	defined$_[0]||return undef;
-	my$time=shift;
-	my$type=shift;
-	unless($type){
-	}elsif('cookie'eq$type){
+    defined$_[0]||return undef;
+    my$time=shift;
+    my$type=shift;
+    unless($type){
+    }elsif('cookie'eq$type){
 	# NetscapeÉ÷CookieÍÑ
-		return sprintf("%s, %02d-%s-%d %s GMT",(split(/\s+/o,gmtime$time))[0,2,1,4,3]);
-	}elsif('rfc1123'eq$type){
+	return sprintf("%s, %02d-%s-%d %s GMT",(split(/\s+/o,gmtime$time))[0,2,1,4,3]);
+    }elsif('rfc1123'eq$type){
 	# RFC1123 ¼ç¤È¤·¤ÆLastModifiedÍÑ
-		return sprintf("%s, %02d %s %d %s GMT",(split(/\s+/o,gmtime$time))[0,2,1,4,3]);
-	}elsif('dateTime'eq$type){
+	return sprintf("%s, %02d %s %d %s GMT",(split(/\s+/o,gmtime$time))[0,2,1,4,3]);
+    }elsif('dateTime'eq$type){
 	# ISO 8601 dateTime (CCYY-MM-DDThh:mm:ss+09:00)
-		$CF{'timezone'}||&cfgTimeZone($ENV{'TZ'});
-		my($sec,$min,$hour,$day,$mon,$year,$wday)=gmtime($time+$CF{'timeOffset'});
-		return sprintf("%04d-%02d-%02dT%02d:%02d:%02d+09:00",$year+1900,$mon+1,$day,$hour,$min,$sec,$CF{'timezone'});
-	}
-	return&date($time);
+	$CF{'timezone'}||&cfgTimeZone($ENV{'TZ'});
+	my($sec,$min,$hour,$day,$mon,$year,$wday)=gmtime($time+$CF{'timeOffset'});
+	return sprintf("%04d-%02d-%02dT%02d:%02d:%02d+09:00",$year+1900,$mon+1,$day,$hour,$min,$sec,$CF{'timezone'});
+    }
+    return&date($time);
 }
 
 
@@ -1060,22 +979,22 @@ gmtime()¤«¤é³Î¼Â¤Ë´õË¾¤ÎÃÏ°è¤Î»þ¹ï¤ò»»½Ð¤Ç¤­¤ë
 =item °ú¿ô
 $ $ENV{'TZ'}
 =cut
-	my$envtz=shift;
-	if($CF{'timezone'}&&$CF{'TZ'}eq$envtz){
-		#note. $CF{'timezone'}= EastPlus TimeZone <-> ENV-TZ= EastMinus TimeZone
-	}elsif(!$envtz||'Z'eq$envtz||'UTC'eq$envtz||'GMT'eq$envtz){
-		$CF{'timezone'}='Z';$CF{'timeOffset'}=0;
-	}elsif($envtz=~/([a-zA-Z]*)-(\d+)(:\d+)?/o){
-		$CF{'timezone'}=sprintf("+%02d:%02d",$2?$2:0,$3?$3:0);
-		$CF{'timeOffset'}=($2?$2*3600:0)+($3?$3*60:0);
-	}elsif($envtz=~/([a-zA-Z]*)+?(\d+)(:\d+)?/o){
-		$CF{'timezone'}=sprintf("-%02d:%02d",$2?$2:0,$3?$3:0);
-		$CF{'timeOffset'}=-($2?$2*3600:0)-($3?$3*60:0);
-	}else{
-		$CF{'timezone'}='Z';$CF{'timeOffset'}=0;
-	}
-	$CF{'TZ'}=$envtz;
-	return$CF{'timeOffset'};
+    my$envtz=shift;
+    if($CF{'timezone'}&&$CF{'TZ'}eq$envtz){
+	#note. $CF{'timezone'}= EastPlus TimeZone <-> ENV-TZ= EastMinus TimeZone
+    }elsif(!$envtz||'Z'eq$envtz||'UTC'eq$envtz||'GMT'eq$envtz){
+	$CF{'timezone'}='Z';$CF{'timeOffset'}=0;
+    }elsif($envtz=~/([a-zA-Z]*)-(\d+)(:\d+)?/o){
+	$CF{'timezone'}=sprintf("+%02d:%02d",$2?$2:0,$3?$3:0);
+	$CF{'timeOffset'}=($2?$2*3600:0)+($3?$3*60:0);
+    }elsif($envtz=~/([a-zA-Z]*)+?(\d+)(:\d+)?/o){
+	$CF{'timezone'}=sprintf("-%02d:%02d",$2?$2:0,$3?$3:0);
+	$CF{'timeOffset'}=-($2?$2*3600:0)-($3?$3*60:0);
+    }else{
+	$CF{'timezone'}='Z';$CF{'timeOffset'}=0;
+    }
+    $CF{'TZ'}=$envtz;
+    return$CF{'timeOffset'};
 }
 
 
@@ -1101,24 +1020,24 @@ $ ¤É¤Î¤è¤¦¤Ê·Á¤ÇÊÖ¤¹¤«¤ÎÀßÄê
 
 =cut
 
-	my$data=shift;
-	my$text=shift||qq(<IMG src="-!src!-" alt="" title="-!dir!-+-!file!-" $CF{'imgatt'}>);
-	my%DT=(dir=>$CF{'iconDir'},file=>$data->{'icon'});
-	if($CF{'absoluteIcon'}&&$data->{'opt'}=~/(?:^|;)absoluteIcon=([^#]*)/o){
-		#ÀäÂÐ»ØÄê¥¢¥¤¥³¥ó
-		$DT{'dir'}='';
-		$DT{'file'}||=$1;
-	}elsif($CF{'relativeIcon'}&&$data->{'opt'}=~/(?:^|;)relativeIcon=([^;:.]*(?:\.[^;:.]+)*)/o){
-		#ÁêÂÐ»ØÄê¥¢¥¤¥³¥ó
-		$DT{'file'}||=$1;
-	}
-	if($DT{'file'}){
-		$DT{'src'}=$DT{'dir'}.$DT{'file'};
-		$text=~s/(-!(\w+)!-)/defined$DT{$2}?$DT{$2}:$1/ego;
-	}else{
-		$text=undef;
-	}
-	return$text;
+    my$data=shift;
+    my$text=shift||qq(<IMG src="-!src!-" alt="" title="-!dir!-+-!file!-" $CF{'imgatt'}>);
+    my%DT=(dir=>$CF{'iconDir'},file=>$data->{'icon'});
+    if($CF{'absoluteIcon'}&&$data->{'opt'}=~/(?:^|;)absoluteIcon=([^#]*)/o){
+	#ÀäÂÐ»ØÄê¥¢¥¤¥³¥ó
+	$DT{'dir'}='';
+	$DT{'file'}||=$1;
+    }elsif($CF{'relativeIcon'}&&$data->{'opt'}=~/(?:^|;)relativeIcon=([^;:.]*(?:\.[^;:.]+)*)/o){
+	#ÁêÂÐ»ØÄê¥¢¥¤¥³¥ó
+	$DT{'file'}||=$1;
+    }
+    if($DT{'file'}){
+	$DT{'src'}=$DT{'dir'}.$DT{'file'};
+	$text=~s/(-!(\w+)!-)/defined$DT{$2}?$DT{$2}:$1/ego;
+    }else{
+	$text=undef;
+    }
+    return$text;
 }
 
 
@@ -1149,71 +1068,71 @@ $CF{'iconList'}¤ÎºÇ½é¤Î°ìÊ¸»ú¤¬' '¡ÊÈ¾³Ñ¶õÇò¡Ë¤À¤Ã¤¿¾ì¹çÊ£¿ô¥ê¥¹¥È¥â¡¼¥É¤Ë¤Ê¤ê¤Þ
 
 =cut
 
-	my$opt=$_[1]?" $_[1]":'';
-	if($CF{'-CacheIconList'}&&('reset'ne$_[2])){
-		#¥­¥ã¥Ã¥·¥å¤Ç¤¢¤ë$CF{'-CacheIconList'}¤òÊÖ¤¹
-		return$CF{'-CacheIconList'};
-	}
+    my$opt=$_[1]?" $_[1]":'';
+    if($CF{'-CacheIconList'}&&('reset'ne$_[2])){
+	#¥­¥ã¥Ã¥·¥å¤Ç¤¢¤ë$CF{'-CacheIconList'}¤òÊÖ¤¹
+	return$CF{'-CacheIconList'};
+    }
 	
-	#¥¢¥¤¥³¥ó¥ê¥¹¥ÈÆÉ¤ß¹þ¤ß
-	my$iconlist='';
-	if($CK{'opt'}=~/\biconlist=nolist(;|$)/o){
-	 #`icon=nolist`¤Ç¥¢¥¤¥³¥ó¥ê¥¹¥È¤òÆÉ¤ß¹þ¤Þ¤Ê¤¤
-	}elsif($CF{'iconList'}=~/^ /o){
-		#Ê£¿ô¥¢¥¤¥³¥ó¥ê¥¹¥ÈÆÉ¤ß¹þ¤ß
-		for($CF{'iconList'}=~/("[^"\\]*(?:\\.[^"\\]*)*"|\S+)/go){
-			$_||next;
-			my$tmp;
-			open(RD,'<'.$_)||die"Can't open multi-iconlist($_).";
-			eval{flock(RD,1)};
-			read(RD,$tmp,-s$_);
-			close(RD);
-			$iconlist.=$tmp;
-		}
+    #¥¢¥¤¥³¥ó¥ê¥¹¥ÈÆÉ¤ß¹þ¤ß
+    my$iconlist='';
+    if($CK{'opt'}=~/\biconlist=nolist(;|$)/o){
+	#`icon=nolist`¤Ç¥¢¥¤¥³¥ó¥ê¥¹¥È¤òÆÉ¤ß¹þ¤Þ¤Ê¤¤
+    }elsif($CF{'iconList'}=~/^ /o){
+	#Ê£¿ô¥¢¥¤¥³¥ó¥ê¥¹¥ÈÆÉ¤ß¹þ¤ß
+	for($CF{'iconList'}=~/("[^"\\]*(?:\\.[^"\\]*)*"|\S+)/go){
+	    $_||next;
+	    my$tmp;
+	    open(RD,'<'.$_)||die"Can't open multi-iconlist($_).";
+	    eval{flock(RD,1)};
+	    read(RD,$tmp,-s$_);
+	    close(RD);
+	    $iconlist.=$tmp;
+	}
+    }else{
+	#Ã±°ì¥¢¥¤¥³¥ó¥ê¥¹¥ÈÆÉ¤ß¹þ¤ß
+	open(RD,'<'.$CF{'iconList'})||die"Can't open single-iconlist.";
+	eval{flock(RD,1)};
+	read(RD,$iconlist,-s$CF{'iconList'});
+	close(RD);
+    }
+	
+    #ÁªÂò¥¢¥¤¥³¥ó¤Î·èÄê¡ÜSELECT¥¿¥°¤ÎÃæ¿È
+    my$isEconomy=$CK{'opt'}=~/(?:^|;)iconlist=economy(?:\s*;|$)/o;
+    my$isAbsolute=0;
+    my$isDisabled='';
+    unless(@_){
+    }elsif($CF{'exicon'}&&($CK{'opt'}=~/(?:^|;)icon=([^;]*)/o)&&$IC{$1}){
+	#¥Ñ¥¹¥ï¡¼¥É·¿
+	$_[0]=$IC{$1};
+	if($isEconomy){
+	    $iconlist=qq(<OPTION value="$_[0]" selected>ÀìÍÑ¥¢¥¤¥³¥ó</OPTION>\n);
 	}else{
-		#Ã±°ì¥¢¥¤¥³¥ó¥ê¥¹¥ÈÆÉ¤ß¹þ¤ß
-		open(RD,'<'.$CF{'iconList'})||die"Can't open single-iconlist.";
-		eval{flock(RD,1)};
-		read(RD,$iconlist,-s$CF{'iconList'});
-		close(RD);
+	    $iconlist.=qq(<OPTION value="$_[0]" selected>ÀìÍÑ¥¢¥¤¥³¥ó</OPTION>\n);
 	}
-	
-	#ÁªÂò¥¢¥¤¥³¥ó¤Î·èÄê¡ÜSELECT¥¿¥°¤ÎÃæ¿È
-	my$isEconomy=$CK{'opt'}=~/(?:^|;)iconlist=economy(?:\s*;|$)/o;
-	my$isAbsolute=0;
-	my$isDisabled='';
-	unless(@_){
-	}elsif($CF{'exicon'}&&($CK{'opt'}=~/(?:^|;)icon=([^;]*)/o)&&$IC{$1}){
-		#¥Ñ¥¹¥ï¡¼¥É·¿
-		$_[0]=$IC{$1};
-		if($isEconomy){
-			$iconlist=qq(<OPTION value="$_[0]" selected>ÀìÍÑ¥¢¥¤¥³¥ó</OPTION>\n);
-		}else{
-			$iconlist.=qq(<OPTION value="$_[0]" selected>ÀìÍÑ¥¢¥¤¥³¥ó</OPTION>\n);
-		}
-	}elsif($CF{'absoluteIcon'}&&$CK{'opt'}=~/(?:^|;)absoluteIcon=([^;]*)/o){
-		#ÀäÂÐ»ØÄê¥¢¥¤¥³¥ó
-		$_[0]=$1;
-		$isAbsolute=1;
-		$isDisabled=1;
-		$iconlist=qq(<OPTION value="$_[0]" selected>ÀäÂÐ»ØÄê</OPTION>\n)if$isEconomy;
-	}elsif($CF{'relativeIcon'}&&$CK{'opt'}=~/(?:^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/o){
-		#ÁêÂÐ»ØÄê¥¢¥¤¥³¥ó
-		$_[0]=$1;
-		$iconlist=qq(<OPTION value="$1" selected>ÁêÂÐ»ØÄê</OPTION>\n)if$isEconomy;
-		$isDisabled=1;
-	}elsif($_[0]and$iconlist=~s/^(.*value=(["'])$_[0]\2)(.*)$/$1 selected$3/imo){
-		$iconlist="$1 selected$3"if$isEconomy;
-	}elsif($iconlist=~s/value=(["'])(.+?)\1/value=$1$2$1 selected/io){
-		$_[0]=$2;
-	}
-	$_[0]=$CF{'icondir'}.$_[0]unless$isAbsolute;
-	$isDisabled&&=' disabled';
-	$CF{'-CacheIconList'}=<<"_HTML_";
+    }elsif($CF{'absoluteIcon'}&&$CK{'opt'}=~/(?:^|;)absoluteIcon=([^;]*)/o){
+	#ÀäÂÐ»ØÄê¥¢¥¤¥³¥ó
+	$_[0]=$1;
+	$isAbsolute=1;
+	$isDisabled=1;
+	$iconlist=qq(<OPTION value="$_[0]" selected>ÀäÂÐ»ØÄê</OPTION>\n)if$isEconomy;
+    }elsif($CF{'relativeIcon'}&&$CK{'opt'}=~/(?:^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/o){
+	#ÁêÂÐ»ØÄê¥¢¥¤¥³¥ó
+	$_[0]=$1;
+	$iconlist=qq(<OPTION value="$1" selected>ÁêÂÐ»ØÄê</OPTION>\n)if$isEconomy;
+	$isDisabled=1;
+    }elsif($_[0]and$iconlist=~s/^(.*value=(["'])$_[0]\2)(.*)$/$1 selected$3/imo){
+	$iconlist="$1 selected$3"if$isEconomy;
+    }elsif($iconlist=~s/value=(["'])(.+?)\1/value=$1$2$1 selected/io){
+	$_[0]=$2;
+    }
+    $_[0]=$CF{'icondir'}.$_[0]unless$isAbsolute;
+    $isDisabled&&=' disabled';
+    $CF{'-CacheIconList'}=<<"_HTML_";
 <SELECT name="icon" id="icon" onchange="document.images['preview'].src=iconDirectory+this.value;document.images['preview'].title=this.value;"$opt$isDisabled>
 $iconlist</SELECT>
 _HTML_
-	return$CF{'-CacheIconList'};
+    return$CF{'-CacheIconList'};
 }
 
 
@@ -1229,24 +1148,24 @@ $_[1]: 'tabindex=12'
 
 =cut
 
-	my$id=$_[0]||'color';
-	my$opt=$_[1]?" $_[1]":'';
-	if('input'eq$CF{'colway'}){
-		return<<"_HTML_";
+    my$id=$_[0]||'color';
+    my$opt=$_[1]?" $_[1]":'';
+    if('input'eq$CF{'colway'}){
+	return<<"_HTML_";
 <INPUT type="text" class="text" name="$id" id="$id" class="blur" maxlength="20" style="ime-mode:disabled; width:90px;"
  onFocus="this.className='focus'" onBlur="this.className='blur'" value="$CK{$id}"$opt>
 _HTML_
-	}else{
-		my$list=$CF{'colorList'};
-		if($CK{$id}&&$list=~s/(value=(["'])$CK{$id}\2)/$1 selected="selected"/i){
-		}elsif($list=~s/value=(["'])(.+?)\1/value="$2" selected="selected"/io){
-			$CK{$id}=$2;
-		}
-		return<<"_HTML_";
+    }else{
+	my$list=$CF{'colorList'};
+	if($CK{$id}&&$list=~s/(value=(["'])$CK{$id}\2)/$1 selected="selected"/i){
+	}elsif($list=~s/value=(["'])(.+?)\1/value="$2" selected="selected"/io){
+	    $CK{$id}=$2;
+	}
+	return<<"_HTML_";
 <SELECT name="$id" id="$id"$opt>
 $list</SELECT>
 _HTML_
-	}
+    }
 }
 
 
@@ -1254,9 +1173,9 @@ _HTML_
 # ¥æ¡¼¥¶¡¼¸þ¤±¥¨¥é¡¼
 #
 sub showUserError{
-	my$message=shift();
-	&showHeader;
-	print<<"_HTML_";
+    my$message=shift();
+    &showHeader;
+    print<<"_HTML_";
 <H2 class="heading2">- ¥¨¥é¡¼¤¬È¯À¸¤·¤Þ¤·¤¿ -</H2>
 <P>¤´ÉÔÊØ¤ò¤«¤±¤Æ¿½¤·Ìõ¤´¤¶¤¤¤Þ¤»¤ó<BR>
 <span class="warning">$message</span>¤¿¤á¡¢<BR>Àµ¾ï¤Ê½èÍý¤òÂ³¹Ô¤¹¤ë¤³¤È¤¬¤Ç¤­¤Þ¤»¤ó¤Ç¤·¤¿<BR>
@@ -1265,10 +1184,10 @@ sub showUserError{
 <TABLE border="1" summary="¥æ¡¼¥¶¡¼ÆþÎÏÊÑ¿ô¤òÉ½¼¨¤·¤Æ¤ª¤¯">
 <CAPTION>º£¼õ¤±¼è¤Ã¤¿°ú¿ô</CAPTION>
 _HTML_
-	print map{"<TR><TH>$_</TH><TD><XMP>$IN{$_}</XMP></TD>\n"}keys%IN;
-	print '</TABLE>';
-	&showgetFooter;
-	exit;
+    print map{"<TR><TH>$_</TH><TD><XMP>$IN{$_}</XMP></TD>\n"}keys%IN;
+    print '</TABLE>';
+    &showgetFooter;
+    exit;
 }
 
 
@@ -1277,70 +1196,70 @@ _HTML_
 # Input Class
 #
 {package Input;
-	my$singleton;
-	#---------------------------------------
-	# Class Methods
-	sub Input::new{#private
-		$singleton&&die '¤³¤ì¤ÏSingleton¤Ê¤Î¤Çnew¤ò¾¡¼ê¤Ë¸Æ¤Ð¤Ê¤¤¤Ç¡ªgetInstance¤ò»È¤¦¤³¤È';
-		my$class=ref($_[0])||$_[0];shift;
+    my$singleton;
+    #---------------------------------------
+    # Class Methods
+    sub Input::new{#private
+	$singleton&&die '¤³¤ì¤ÏSingleton¤Ê¤Î¤Çnew¤ò¾¡¼ê¤Ë¸Æ¤Ð¤Ê¤¤¤Ç¡ªgetInstance¤ò»È¤¦¤³¤È';
+	my$class=ref($_[0])||$_[0];shift;
 		
-		my$params;
-		my@params;
-		#°ú¿ô¼èÆÀ
-		unless($ENV{'REQUEST_METHOD'}){@params=@ARGV}
-		elsif('HEAD'eq$ENV{'REQUEST_METHOD'}){return}
-		elsif('POST'eq$ENV{'REQUEST_METHOD'}){read(STDIN,$params,$ENV{'CONTENT_LENGTH'})}
-		elsif('GET'eq$ENV{'REQUEST_METHOD'}){$params=$ENV{'QUERY_STRING'}}
-		# EUC-JPÊ¸»ú
-		my$eucchar=qr((?:[\x09\x0A\x0D\x20-\x7E]|[\x8E\xA1-\xFE][\xA1-\xFE]|\x8F[\xA1-\xFE]{2}))x;
+	my$params;
+	my@params;
+	#°ú¿ô¼èÆÀ
+	unless($ENV{'REQUEST_METHOD'}){@params=@ARGV}
+	elsif('HEAD'eq$ENV{'REQUEST_METHOD'}){return}
+	elsif('POST'eq$ENV{'REQUEST_METHOD'}){read(STDIN,$params,$ENV{'CONTENT_LENGTH'})}
+	elsif('GET'eq$ENV{'REQUEST_METHOD'}){$params=$ENV{'QUERY_STRING'}}
+	# EUC-JPÊ¸»ú
+	my$eucchar=qr((?:[\x09\x0A\x0D\x20-\x7E]|[\x8E\xA1-\xFE][\xA1-\xFE]|\x8F[\xA1-\xFE]{2}))x;
 		
-		#°ú¿ô¤ò¥Ï¥Ã¥·¥å¤Ë
-		if(!$params){
-		}elsif(length$params>262114){ # 262114:°ú¿ô¥µ¥¤¥º¤Î¾å¸Â(byte)
-			#¥µ¥¤¥ºÀ©¸Â
-			&showHeader;print"¤¤¤¯¤é¤Ê¤ó¤Ç¤âÎÌ¤¬Â¿¤¹¤®¤Þ¤¹\n$params";&showFooter;exit;
-		}elsif(length$params>0){
-			#ÆþÎÏ¤òÅ¸³«
-			@params=split(/[&;]/o,$params);
-		}
-		
-		#ÆþÎÏ¤òÅ¸³«¤·¤Æ¥Ï¥Ã¥·¥å¤ËÆþ¤ì¤ë
-		my%DT;
-		while(@params){
-			my($i,$j)=split('=',shift(@params),2);
-			$i=~/([a-z][-.:\w]*)/o||next;$i=$1;
-			defined$j||($DT{$i}='')||next;
-			study$j;
-			$j=~tr/+/\ /;
-			$j=~s/%([\dA-Fa-f]{2})/pack('H2',$1)/ego;
-			$j=$j=~/($eucchar*)/o?$1:'';
-			#¥á¥¤¥ó¥Õ¥ì¡¼¥à¤Î²þ¹Ô¤Ï\x85¤é¤·¤¤¤±¤É¡¢ÂÐ±þ¤¹¤ëÉ¬Í×¤Ê¤¤¤è¤Í¡©
-			$j=~s/\x0D\x0A/\n/go;$j=~tr/\r/\n/;
-			if('body'ne$i){
-				#ËÜÊ¸°Ê³°¤ÏÁ´ÌÌ¥¿¥°¶Ø»ß
-				$j=~s/\t/&nbsp;&nbsp;/go;
-				$j=~s/&(#?\w+;)?/$1?"&$1":'&#38;'/ego;
-				$j=~s/"/&#34;/go;
-				$j=~s/'/&#39;/go;
-				$j=~s/</&#60;/go;
-				$j=~s/>/&#62;/go;
-				$j=~s/\n+$//o;
-				$j=~s/\n/<BR>/go;
-			}#ËÜÊ¸¤Ï¸å¤Ç¤Þ¤È¤á¤Æ
-			$DT{$i}=$j;
-		}
-		
-		$singleton=bless\%DT,$class;
+	#°ú¿ô¤ò¥Ï¥Ã¥·¥å¤Ë
+	if(!$params){
+	}elsif(length$params>262114){ # 262114:°ú¿ô¥µ¥¤¥º¤Î¾å¸Â(byte)
+	    #¥µ¥¤¥ºÀ©¸Â
+	    &showHeader;print"¤¤¤¯¤é¤Ê¤ó¤Ç¤âÎÌ¤¬Â¿¤¹¤®¤Þ¤¹\n$params";&showFooter;exit;
+	}elsif(length$params>0){
+	    #ÆþÎÏ¤òÅ¸³«
+	    @params=split(/[&;]/o,$params);
 	}
+		
+	#ÆþÎÏ¤òÅ¸³«¤·¤Æ¥Ï¥Ã¥·¥å¤ËÆþ¤ì¤ë
+	my%DT;
+	while(@params){
+	    my($i,$j)=split('=',shift(@params),2);
+	    $i=~/([a-z][-.:\w]*)/o||next;$i=$1;
+	    defined$j||($DT{$i}='')||next;
+	    study$j;
+	    $j=~tr/+/\ /;
+	    $j=~s/%([\dA-Fa-f]{2})/pack('H2',$1)/ego;
+	    $j=$j=~/($eucchar*)/o?$1:'';
+	    #¥á¥¤¥ó¥Õ¥ì¡¼¥à¤Î²þ¹Ô¤Ï\x85¤é¤·¤¤¤±¤É¡¢ÂÐ±þ¤¹¤ëÉ¬Í×¤Ê¤¤¤è¤Í¡©
+	    $j=~s/\x0D\x0A/\n/go;$j=~tr/\r/\n/;
+	    if('body'ne$i){
+		#ËÜÊ¸°Ê³°¤ÏÁ´ÌÌ¥¿¥°¶Ø»ß
+		$j=~s/\t/&nbsp;&nbsp;/go;
+		$j=~s/&(#?\w+;)?/$1?"&$1":'&#38;'/ego;
+		$j=~s/"/&#34;/go;
+		$j=~s/'/&#39;/go;
+		$j=~s/</&#60;/go;
+		$j=~s/>/&#62;/go;
+		$j=~s/\n+$//o;
+		$j=~s/\n/<BR>/go;
+	    }#ËÜÊ¸¤Ï¸å¤Ç¤Þ¤È¤á¤Æ
+	    $DT{$i}=$j;
+	}
+		
+	$singleton=bless\%DT,$class;
+    }
 	
-	sub Input::getInstance{$singleton||Input->new}
-	sub Input::filtering{
-		my$self=ref($_[0])?$_[0]:getInstance();shift;
-		my$tmp=Filter->filtering($singleton);
-		$singleton=bless$tmp,ref$self;
-	}
+    sub Input::getInstance{$singleton||Input->new}
+    sub Input::filtering{
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	my$tmp=Filter->filtering($singleton);
+	$singleton=bless$tmp,ref$self;
+    }
 
-#	sub Logfile::DESTROY{shift->dispose}
+    #	sub Logfile::DESTROY{shift->dispose}
 }
 
 
@@ -1348,14 +1267,14 @@ _HTML_
 # Filter Class
 #
 {package Filter;
-	# EUC-JPÊ¸»ú
-	my$eucchar=qr((?:[\x09\x0A\x0D\x20-\x7E]|[\x8E\xA1-\xFE][\xA1-\xFE]|\x8F[\xA1-\xFE]{2}))x;
-	#[-_.!~*'()a-zA-Z0-9;:&=+$,]	->[!$&-.\w:;=~]
-	#[-_.!~*'()a-zA-Z0-9:@&=+$,]	->[!$&-.\w:=@~]
-	#[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]	->[!$&-/\w:;=?@~]
-	#[-_.!~*'()a-zA-Z0-9;&=+$,]		->[!$&-.\w;=~]
-	#http URL ¤ÎÀµµ¬É½¸½
-	my$http_URL_regex =
+    # EUC-JPÊ¸»ú
+    my$eucchar=qr((?:[\x09\x0A\x0D\x20-\x7E]|[\x8E\xA1-\xFE][\xA1-\xFE]|\x8F[\xA1-\xFE]{2}))x;
+    #[-_.!~*'()a-zA-Z0-9;:&=+$,]	->[!$&-.\w:;=~]
+    #[-_.!~*'()a-zA-Z0-9:@&=+$,]	->[!$&-.\w:=@~]
+    #[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]	->[!$&-/\w:;=?@~]
+    #[-_.!~*'()a-zA-Z0-9;&=+$,]		->[!$&-.\w;=~]
+    #http URL ¤ÎÀµµ¬É½¸½
+    my$http_URL_regex =
 q{\b(?:https?|shttp)://(?:(?:[!$&-.\w:;=~]|%[\dA-Fa-f}.
 q{][\dA-Fa-f])*@)?(?:(?:[a-zA-Z\d](?:[-a-zA-Z\d]*[a-zA-Z\d])?\.)}.
 q{*[a-zA-Z](?:[-a-zA-Z\d]*[a-zA-Z\d])?\.?|\d+\.\d+\.\d+\.}.
@@ -1366,8 +1285,8 @@ q{])*(?:;(?:[!$&-.\w:=@~]|%[\dA-Fa-f][\dA-Fa-f])*)*)}.
 q{*)?(?:\?(?:[!$&-/\w:;=?@~]|%[\dA-Fa-f][\dA-Fa-f])}.
 q{*)?(?:#(?:[!$&-/\w:;=?@~]|%[\dA-Fa-f][\dA-Fa-f])*}.
 q{)?};
-	#ftp URL ¤ÎÀµµ¬É½¸½
-	my$ftp_URL_regex =
+    #ftp URL ¤ÎÀµµ¬É½¸½
+    my$ftp_URL_regex =
 q{\bftp://(?:(?:[!$&-.\w;=~]|%[\dA-Fa-f][\dA-Fa-f])*}.
 q{(?::(?:[!$&-.\w;=~]|%[\dA-Fa-f][\dA-Fa-f])*)?@)?(?}.
 q{:(?:[a-zA-Z\d](?:[-a-zA-Z\d]*[a-zA-Z\d])?\.)*[a-zA-Z](?:[-a-zA-}.
@@ -1377,173 +1296,177 @@ q{:[!$&-.\w:=@~]|%[\dA-Fa-f][\dA-Fa-f])*)*(?:;type=[}.
 q{AIDaid])?)?(?:\?(?:[!$&-/\w:;=?@~]|%[\dA-Fa-f][\d}.
 q{A-Fa-f])*)?(?:#(?:[!$&-/\w:;=?@~]|%[\dA-Fa-f][\dA}.
 q{-Fa-f])*)?};
-	#¥á¡¼¥ë¥¢¥É¥ì¥¹¤ÎÀµµ¬É½¸½²þ
-	#"aaa@localhost"¤Ê¤É¤ò·Ç¼¨ÈÄ¤Ç¡Ö¥á¡¼¥ë¥¢¥É¥ì¥¹¡×¤È¤·¤Æ»È¤¦¤È¤Ï»×¤¨¤Ê¤¤¤Î¤Ç¡£
-	my$mail_regex=
+    #¥á¡¼¥ë¥¢¥É¥ì¥¹¤ÎÀµµ¬É½¸½²þ
+    #"aaa@localhost"¤Ê¤É¤ò·Ç¼¨ÈÄ¤Ç¡Ö¥á¡¼¥ë¥¢¥É¥ì¥¹¡×¤È¤·¤Æ»È¤¦¤È¤Ï»×¤¨¤Ê¤¤¤Î¤Ç¡£
+    my$mail_regex=
 q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
-.q{\[\]\00-\037\x80-\xff])|"[^\\\\\x80-\xff\n\015"]*(?:\\\\[^\x80-\xff][}
-.q{^\\\\\x80-\xff\n\015"]*)*")(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x}
-.q{80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff])|"[^\\\\\x80-}
-.q{\xff\n\015"]*(?:\\\\[^\x80-\xff][^\\\\\x80-\xff\n\015"]*)*"))*@(?:[^(}
-.q{\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\0}
-.q{00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[^\x80-\xff])*}
-.q{\])(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,}
-.q{;:".\\\\\[\]\00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[}
-.q{^\x80-\xff])*\]))+};
-	sub Filter::filtering{
-		shift;
-		my%DT=%{shift()};
-		my%IN;
-		#¥³¥Þ¥ó¥É·Ï
-		if($DT{'body'}){
-			if($::CF{'admipass'}&&$DT{'body'}=~/^#$::CF{'admipass'}\s+(.*)/o){
-				$IN{'mode'}='admicmd';
-				$IN{'opt'}=$1;
-			}elsif($DT{'body'}=~/^\$(\w.*)/o){
-				$IN{'mode'}='usercmd';
-				$IN{'opt'}=$1;
-			}
-			$IN{'mode'}&&return\%IN;
-		}
+	.q{\[\]\00-\037\x80-\xff])|"[^\\\\\x80-\xff\n\015"]*(?:\\\\[^\x80-\xff][}
+	.q{^\\\\\x80-\xff\n\015"]*)*")(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x}
+	.q{80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff])|"[^\\\\\x80-}
+	.q{\xff\n\015"]*(?:\\\\[^\x80-\xff][^\\\\\x80-\xff\n\015"]*)*"))*@(?:[^(}
+	.q{\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\0}
+	.q{00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[^\x80-\xff])*}
+	.q{\])(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,}
+	.q{;:".\\\\\[\]\00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[}
+	.q{^\x80-\xff])*\]))+};
+    sub Filter::filtering{
+	shift;
+	my%DT=%{shift()};
+	my%IN;
+	#¥³¥Þ¥ó¥É·Ï
+	if($DT{'body'}){
+	    if($::CF{'admipass'}&&$DT{'body'}=~/^#$::CF{'admipass'}\s+(.*)/o){
+		$IN{'mode'}='admicmd';
+		$IN{'opt'}=$1;
+	    }elsif($DT{'body'}=~/^\$(\w.*)/o){
+		$IN{'mode'}='usercmd';
+		$IN{'opt'}=$1;
+	    }
+	    $IN{'mode'}&&return\%IN;
+	}
 		
-		if(!%DT||($DT{'mode'}&&'frame'eq$DT{'mode'})){
-			#¥Õ¥ì¡¼¥à
-			$IN{'mode'}='frame';
-		}elsif(defined$DT{'icct'}){
-			#¥¢¥¤¥³¥ó¥«¥¿¥í¥°
-			$IN{'page'}=($DT{'page'}&&$DT{'page'}=~/([1-9]\d*)/o)?$1:1;
-			$IN{'mode'}='icct';
-		}elsif($DT{'name'}){
-			&::getCookie;
+	if(!%DT||($DT{'mode'}&&'frame'eq$DT{'mode'})){
+	    #¥Õ¥ì¡¼¥à
+	    $IN{'mode'}='frame';
+	}elsif(defined$DT{'icct'}){
+	    #¥¢¥¤¥³¥ó¥«¥¿¥í¥°
+	    $IN{'page'}=($DT{'page'}&&$DT{'page'}=~/([1-9]\d*)/o)?$1:1;
+	    $IN{'mode'}='icct';
+	}elsif($DT{'name'}){
+	    &::getCookie;
 			
-			if(defined$DT{'body'}){
-				$IN{'body'}=$DT{'body'}||'';
-				$IN{'cook'}=$DT{'cook'}?1:0;
-			}
-			if(defined$DT{'del'}){
-				$IN{'del'}=$1 if$DT{'del'}=~/([1-9]\d*)/o;
-			}
-			$IN{'name'}=($DT{'name'}=~/(.{1,100})/o)?$1:'';
-			$IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($::CK{'id'}||$IN{'name'});
-			$IN{'color'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
-			$IN{'bcolo'}=($DT{'bcolo'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
-			$DT{'email'}=($DT{'email'}=~/(.{1,200})/o)?$1:'';
-			$IN{'email'}=($DT{'email'}=~/($mail_regex)/o)?$1:'';
-			$DT{'home'}=($DT{'home'}=~/(.{1,200})/o)?$1:'';
-			$IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?$1:'';
-			$IN{'icon'}=($DT{'icon'}=~/([\w\:\.\~\-\%\/\#]+)/o)?$1:'';
-			$IN{'surface'}=$1 if$DT{'surface'}=~/(.+)/o;
-			$IN{'quit'}=$DT{'quit'}?1:0;
-			$IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
-			$IN{'line'}=($DT{'line'}=~/([1-9]\d*)/o)?$1:$::CF{'defline'};
-			$IN{'reload'}=($DT{'reload'}=~/([1-9]\d+|0)/o)?$1:$::CF{'defreload'};
-			$IN{'mode'}='south';
-		}elsif((defined$DT{'north'})||('north'eq$DT{'mode'})){
-			#ËÌ
-			$IN{'mode'}='north';
-			$IN{'line'}=$::CF{'defline'};
-			$IN{'reload'}=$::CF{'defreload'};
-		}elsif(defined$DT{'south'}){
-			#Æî
-			$IN{'mode'}='south';
-			$IN{'line'}=$::CF{'romline'};
-			$IN{'reload'}=$::CF{'romreload'};
-		}
-		$IN{'ra'}=($ENV{'REMOTE_ADDR'}&&$ENV{'REMOTE_ADDR'}=~/([\d\:\.]{2,56})/o)?"$1":'';
-		$IN{'hua'}=($ENV{'HTTP_USER_AGENT'}&&$ENV{'HTTP_USER_AGENT'}=~/($eucchar+)/o)?"$1":'';
-		$IN{'hua'}=~tr/\x09\x0A\x0D/\x20\x20\x20/;
-		return\%IN;
+	    if(defined$DT{'body'}){
+		$IN{'body'}=$DT{'body'}||'';
+		$IN{'cook'}=$DT{'cook'}?1:0;
+	    }
+	    if(defined$DT{'del'}){
+		$IN{'del'}=$1 if$DT{'del'}=~/([1-9]\d*)/o;
+	    }
+	    $IN{'name'}=($DT{'name'}=~/(.{1,100})/o)?$1:'';
+	    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($::CK{'id'}||$IN{'name'});
+	    $IN{'color'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+	    $IN{'bcolo'}=($DT{'bcolo'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+	    $DT{'email'}=($DT{'email'}=~/(.{1,200})/o)?$1:'';
+	    $IN{'email'}=($DT{'email'}=~/($mail_regex)/o)?$1:'';
+	    $DT{'home'}=($DT{'home'}=~/(.{1,200})/o)?$1:'';
+	    $IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?$1:'';
+	    $IN{'icon'}=($DT{'icon'}=~/([\w\:\.\~\-\%\/\#]+)/o)?$1:'';
+	    $IN{'surface'}=$1 if$DT{'surface'}=~/(.+)/o;
+	    $IN{'quit'}=$DT{'quit'}?1:0;
+	    $IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
+	    $IN{'line'}=($DT{'line'}=~/([1-9]\d*)/o)?$1:$::CF{'defline'};
+	    $IN{'reload'}=($DT{'reload'}=~/([1-9]\d+|0)/o)?$1:$::CF{'defreload'};
+	    $IN{'mode'}='south';
+	}elsif((defined$DT{'north'})||('north'eq$DT{'mode'})){
+	    #ËÌ
+	    $IN{'mode'}='north';
+	    $IN{'line'}=$::CF{'defline'};
+	    $IN{'reload'}=$::CF{'defreload'};
+	}elsif(defined$DT{'south'}){
+	    #Æî
+	    $IN{'mode'}='south';
+	    $IN{'line'}=$::CF{'romline'};
+	    $IN{'reload'}=$::CF{'romreload'};
 	}
-	sub Filter::filteringBody{
-		my$pkg=shift;
-		my$str=shift;
-		my%EX=@_;
-		#-----------------------------
-		#ËÜÊ¸¤Î½èÍý
-		#form->dataÊÑ´¹
-		unless(defined$str&&length$str){
-			$str='';
-		}elsif($::CF{'tags'}&&'ALLALL'eq$::CF{'tags'}){
-			#ALLALL¤ÏÁ´ÌÌOK¡£Ã¢¤·¶¯Ä´¤ÏÌµ¸ú¡£URI¼«Æ°¥ê¥ó¥¯¤âÌµ¸ú¡£
-			#¼«Á°¤Ç¥ê¥ó¥¯¤òÄ¥¤Ã¤¿¤ê¡¢¶¯Ä´¤·¤Æ¤¢¤ë¤â¤Î¤ò¡¢Æó½Å¤Ë¥ê¥ó¥¯¡¦¶¯Ä´¤·¤Æ¤·¤Þ¤¤¤Þ¤¹¤«¤é
-		}else{
-			#ËÜÊ¸¤Î¤ß¥¿¥°¤ò»È¤Ã¤Æ¤â¤¤¤¤ÀßÄê¤Ë¤â¤Ç¤­¤ë
-			my$attrdel=0;#Â°À­¤ò¾Ã¤¹/¾Ã¤µ¤Ê¤¤(1/0)
-			study$str;
-			$str=~tr/"'<>/\01-\04/;
-			$str=~s/&(#?\w+;)/\05$1/go;
-			
-			#¥¿¥°½èÍý
-			if($::CF{'tags'}&&!$EX{'notag'}){
-				my$tag_regex_='[^\01-\04]*(?:\01[^\01]*\01[^\01-\04]*|\02[^\02]*\02[^\01-\04]*)*(?:\04|(?=\03)|$(?!\n))';
-				my$comment_tag_regex='\03!(?:--[^-]*-(?:[^-]+-)*?-(?:[^\04-]*(?:-[^\04-]+)*?)??)*(?:\04|$(?!\n)|--.*$)';
-				my$text_regex='[^\03]*';
-				
-				my$tags=$::CF{'tags'};
-				my%tagCom=map{m/(!\w+)(?:\(([^()]+)\))?/o;$1," $2 "||''}($tags=~/!\w+(?:\([^()]+\))?/go);
-				if($tagCom{'!SELECTABLE'}){
-					$tags.=' '.join(' ',grep{$tagCom{'!SELECTABLE'}=~/ $_ /o}grep{m/\w+/}split(/\s+/,$EX{'usetag'}));
-				}elsif(defined$tagCom{'!SELECTABLE'}){
-					$tags='\w+';
-				}
-				
-				my$result='';
-				#¤â¤· BR¥¿¥°¤ä A¥¿¥°¤Ê¤ÉÆÃÄê¤Î¥¿¥°¤À¤±¤Ïºï½ü¤·¤¿¤¯¤Ê¤¤¾ì¹ç¤Ë¤Ï¡¤ 
-				#$tag_tmp = $2; ¤Î¸å¤Ë¡¤¼¡¤Î¤è¤¦¤Ë¤·¤Æ $tag_tmp ¤ò $result ¤Ë²Ã¤¨¤ë¤è¤¦¤Ë¤¹¤ì¤Ð¤Ç¤­¤Þ¤¹¡¥ 
-				#$result .= $tag_tmp if $tag_tmp =~ /^<\/?(BR|A)(?![\dA-Za-z])/io;
-				my$remain=join('|',grep{m/^(?:\\w\+|\w+)$/o}split(/\s+/o,$tags));
-				#µÕ¤Ë FONT¥¿¥°¤ä IMG¥¿¥°¤Ê¤ÉÆÃÄê¤Î¥¿¥°¤À¤±ºï½ü¤·¤¿¤¤¾ì¹ç¤Ë¤Ï¡¤ 
-				#$tag_tmp = $2; ¤Î¸å¤Ë¡¤¼¡¤Î¤è¤¦¤Ë¤·¤Æ $tag_tmp ¤ò $result ¤Ë²Ã¤¨¤ë¤è¤¦¤Ë¤¹¤ì¤Ð¤Ç¤­¤Þ¤¹¡¥ 
-				#$result .= $tag_tmp if $tag_tmp !~ /^<\/?(FONT|IMG)(?![\dA-Za-z])/io;
-				my$pos=length$str;
-				while($str=~/\G($text_regex)($comment_tag_regex|\03$tag_regex_)?/gso){
-					$pos=pos$str;
-					''eq$1&&!$2&&last;
-					$result.=$1;
-					my$tag_tmp=$2;
-					if($tag_tmp=~s/^\03((\/?(?:$remain))(?![\dA-Za-z]).*)\04/<$1>/io){
-						$tag_tmp=~tr/\01\02/"'/;
-						$result.=$attrdel?"<$2>":$tag_tmp;
-					}else{
-						$result.=$tag_tmp;
-					}
-					if($tag_tmp=~/^<(XMP|PLAINTEXT|SCRIPT)(?![\dA-Za-z])/io){
-						$str=~/(.*?)(?:<\/$1(?![\dA-Za-z])$tag_regex_|$)/gsi;
-						(my$tag_tmp=$1)=~tr/\01-\04/"'<>/;
-						$result.=$tag_tmp;
-					}
-				}
-				$str=$result.substr($str,$pos);
-			}else{
-				#µö²Ä¥¿¥°Ìµ¤·orCommand:notag
-			}
-			
-			#URI¼«Æ°¥ê¥ó¥¯
-			if($::CF{'noautolink'}||!$EX{'noautolink'}){
-				#¼Â²ÔÆ°Éô
-				my$href_regex=qr{($http_URL_regex|$ftp_URL_regex|($mail_regex))};
-				my@isMail=('<A class="autolink" href="mailto:','<A class="autolink" href="');
-				$str=~s{((?:\G|>)[^<]*?)$href_regex}{$1$isMail[!$3]$2" target="_blank">$2</A>}go;
-				if($str=~/<(?:XMP|PLAINTEXT|SCRIPT)(?![0-9A-Za-z])/io){
-					#XMP/PLAINTEXT/SCRIPT¥¿¥°¤¬¤¢¤ë¤È¤­
-					$str=~s{(<(XMP|PLAINTEXT|SCRIPT)(?![0-9A-Za-z]).*?(?:<\/$2\s*>|$))}
-					{(my$element=$1)=~s/<A class="autolink"[^>]+>(.*?)<\/A>/$1/gos;$element}egios;
-				}
-			}else{
-				#Command:nolink
-			}
-			
-			$str=~s/&/&#38;/go;
-			$str=~s/\01/&#34;/go;
-			$str=~s/\02/&#39;/go;
-			$str=~s/\03/&#60;/go;
-			$str=~s/\04/&#62;/go;
-			$str=~tr/\05/&/;
-		}
-		$str=~s/\t/&nbsp;&nbsp;/go;
-		$str=~s/\n/<BR>/go;
-		return$str;
+	$IN{'ra'}=($ENV{'REMOTE_ADDR'}&&$ENV{'REMOTE_ADDR'}=~/([\d\:\.]{2,56})/o)?"$1":'';
+	$IN{'hua'}=($ENV{'HTTP_USER_AGENT'}&&$ENV{'HTTP_USER_AGENT'}=~/($eucchar+)/o)?"$1":'';
+	$IN{'hua'}=~tr/\x09\x0A\x0D/\x20\x20\x20/;
+	if(exists$DT{'change'}){
+	    #ChangeChat
+	    $IN{'mode'}='change';
 	}
+	return\%IN;
+    }
+    sub Filter::filteringBody{
+	my$pkg=shift;
+	my$str=shift;
+	my%EX=@_;
+	#-----------------------------
+	#ËÜÊ¸¤Î½èÍý
+	#form->dataÊÑ´¹
+	unless(defined$str&&length$str){
+	    $str='';
+	}elsif($::CF{'tags'}&&'ALLALL'eq$::CF{'tags'}){
+	    #ALLALL¤ÏÁ´ÌÌOK¡£Ã¢¤·¶¯Ä´¤ÏÌµ¸ú¡£URI¼«Æ°¥ê¥ó¥¯¤âÌµ¸ú¡£
+	    #¼«Á°¤Ç¥ê¥ó¥¯¤òÄ¥¤Ã¤¿¤ê¡¢¶¯Ä´¤·¤Æ¤¢¤ë¤â¤Î¤ò¡¢Æó½Å¤Ë¥ê¥ó¥¯¡¦¶¯Ä´¤·¤Æ¤·¤Þ¤¤¤Þ¤¹¤«¤é
+	}else{
+	    #ËÜÊ¸¤Î¤ß¥¿¥°¤ò»È¤Ã¤Æ¤â¤¤¤¤ÀßÄê¤Ë¤â¤Ç¤­¤ë
+	    my$attrdel=0;#Â°À­¤ò¾Ã¤¹/¾Ã¤µ¤Ê¤¤(1/0)
+	    study$str;
+	    $str=~tr/"'<>/\01-\04/;
+	    $str=~s/&(#?\w+;)/\05$1/go;
+			
+	    #¥¿¥°½èÍý
+	    if($::CF{'tags'}&&!$EX{'notag'}){
+		my$tag_regex_='[^\01-\04]*(?:\01[^\01]*\01[^\01-\04]*|\02[^\02]*\02[^\01-\04]*)*(?:\04|(?=\03)|$(?!\n))';
+		my$comment_tag_regex='\03!(?:--[^-]*-(?:[^-]+-)*?-(?:[^\04-]*(?:-[^\04-]+)*?)??)*(?:\04|$(?!\n)|--.*$)';
+		my$text_regex='[^\03]*';
+				
+		my$tags=$::CF{'tags'};
+		my%tagCom=map{/(!\w+)(?:\(([^()]+)\))?/o;$1," $2 "||''}($tags=~/!\w+(?:\([^()]+\))?/go);
+		if($tagCom{'!SELECTABLE'}){
+		    $tags.=' '.join(' ',grep{$tagCom{'!SELECTABLE'}=~/ $_ /o}grep{/\w+/}split(/\s+/,$EX{'usetag'}));
+		}elsif(defined$tagCom{'!SELECTABLE'}){
+		    $tags='\w+';
+		}
+				
+		my$result='';
+		#¤â¤· BR¥¿¥°¤ä A¥¿¥°¤Ê¤ÉÆÃÄê¤Î¥¿¥°¤À¤±¤Ïºï½ü¤·¤¿¤¯¤Ê¤¤¾ì¹ç¤Ë¤Ï¡¤ 
+		#$tag_tmp = $2; ¤Î¸å¤Ë¡¤¼¡¤Î¤è¤¦¤Ë¤·¤Æ $tag_tmp ¤ò $result ¤Ë²Ã¤¨¤ë¤è¤¦¤Ë¤¹¤ì¤Ð¤Ç¤­¤Þ¤¹¡¥ 
+		#$result .= $tag_tmp if $tag_tmp =~ /^<\/?(BR|A)(?![\dA-Za-z])/io;
+		my$remain=join('|',grep{/^(?:\\w\+|\w+)$/o}split(/\s+/o,$tags));
+		#µÕ¤Ë FONT¥¿¥°¤ä IMG¥¿¥°¤Ê¤ÉÆÃÄê¤Î¥¿¥°¤À¤±ºï½ü¤·¤¿¤¤¾ì¹ç¤Ë¤Ï¡¤ 
+		#$tag_tmp = $2; ¤Î¸å¤Ë¡¤¼¡¤Î¤è¤¦¤Ë¤·¤Æ $tag_tmp ¤ò $result ¤Ë²Ã¤¨¤ë¤è¤¦¤Ë¤¹¤ì¤Ð¤Ç¤­¤Þ¤¹¡¥ 
+		#$result .= $tag_tmp if $tag_tmp !~ /^<\/?(FONT|IMG)(?![\dA-Za-z])/io;
+		my$pos=length$str;
+		while($str=~/\G($text_regex)($comment_tag_regex|\03$tag_regex_)?/gso){
+		    $pos=pos$str;
+		    ''eq$1&&!$2&&last;
+		    $result.=$1;
+		    my$tag_tmp=$2;
+		    if($tag_tmp=~s/^\03((\/?(?:$remain))(?![\dA-Za-z]).*)\04/<$1>/io){
+			$tag_tmp=~tr/\01\02/"'/;
+			$result.=$attrdel?"<$2>":$tag_tmp;
+		    }else{
+			$result.=$tag_tmp;
+		    }
+		    if($tag_tmp=~/^<(XMP|PLAINTEXT|SCRIPT)(?![\dA-Za-z])/io){
+			$str=~/(.*?)(?:<\/$1(?![\dA-Za-z])$tag_regex_|$)/gsi;
+			(my$tag_tmp=$1)=~tr/\01-\04/"'<>/;
+			$result.=$tag_tmp;
+		    }
+		}
+		$str=$result.substr($str,$pos);
+	    }else{
+		#µö²Ä¥¿¥°Ìµ¤·orCommand:notag
+	    }
+			
+	    #URI¼«Æ°¥ê¥ó¥¯
+	    if($::CF{'noautolink'}||!$EX{'noautolink'}){
+		#¼Â²ÔÆ°Éô
+		my$href_regex=qr{($http_URL_regex|$ftp_URL_regex|($mail_regex))};
+		my@isMail=('<A class="autolink" href="mailto:','<A class="autolink" href="');
+		$str=~s{((?:\G|>)[^<]*?)$href_regex}{$1$isMail[!$3]$2" target="_blank">$2</A>}go;
+		if($str=~/<(?:XMP|PLAINTEXT|SCRIPT)(?![0-9A-Za-z])/io){
+		    #XMP/PLAINTEXT/SCRIPT¥¿¥°¤¬¤¢¤ë¤È¤­
+		    $str=~s{(<(XMP|PLAINTEXT|SCRIPT)(?![0-9A-Za-z]).*?(?:<\/$2\s*>|$))}
+		    {(my$element=$1)=~s/<A class="autolink"[^>]+>(.*?)<\/A>/$1/gos;$element}egios;
+		}
+	    }else{
+		#Command:nolink
+	    }
+			
+	    $str=~s/&/&#38;/go;
+	    $str=~s/\01/&#34;/go;
+	    $str=~s/\02/&#39;/go;
+	    $str=~s/\03/&#60;/go;
+	    $str=~s/\04/&#62;/go;
+	    $str=~tr/\05/&/;
+	}
+	$str=~s/\t/&nbsp;&nbsp;/go;
+	$str=~s/\n/<BR>/go;
+	return$str;
+    }
 }
 
 
@@ -1551,56 +1474,57 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 # Logfile Class
 #
 {package Logfile;
-	my$fh;
-	my$path=$::CF{'log'};
-	my@members;
-	my@chatlog;
-	my$singleton;
+    my$fh;
+    my$path=$::CF{'log'};
+    my@members;
+    my@chatlog;
+    my$singleton;
 	
-	#---------------------------------------
-	# Class Methods
-	sub Logfile::new{#private
-		$singleton&&die '¤³¤ì¤ÏSingleton¤Ê¤Î¤Çnew¤ò¾¡¼ê¤Ë¸Æ¤Ð¤Ê¤¤¤Ç¡ªgetInstance¤ò»È¤¦¤³¤È';
-		my$class=ref($_[0])||$_[0];shift;
-		local*LOGFILE;
-		if(-e$path){
-			open(LOGFILE,'+<'.$path); #+>>¤È¤¹¤ë¤Èseek($fh,0,0)¤¬Æ°¤¤¤Æ¤¯¤ì¤Ê¤¤¤Î¤ÇÃí°Õ¡ª
-			$fh=*LOGFILE{IO};
-			eval{flock($fh,2)};
-			#member¤òÄÉ²Ã
-			while(<$fh>){length>1||last;push(@members,$_);}
-			#chatlog¤òÄÉ²Ã
-			while(<$fh>){length>1||last;push(@chatlog,$_);}
-		}else{
-			open(LOGFILE,'>'.$path);
-			$fh=*LOGFILE{IO};
-			eval{flock($fh,2)};
-			@members=();
-			@chatlog=();
-		}
+    #---------------------------------------
+    # Class Methods
+    sub Logfile::new{#private
+	$singleton&&die '¤³¤ì¤ÏSingleton¤Ê¤Î¤Çnew¤ò¾¡¼ê¤Ë¸Æ¤Ð¤Ê¤¤¤Ç¡ªgetInstance¤ò»È¤¦¤³¤È';
+	my$class=ref($_[0])||$_[0];shift;
+	local*LOGFILE;
+	if(-e$path){
+	    open(LOGFILE,'+<'.$path)||die"Can't read Logfile($path)[$?:$!]";
+	    #+>>¤È¤¹¤ë¤Èseek($fh,0,0)¤¬Æ°¤¤¤Æ¤¯¤ì¤Ê¤¤¤Î¤ÇÃí°Õ¡ª
+	    $fh=*LOGFILE{IO};
+	    eval{flock($fh,2)};
+	    #member¤òÄÉ²Ã
+	    while(<$fh>){/\S/o?push(@members,$_):last}
+	    #chatlog¤òÄÉ²Ã
+	    while(<$fh>){/\S/o&&push(@chatlog,$_)}
+	}else{
+	    open(LOGFILE,'>>'.$path)||die"Can't create Logfile($path)[$?:$!]";
+	    $fh=*LOGFILE{IO};
+	    eval{flock($fh,2)};
+	    @members=();
+	    @chatlog=();
+	}
 		
-		$singleton=bless[\@chatlog,\@members],$class;
-	}
+	$singleton=bless[\@chatlog,\@members],$class;
+    }
 	
-	sub Logfile::getInstance{$singleton||Logfile->new}
-	sub Logfile::getChatlog	{$singleton||Logfile->new;return@chatlog}
-	sub Logfile::getMembers	{$singleton||Logfile->new;return@members}
+    sub Logfile::getInstance{$singleton||Logfile->new}
+    sub Logfile::getChatlog	{$singleton||Logfile->new;return@chatlog}
+    sub Logfile::getMembers	{$singleton||Logfile->new;return@members}
 	
-	sub Logfile::setChatlog	{@chatlog=(@_[1..$#_])if$#_}
-	sub Logfile::setMembers	{@members=(@_[1..$#_])if$#_}
+    sub Logfile::setChatlog	{@chatlog=(@_[1..$#_])if$#_}
+    sub Logfile::setMembers	{@members=(@_[1..$#_])if$#_}
 	
-	sub Logfile::DESTROY{shift->dispose}
+    sub Logfile::DESTROY{shift->dispose}
 	
-	#dispose -- ÊÑ¹¹ºÑ¤ß¥Ç¡¼¥¿¤ò¥Õ¥¡¥¤¥ë¤ËÊÝÂ¸
-	sub Logfile::dispose{
-		(@members&&@chatlog)||return;
-		my$self=shift;
-		truncate($path,0);#$fh¤¸¤ã¥À¥á
-		seek($fh,0,0);
-		print $fh join("\n",@members,'',@chatlog,'');
-		close($fh);
-		undef$fh;undef@members;undef@chatlog;undef$singleton;
-	}
+    #dispose -- ÊÑ¹¹ºÑ¤ß¥Ç¡¼¥¿¤ò¥Õ¥¡¥¤¥ë¤ËÊÝÂ¸
+    sub Logfile::dispose{
+	(@members&&@chatlog)||return;
+	my$self=shift;
+	truncate($path,0);#$fh¤¸¤ã¥À¥á
+	seek($fh,0,0);
+	print $fh map{$_."\n"}map{/(.*)/o}@members,'',@chatlog,'';
+	close($fh);
+	undef$fh;undef@members;undef@chatlog;undef$singleton;
+    }
 }
 
 
@@ -1608,59 +1532,59 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 # Chatlog Class
 #
 {package Chatlog;
-	my$logfile;
-	my$singleton;
+    my$logfile;
+    my$singleton;
 	
-	#---------------------------------------
-	# Class Methods
-	sub Chatlog::new{#private
-		$singleton&&die '¤³¤ì¤ÏSingleton¤Ê¤Î¤Çnew¤ò¾¡¼ê¤Ë¸Æ¤Ð¤Ê¤¤¤Ç¡ªgetInstance¤ò»È¤¦¤³¤È';
-		my$class=ref($_[0])||$_[0];shift;
-		$logfile=Logfile->getInstance;
-		my$self=[
-			map{{/([^\t]+)=\t([^\t]*);\t/go}}
-			grep{m/^Mar1=\t[^\t]*;\t(?:[^\t]*=\t[^\t]*;\t)*$/o}$logfile->getChatlog
+    #---------------------------------------
+    # Class Methods
+    sub Chatlog::new{#private
+	$singleton&&die '¤³¤ì¤ÏSingleton¤Ê¤Î¤Çnew¤ò¾¡¼ê¤Ë¸Æ¤Ð¤Ê¤¤¤Ç¡ªgetInstance¤ò»È¤¦¤³¤È';
+	my$class=ref($_[0])||$_[0];shift;
+	$logfile=Logfile->getInstance;
+	my$self=[
+		 map{{/([^\t]+)=\t([^\t]*);\t/go}}
+		 grep{/^Mar1=\t[^\t]*;\t(?:[^\t]*=\t[^\t]*;\t)*$/o}$logfile->getChatlog
 		];
 		
-		$singleton=bless$self,$class;
-	}
-	sub Chatlog::getInstance{$singleton||Chatlog->new;}
+	$singleton=bless$self,$class;
+    }
+    sub Chatlog::getInstance{$singleton||Chatlog->new;}
 	
-	#¥í¥°¤òÄÉ²Ã
-	sub Chatlog::add{
-		my$self=ref($_[0])?$_[0]:getInstance();shift;
-		my%DT=%{shift()};
-		%DT=map{$_=>$DT{$_}}grep{$DT{$_}}qw(Mar1 id name color bcolo body icon home email exp hua ra time opt);
-		splice(@{$self},$::CF{'max'}-1);
-		unshift(@{$self},\%DT);
-	}
+    #¥í¥°¤òÄÉ²Ã
+    sub Chatlog::add{
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	my%DT=%{shift()};
+	%DT=map{$_=>$DT{$_}}grep{$DT{$_}}qw(Mar1 id name color bcolo body icon home email exp hua ra time opt);
+	splice(@{$self},$::CF{'max'}-1);
+	unshift(@{$self},\%DT);
+    }
 	
-	#¥í¥°¤òºï½ü
-	sub Chatlog::delete{
-		my$self=ref($_[0])?$_[0]:getInstance();shift;
-		my%DT=%{shift()};
-		for(@{$self}){
-			$_->{'id'} eq$DT{'id'} ||next;
-			$_->{'exp'}eq$DT{'exp'}||next;
-			$_->{'Mar1'}='del';
-			last;
-		}
+    #¥í¥°¤òºï½ü
+    sub Chatlog::delete{
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	my%DT=%{shift()};
+	for(@{$self}){
+	    $_->{'id'} eq$DT{'id'} ||next;
+	    $_->{'exp'}eq$DT{'exp'}||next;
+	    $_->{'Mar1'}='del';
+	    last;
 	}
-	sub Chatlog::dispose{
-		$logfile||return;
-		my$self=ref($_[0])?$_[0]:getInstance();shift;
-		$logfile->setChatlog(
-			map{
-				my%DT=%{$_};
-				my$tmp="Mar1=\t$DT{Mar1};\t";
-				delete$DT{Mar1};
-				$tmp.join('',map{"$_=\t$DT{$_};\t"}keys%DT);
-			}@{$self}
-		);
-		undef$logfile;undef$singleton;
-	}
+    }
+    sub Chatlog::dispose{
+	$logfile||return;
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	$logfile->setChatlog(
+			     map{
+				 my%DT=%{$_};
+				 my$tmp="Mar1=\t$DT{Mar1};\t";
+				 delete$DT{Mar1};
+				 $tmp.join('',map{"$_=\t$DT{$_};\t"}keys%DT);
+				}@{$self}
+			    );
+	undef$logfile;undef$singleton;
+    }
 	
-	sub Chatlog::DESTROY{my$self=shift;$self->dispose;}
+    sub Chatlog::DESTROY{my$self=shift;$self->dispose;}
 }
 
 
@@ -1669,102 +1593,102 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 #
 
 {package Members;
-	my$logfile;
-	my$singleton;
+    my$logfile;
+    my$singleton;
 	
-	#---------------------------------------
-	# Class Methods
-	sub Members::new{#private
-		$singleton&&die '¤³¤ì¤ÏSingleton¤Ê¤Î¤Çnew¤ò¾¡¼ê¤Ë¸Æ¤Ð¤Ê¤¤¤Ç¡ªgetInstance¤ò»È¤¦¤³¤È';
-		my$class=ref($_[0])||$_[0];shift;
-		$logfile=Logfile->getInstance;
-		my$self={
-			map{$_->[0]=>{$_->[1]=~/([^\t]+)=\t([^\t]*);\t/go}}
-			map{m/^id=\t([^\t]+);\t((?:[^\t]+=\t[^\t]*;\t)+)/o;[$1,$2]}
-			grep{m/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}$logfile->getMembers
-		};
-		$singleton=bless$self,$class;
+    #---------------------------------------
+    # Class Methods
+    sub Members::new{#private
+	$singleton&&die '¤³¤ì¤ÏSingleton¤Ê¤Î¤Çnew¤ò¾¡¼ê¤Ë¸Æ¤Ð¤Ê¤¤¤Ç¡ªgetInstance¤ò»È¤¦¤³¤È';
+	my$class=ref($_[0])||$_[0];shift;
+	$logfile=Logfile->getInstance;
+	my$self={
+	    map{$_->[0]=>{$_->[1]=~/([^\t]+)=\t([^\t]*);\t/go}}
+	    map{/^id=\t([^\t]+);\t((?:[^\t]+=\t[^\t]*;\t)+)/o;[$1,$2]}
+	    grep{/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}$logfile->getMembers
+	};
+	$singleton=bless$self,$class;
+    }
+    sub Members::getInstance{$singleton||Members->new;}
+	
+    sub Members::dispose{
+	$logfile||return;
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	$logfile->setMembers(
+			     map{
+				 my%DT=%{$self->{$_}};
+				 delete$DT{'id'};
+				 "id=\t$_;\t".join('',map{"$_=\t$DT{$_};\t"}keys%DT);
+				}keys%{$self}
+			    );
+	undef$logfile;undef$singleton;
+    }
+	
+    #»²²Ã¼Ô¤ò¼èÆÀ
+    sub Members::getSingersInfo{
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	my@singers;
+	for(keys%{$self}){
+	    my$i=$self->{$_};
+	    my$limit=$i->{'time'}+(abs($i->{'reload'}-40)<20?$i->{'reload'}*6:360);
+	    $limit<$^T&&(delete$self->{$_},next);#TimeOver
+	    exists$i->{'name'}||next;#ROM
+	    $i->{'blank'}=$^T-$i->{'lastModified'};
+	    push(@singers,$i);
 	}
-	sub Members::getInstance{$singleton||Members->new;}
+	return@singers;
+    }
 	
-	sub Members::dispose{
-		$logfile||return;
-		my$self=ref($_[0])?$_[0]:getInstance();shift;
-		$logfile->setMembers(
-			map{
-				my%DT=%{$self->{$_}};
-				delete$DT{'id'};
-				"id=\t$_;\t".join('',map{"$_=\t$DT{$_};\t"}keys%DT);
-			}keys%{$self}
-		);
-		undef$logfile;undef$singleton;
+    #°ú¿ô¤Î¿Í¤òÄÉ²Ã
+    sub Members::add{
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	my%DT=%{shift()};
+	if($DT{'quit'}){
+	    #Âà¼¼¥â¡¼¥É
+	    delete$singleton->{$DT{'id'}}if$DT{'id'};
+	    $singleton->{"$DT{'ra'}"}={id=>$DT{'ra'},(map{$_=>$DT{$_}}qw(reload ra time hua))};
+	}elsif($DT{'name'}){
+	    delete$singleton->{"$DT{'ra'}"};
+	    if($DT{'isActive'}){
+		#Ç½Æ°Åª¥ê¥í¡¼¥É
+		$DT{'lastModified'}=$^T;
+	    }else{
+		#ÉáÄÌ¤Ë¥ê¥í¡¼¥É
+		$DT{'lastModified'}=$singleton->{"$DT{'id'}"}->{'lastModified'};
+		if(!$DT{'reload'}||$^T-$DT{'lastModified'}<300){}
+		elsif($DT{'reload'}<280){$DT{'reload'}+=20}
+		else{$DT{'reload'}=300;}
+	    }
+	    $singleton->{"$DT{'id'}"}={map{$_=>$DT{$_}}qw(id name color bcolo exp reload ra time lastModified hua)};
+	}else{
+	    #¤í¤à
+	    $singleton->{"$DT{'ra'}"}={id=>$DT{'ra'},(map{$_=>$DT{$_}}qw(reload ra time hua))};
+	    $DT{'reload'}+=20;
 	}
+	return$DT{'reload'};
+    }
 	
-	#»²²Ã¼Ô¤ò¼èÆÀ
-	sub Members::getSingersInfo{
-		my$self=ref($_[0])?$_[0]:getInstance();shift;
-		my@singers;
-		for(keys%{$self}){
-			my$i=$self->{$_};
-			my$limit=$i->{'time'}+(abs($i->{'reload'}-40)<20?$i->{'reload'}*6:360);
-			$limit<$^T&&(delete$self->{$_},next);#TimeOver
-			exists$i->{'name'}||next;#ROM
-			$i->{'blank'}=$^T-$i->{'lastModified'};
-			push(@singers,$i);
-		}
-		return@singers;
-	}
-	
-	#°ú¿ô¤Î¿Í¤òÄÉ²Ã
-	sub Members::add{
-		my$self=ref($_[0])?$_[0]:getInstance();shift;
-		my%DT=%{shift()};
-		if($DT{'quit'}){
-			#Âà¼¼¥â¡¼¥É
-			delete$singleton->{$DT{'id'}}if$DT{'id'};
-			$singleton->{"$DT{'ra'}"}={id=>$DT{'ra'},(map{$_=>$DT{$_}}qw(reload ra time hua))};
-		}elsif($DT{'name'}){
-			delete$singleton->{"$DT{'ra'}"};
-			if($DT{'isActive'}){
-				#Ç½Æ°Åª¥ê¥í¡¼¥É
-				$DT{'lastModified'}=$^T;
-			}else{
-				#ÉáÄÌ¤Ë¥ê¥í¡¼¥É
-				$DT{'lastModified'}=$singleton->{"$DT{'id'}"}->{'lastModified'};
-				if(!$DT{'reload'}||$^T-$DT{'lastModified'}<300){}
-				elsif($DT{'reload'}<280){$DT{'reload'}+=20}
-				else{$DT{'reload'}=300;}
-			}
-			$singleton->{"$DT{'id'}"}={map{$_=>$DT{$_}}qw(id name color bcolo exp reload ra time lastModified hua)};
-		}else{
-			#¤í¤à
-			$singleton->{"$DT{'ra'}"}={id=>$DT{'ra'},(map{$_=>$DT{$_}}qw(reload ra time hua))};
-			$DT{'reload'}+=20;
-		}
-		return$DT{'reload'};
-	}
-	
-	#ÆÉ¤ß¹þ¤ßÀìÍÑ¥Ï¥Ã¥·¥å¤òÊÖ¤¹
-	sub Members::getOnlyHash{
-		my%members;
-		if($singleton){
-			%members=%{$singleton};
-		}else{
-			open(MEMBER,'<'.$::CF{'log'});
-			eval{flock(MEMBER,1)};
-			my@tmp;
-			while(<MEMBER>){/\S/o?push(@tmp,$_):last}
-			close(MEMBER);
+    #ÆÉ¤ß¹þ¤ßÀìÍÑ¥Ï¥Ã¥·¥å¤òÊÖ¤¹
+    sub Members::getOnlyHash{
+	my%members;
+	if($singleton){
+	    %members=%{$singleton};
+	}else{
+	    open(MEMBER,'<'.$::CF{'log'});
+	    eval{flock(MEMBER,1)};
+	    my@tmp;
+	    while(<MEMBER>){/\S/o?push(@tmp,$_):last}
+	    close(MEMBER);
 			
-			%members=map{$_->[1]=>{($_->[0]=~/([^\t]+)=\t([^\t]*);\t/go)}}
-			map{[m/^(id=\t([^\t]+);\t(?:[^\t]+=\t[^\t]*;\t)+)/o]}
-			grep{m/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}@tmp;
+	    %members=map{$_->[1]=>{($_->[0]=~/([^\t]+)=\t([^\t]*);\t/go)}}
+	    map{[/^(id=\t([^\t]+);\t(?:[^\t]+=\t[^\t]*;\t)+)/o]}
+	    grep{/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}@tmp;
 		
-		}
-		return\%members;
 	}
+	return\%members;
+    }
 	
-	sub Members::DESTROY{my$self=shift;$self->dispose;}
+    sub Members::DESTROY{my$self=shift;$self->dispose;}
 }
 
 
@@ -1772,85 +1696,85 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 # RANKING CLASS
 #
 {package Rank;
-	my$fh;
-	my$path=$::CF{'rank'};
-	my$singleton;
+    my$fh;
+    my$path=$::CF{'rank'};
+    my$singleton;
 	
-	#---------------------------------------
-	# Class Methods
-	sub Rank::new{#private
-		$singleton&&die '¤³¤ì¤ÏSingleton¤Ê¤Î¤Çnew¤ò¾¡¼ê¤Ë¸Æ¤Ð¤Ê¤¤¤Ç¡ªgetInstance¤ò»È¤¦¤³¤È';
-		my$class=ref($_[0])||$_[0];shift;
-		my%rank=();
-		local*RANK;
-		if(-e$path){
-			open(RANK,'+<'.$path)||die"Can't open Ranking($path)[$?:$!]";
-			$fh=*RANK{IO};
-			eval{flock($fh,2)};
-			seek($fh,0,0);
-			%rank=map{$_->[0]=>{($_->[1]=~/([^\t]+)=\t([^\t]*);\t/go)}}
-			map{[m/^id=\t([^\t]+);\t((?:[^\t]+=\t[^\t]*;\t)+)/o]}
-			grep{m/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}<$fh>;
-		}else{
-			open(RANK,'>'.$path);
-			$fh=*RANK{IO};
-			eval{flock($fh,2)};
-		}
-		$singleton=bless \%rank,$class;
+    #---------------------------------------
+    # Class Methods
+    sub Rank::new{#private
+	$singleton&&die '¤³¤ì¤ÏSingleton¤Ê¤Î¤Çnew¤ò¾¡¼ê¤Ë¸Æ¤Ð¤Ê¤¤¤Ç¡ªgetInstance¤ò»È¤¦¤³¤È';
+	my$class=ref($_[0])||$_[0];shift;
+	my%rank=();
+	local*RANK;
+	if(-e$path){
+	    open(RANK,'+<'.$path)||die"Can't open Ranking($path)[$?:$!]";
+	    $fh=*RANK{IO};
+	    eval{flock($fh,2)};
+	    seek($fh,0,0);
+	    %rank=map{$_->[0]=>{($_->[1]=~/([^\t]+)=\t([^\t]*);\t/go)}}
+	    map{[/^id=\t([^\t]+);\t((?:[^\t]+=\t[^\t]*;\t)+)/o]}
+	    grep{/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}<$fh>;
+	}else{
+	    open(RANK,'>>'.$path)||die"Can't create Ranking($path)[$?:$!]";
+	    $fh=*RANK{IO};
+	    eval{flock($fh,2)};
 	}
-	sub Rank::getInstance{$singleton||Rank->new;}
+	$singleton=bless \%rank,$class;
+    }
+    sub Rank::getInstance{$singleton||Rank->new;}
 	
-	sub Rank::dispose{
-		my$self=ref($_[0])?$_[0]:getInstance();shift;
-		truncate($path,0);#$fh¤¸¤ã¥À¥á
-		seek($fh,0,0);
-		print $fh (
-			join"\n",map{
+    sub Rank::dispose{
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	truncate($path,0);#$fh¤¸¤ã¥À¥á
+	seek($fh,0,0);
+	print $fh (
+		   join"\n",map{
 				my%DT=%{$self->{$_}};
 				delete$DT{'id'};
 				"id=\t$_;\t".join('',map{"$_=\t$DT{$_};\t"}keys%DT);
-			}keys%{$self}
-		);
-		close($fh);
-		undef$fh;undef$singleton;
-	}
+			       }keys%{$self}
+		  );
+	close($fh);
+	undef$fh;undef$singleton;
+    }
 	
-	#·Ð¸³ÃÍ¤ò+1
-	sub Rank::plusExp{
-		my$self=ref($_[0])?$_[0]:getInstance();shift;
-		my%DT=%{shift()};
+    #·Ð¸³ÃÍ¤ò+1
+    sub Rank::plusExp{
+	my$self=ref($_[0])?$_[0]:getInstance();shift;
+	my%DT=%{shift()};
 		
-		if(!$singleton->{"$DT{'id'}"}||!$singleton->{"$DT{'id'}"}->{'exp'}){
-			$singleton->{"$DT{'id'}"}={name=>$DT{'name'},exp=>1};
-		}else{
-			$singleton->{"$DT{'id'}"}{'exp'}++;
-			$singleton->{"$DT{'id'}"}{'name'}=$DT{'name'};
-		}
-		$singleton->{"$DT{'id'}"}{'lastContact'}=$^T;
-		$singleton->{"$DT{'id'}"}{'firstContact'}||=$^T;
-		$singleton->{"$DT{'id'}"}{'hua'}=$DT{'hua'};
-		$singleton->{"$DT{'id'}"}{'ra'}=$DT{'ra'};
-		$singleton->{"$DT{'id'}"}{'color'}=$DT{'color'};
-		$singleton->{"$DT{'id'}"}{'bcolo'}=$DT{'bcolo'};
-		return$singleton->{"$DT{'id'}"}->{'exp'};
+	if(!$singleton->{"$DT{'id'}"}||!$singleton->{"$DT{'id'}"}->{'exp'}){
+	    $singleton->{"$DT{'id'}"}={name=>$DT{'name'},exp=>1};
+	}else{
+	    $singleton->{"$DT{'id'}"}{'exp'}++;
+	    $singleton->{"$DT{'id'}"}{'name'}=$DT{'name'};
 	}
-	sub Rank::getOnlyHash{
-		my%rank;
-		if($singleton){
-			%rank=%{$singleton};
-		}else{
-			open(RANK,'<'.$::CF{'rank'});
-			eval{flock(RANK,1)};
-			seek(RANK,0,0);
-			%rank=map{$_->[1]=>{($_->[0]=~/([^\t]+)=\t([^\t]*);\t/go)}}
-			map{[m/^(id=\t([^\t]+);\t(?:[^\t]+=\t[^\t]*;\t)+)/o]}
-			grep{m/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}<RANK>;
-			close(RANK);
-		}
-		return\%rank;
+	$singleton->{"$DT{'id'}"}{'lastContact'}=$^T;
+	$singleton->{"$DT{'id'}"}{'firstContact'}||=$^T;
+	$singleton->{"$DT{'id'}"}{'hua'}=$DT{'hua'};
+	$singleton->{"$DT{'id'}"}{'ra'}=$DT{'ra'};
+	$singleton->{"$DT{'id'}"}{'color'}=$DT{'color'};
+	$singleton->{"$DT{'id'}"}{'bcolo'}=$DT{'bcolo'};
+	return$singleton->{"$DT{'id'}"}->{'exp'};
+    }
+    sub Rank::getOnlyHash{
+	my%rank;
+	if($singleton){
+	    %rank=%{$singleton};
+	}else{
+	    open(RANK,'<'.$::CF{'rank'});
+	    eval{flock(RANK,1)};
+	    seek(RANK,0,0);
+	    %rank=map{$_->[1]=>{($_->[0]=~/([^\t]+)=\t([^\t]*);\t/go)}}
+	    map{[/^(id=\t([^\t]+);\t(?:[^\t]+=\t[^\t]*;\t)+)/o]}
+	    grep{/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}<RANK>;
+	    close(RANK);
 	}
+	return\%rank;
+    }
 	
-	sub Rank::DESTROY{my$self=shift;$self->dispose;}
+    sub Rank::DESTROY{shift->dispose;}
 }
 
 
@@ -1859,33 +1783,41 @@ package main;
 # ½é´üÀßÄê
 #
 BEGIN{
-	#¥¨¥é¡¼¤¬½Ð¤¿¤é¥¨¥é¡¼²èÌÌ¤òÉ½¼¨¤¹¤ë¤è¤¦¤Ë
-	unless(%CF){
-		$CF{'program'}=__FILE__;
-		$SIG{'__DIE__'}=$ENV{'REQUEST_METHOD'}?sub{
-			$_[0]=~/^(?=.*?flock)(?=.*?unimplemented)/&&return;
-			print"Status: 200 OK\nContent-Language: ja-JP\nContent-type: text/plain; charset=euc-jp"
-			."\n\n<PRE>\t:: Marldia ::\n   * Error Screen 1.4 (o__)o// *\n\n";
-			print"ERROR: $_[0]\n"if@_;
-			print join('',map{"$_\t: $CF{$_}\n"}grep{$CF{"$_"}}qw(idxrev correv))
-			."\n".join('',map{"$_\t: $CF{$_}\n"}grep{$CF{"$_"}}qw(log icon iconList style));
-			print"\ngetlogin\t: ".getlogin;
-			print"\n".join('',map{"$$_[0]\t: $$_[1]\n"}
-			([PerlVer=>$]],[PerlPath=>$^X],[BaseTime=>$^T],[OSName=>$^O],[FileName=>$0],[__FILE__=>__FILE__]))
-			."\n\t= = = ENV = = =\n".join('',map{sprintf"%-20.20s : %s\n",$_,$ENV{$_}}grep{$ENV{"$_"}}
-			qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD
-			SERVER_NAME HTTP_HOST SCRIPT_NAME OS SERVER_SOFTWARE PROCESSOR_IDENTIFIER))
-			."\n+#      Airemix  Marldia     #+\n+#  http://www.airemix.com/  #+";
-			exit;
-		}:sub{
-			$_[0]=~/^(?=.*?flock)(?=.*?unimplemented)/&&return;
-			print@_?"ERROR: $_[0]":'ERROR';
-			exit;
-		};
-	}
-	#Revision Number
-	$CF{'correv'}=qq$Revision: 1.16 $;
-	$CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
+    #¥¨¥é¡¼¤¬½Ð¤¿¤é¥¨¥é¡¼²èÌÌ¤òÉ½¼¨¤¹¤ë¤è¤¦¤Ë
+    # Marldia Error Screen 1.2.2
+    unless($CF{'program'}){
+	$CF{'program'}=__FILE__;
+	$SIG{'__DIE__'}=$ENV{'REQUEST_METHOD'}?sub{
+	    index($_[0],'flock')+1 and index($_[0],'unimplemented')+1 and return;
+	    print "Status: 200 OK\nContent-Language: ja-JP\nContent-type: text/html; charset=$CF{'encoding'}\n\n"
+		. "<HTML>\n<HEAD>\n"
+		.qq(<META http-equiv="Content-type" content="text/html; charset=$CF{'encoding'}">\n)
+		. "<TITLE> Marldia Error Screen 1.2.2</TITLE>\n"
+		. "</HEAD>\n<BODY>\n\n<PRE>\t::  Marldia ::\n   * Error Screen 1.2.2 (o__)o// *\n\n";
+	    print "ERROR: $_[0]\n"if@_;
+	    printf"%-20.20s : %s\n",$_,$CF{$_} for grep{$CF{$_}}qw(Index Style Core Exte);
+	    print "\n";
+	    printf"%-20.20s : %s\n",$_,$CF{$_} for grep{$CF{$_}}qw(index log icon icls style);
+	    print "\n";
+	    printf"%-20.20s : %s\n",$$_[0],$$_[1]
+		for([PerlVer=>$]],[PerlPath=>$^X],[BaseTime=>$^T],[OSName=>$^O],[FileName=>$0],[__FILE__=>__FILE__]);
+	    print "\n = = = ENVIRONMENTAL VARIABLE = = =\n";
+	    printf"%-20.20s : %s\n",$_,$ENV{$_} for grep{$ENV{$_}}
+		qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME OS SERVER_SOFTWARE);
+	    print "\n+#      Airemix  Marldia     #+\n+#  http://www.airemix.com/  #+\n</PRE>\n</BODY>\n</HTML>\n";
+	    exit;
+	}:sub{
+	    index($_[0],'flock')+1 and index($_[0],'unimplemented')+1 and return;
+	    print@_?"ERROR: $_[0]":'ERROR';
+	    exit;
+	};
+    }
+    __FILE__ =~ /^(.*[\\\/:])/o;
+    $CF{'ProgramDirectory'} = $1;
+	
+    #Revision Number
+    $CF{'correv'}=qq$Revision: 1.17 $;
+    $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;
 __END__
