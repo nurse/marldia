@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.17 2004-11-23 18:37:58 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.18 2005-03-11 19:05:56 naruse Exp $;
 require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK %IC);
@@ -24,7 +24,10 @@ $CF{'pgtit'}=': Marldia :';
 
 
 #管理モードへ移行する際のパスワード
-$CF{'admipass'}='manage';
+$CF{'admipass'}='opensesame';
+#管理モードの追加パスワード
+$CF{'supass'} = [$CF{'admipass'}]unless$CF{'supass'};
+#push(@{$CF{'supass'}},'hogehoge');
 #最大ログ行数
 $CF{'max'}=200;
 #アクセス禁止な名前
@@ -42,7 +45,6 @@ $CF{'defline'}=20;
 $CF{'defreload'}=20;
 
 $CF{'index'} = 'index.cgi'; #MARLDIA MAIN CGI
-$CF{'mobile'} = 'mobile.cgi'; #MARLDIA FOR MOBILE
 $CF{'marldiajs'} = 'Marldia.js'; #MARLDIA JAVA SCRIPT
 $CF{'style'} = 'style.css'; #CascadeStyleSheet
 $CF{'log'}  = 'log.cgi'; #LOG PATH
@@ -149,7 +151,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
 	};
     }
     # Revision Number
-    $CF{'idxrev'}=qq$Revision: 1.17 $;
+    $CF{'idxrev'}=qq$Revision: 1.18 $;
 }
 1;
 __END__
