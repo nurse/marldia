@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.8 2002-06-12 15:11:42 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.9 2002-07-21 13:09:11 naruse Exp $;
 require 5.004;
 #use lib './lib';
 use strict;
@@ -67,6 +67,7 @@ Content-Language: ja
   <frame frameborder="0" name="north" src="index.cgi?north" />
   <frame frameborder="0" name="south" src="index.cgi?south" />
   <noframes>
+  <body>
   <pre>
   このページはMicrosoft Internet Explorer 6.0 向けに作られています
   MSIE5.01やNetscape6、Mozilla0.9以上でもそこそこに見ることが出来ると思います
@@ -75,8 +76,10 @@ Content-Language: ja
   実質的に閲覧することができません
   Mozilla4以上互換のブラウザでまた来てください
   </pre>
+  </body>
   </noframes>
 </frameset>
+</html>
 _HTML_
   exit;
 }
@@ -921,7 +924,7 @@ _HTML_
   }
   print<<"_HTML_";
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
 <html lang="ja">
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=euc-jp" />
@@ -1250,7 +1253,7 @@ _HTML_
     };
   }
   #Revision Number
-  $CF{'correv'}=qq$Revision: 1.8 $;
+  $CF{'correv'}=qq$Revision: 1.9 $;
   $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;

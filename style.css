@@ -1,7 +1,7 @@
 @charset "EUC-JP";
 /* Marldia Style Sheet */
 /* "This file is written in euc-jp, CRLF." 空 */
-/* $Id: style.css,v 1.8 2002-06-12 15:11:43 naruse Exp $ */
+/* $Id: style.css,v 1.9 2002-07-21 13:09:12 naruse Exp $ */
 
 /* --------------------- 全体のスタイル --------------------- */
 /* 通常のリンク文字 */
@@ -33,7 +33,7 @@ body{
   letter-spacing: 0.1em;
   margin: 0;
   text-align: center;
-  width: 97%;
+  width: 99%;
 }
 
 button{padding:0;}
@@ -154,10 +154,10 @@ span.ak{
 }
 
 /* 参加者一覧など */
-.meminfo{
+table.meminfo{
   margin-left: 5px;
   text-align:left;
-  width:100%;
+  width:99%;
 }
 .meminfo.reload{
   width:5em;
@@ -172,7 +172,7 @@ span.ak{
 table.article{
   margin: 1px auto 1px 3px;
   text-align: left;
-  width:100%;
+  width:99%;
 }
 table.article th,table.article td{
   text-align: left;

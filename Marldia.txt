@@ -1,15 +1,27 @@
 #------------------------------------------------------------------------------#
 # 'Marldia' Chat System
 #
-# $Id: Marldia.txt,v 1.8 2002-06-12 15:11:43 naruse Exp $
-# http://airemix.site.ne.jp/
-# naruse@airemix.site.ne.jp
+# $Id: Marldia.txt,v 1.9 2002-07-21 13:09:11 naruse Exp $
+# http://www.airemix.com/
+# naruse@airemix.com
 # Scripted by NARUSE Yui.
 # "This file is written in shift_jis, CRLF." 空
 #------------------------------------------------------------------------------#
+◇設置して動かないときのメモ。
+・真っ白に燃え尽きた
+ index.cgi内の「$CF{'gzip'} = 'gzip'; #GZIP PATH」というところを、
+ 「$CF{'gzip'} = ''; #GZIP PATH」と変えてみましょう
+・それ以外
+ Mireilleの説明書を見てください（死
+・それでもわからない
+ Airemixの掲示板で質問してみてください
+
 
 #------------------------------------------------------------------------------#
 ◇Marldia History
+2002-07-21 Revision: 1.9
+ CSSをIE6でチャットウィンドウに横スクロールバーが出ないように調整
+ そのほか
 2002-06-13 Revision: 1.8
  アイコンをセレクトボックスで選ぶ時に両方が名前色になってしまうバグを修正
  Tripod.co.jpでも一応動くようにした。
