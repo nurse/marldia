@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.24 $
+# $Revision: 1.25 $
 # "This file is written in euc-jp, CRLF." ¶õ
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.24 2004-12-05 18:35:01 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.25 2005-01-20 19:24:08 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -328,7 +328,7 @@ title="$CF{'sitename'}¤Øµ¢¤ê¤Þ¤¹&#10;Âà¼¼¥á¥Ã¥»¡¼¥¸¤Ï½Ð¤Ê¤¤¤Î¤Çµ¢¤ê¤Î°§»¢¤òËº¤ì¤
 <TR>
 <TH><LABEL accesskey="p" for="opt" title="oPtion&#10;¥ª¥×¥·¥ç¥ó"
 >O<SPAN class="ak">p</SPAN>tion</LABEL>:</TH>
-<TD><INPUT type="text" class="text" name="opt" id="opt" maxlength="200" style="ime-mode:inactive;width:150px"
+<TD><INPUT type="text" class="text" name="opt" id="opt" style="ime-mode:inactive;width:150px"
 value="$CK{'opt'}" tabindex="102" onblur="changeOption()"></TD>
 <TH><LABEL accesskey="o" for="home" title="hOme&#10;¥µ¥¤¥È¤ÎURL¤Ç¤¹"
 >H<SPAN class="ak">o</SPAN>me</LABEL>:</TH>
@@ -406,7 +406,9 @@ sub modeSouth{
     #¥Ç¡¼¥¿É½¼¨
     #-----------------------------
     #¥Ø¥Ã¥À½ÐÎÏ
-    my $additionalHeader = <<"_HTML_";
+    my $additionalHeader = '';
+    if($IN{'reload'}){
+	$additionalHeader = <<"_HTML_";
 <SCRIPT type="text/javascript">
 <!--
 function reload(){
@@ -419,8 +421,10 @@ setTimeout(reload, $IN{'reload'}000);
 <META http-equiv="refresh" content="$IN{'reload'};url='$CF{'index'}?$query'">
 </NOSCRIPT>
 _HTML_
-    
-    &header($IN{'reload'}?$additionalHeader:'');
+    }
+    $additionalHeader .= qq{<STYLE type="text/css">\n<!--\n} . $IN{'_opt'}{'css'}
+    . "\n-->\n</STYLE>\n"if $IN{'_opt'}{'css'};
+    &header($additionalHeader);
     
     #-----------------------------
     #»²²Ã¼ÔÉ½¼¨
@@ -473,6 +477,8 @@ qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}"
 </TABLE>
 _HTML_
     }
+    $chatlog->dispose;
+    $members->dispose;
     &showFooter;
     exit;
 }
@@ -499,11 +505,11 @@ sub getLevel{
 # ÍøÍÑ¼Ô¥³¥Þ¥ó¥É
 #
 sub modeUsercmd{
-    unless($IN{'opt'}){
+    unless($IN{'body'}){
 	die"¡Ö²¿¤â¤·¤Ê¤¤¡÷´ÉÍý¡×";
     }
     #°ú¿ô½èÍý
-    my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'opt'}=~
+    my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'body'}=~
 					      /(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
 =item ÍøÍÑ¥³¥Þ¥ó¥É
 
@@ -624,15 +630,15 @@ _HTML_
 # ´ÉÍý¥³¥Þ¥ó¥É
 #
 sub modeAdmicmd{
-    unless($IN{'opt'}){
+    unless($IN{'body'}){
 	die"¡Ö²¿¤â¤·¤Ê¤¤¡÷´ÉÍý¡×";
-    }elsif($IN{'opt'}!~s/$::CF{'admipass'}//o){
+    }elsif($IN{'body'}!~s/$::CF{'admipass'}//o){
 	die'password is not valid';
     }
     
     #°ú¿ô½èÍý
     my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;length$_;}
-    ($IN{'opt'}=~
+    ($IN{'body'}=~
      /(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
     
 =item ´ÉÍý¥³¥Þ¥ó¥É
@@ -664,26 +670,27 @@ $CF{'admipass'}='admicmd';¤Ê¤é¡¢
     if(!$arg[0]){
     }elsif('rank'eq$arg[0]){
 	#È¯¸À¥é¥ó¥­¥ó¥°
-	my$rank=Rank->getInstance;
-	unless($arg[1]){
-	}elsif('del'eq$arg[1]){
-	    #¥é¥ó¥­¥ó¥°¤«¤éºï½ü
-	    $rank->delete($arg[2]);
-	}elsif('delByExp'eq$arg[1]){
-	    #·Ð¸³ÃÏ¤Î¾¯¤Ê¤¤¿Í¤ò¥é¥ó¥­¥ó¥°¤«¤éºï½ü
-	    my %rank = %{$rank->getOnlyHash()};
-	    for(keys%rank){
-		if($arg[2] > $rank{$_}->{'exp'}){
-		    $rank->delete($_);
+	my $rank = Rank->getInstance;
+	my %rank = %{Rank->getOnlyHash()};
+	if($arg[1]){
+	    if('del'eq$arg[1]){
+		#¥é¥ó¥­¥ó¥°¤«¤éºï½ü
+		$rank->delete($arg[2]);
+	    }elsif('delByExp'eq$arg[1]){
+		#·Ð¸³ÃÏ¤Î¾¯¤Ê¤¤¿Í¤ò¥é¥ó¥­¥ó¥°¤«¤éºï½ü
+		for(keys%rank){
+		    if($arg[2] > $rank{$_}->{'exp'}){
+			$rank->delete($_);
+		    }
 		}
-	    }
-	}elsif('merge'eq$arg[1]){
-	    #ID¤ª¤è¤Ó·Ð¸³ÃÏ¤ÎÅý¹ç
-	    exists$rank->{$arg[2]}&&exists$rank->{$arg[2]}->{'exp'}||die"¤½¤ó¤Ê¿Í¤¤¤Ê¤¤";
-	    for(3..$#arg){
-		(!$rank->{$arg[$_]}||!$rank->{$arg[$_]}->{'exp'})&&next;
-		$rank->{$arg[2]}->{'exp'}+=$rank->{$arg[$_]}->{'exp'};
-		$rank->delete($arg[$_]);
+	    }elsif('merge'eq$arg[1]){
+		#ID¤ª¤è¤Ó·Ð¸³ÃÏ¤ÎÅý¹ç
+		exists$rank->{$arg[2]}&&exists$rank->{$arg[2]}->{'exp'}||die"¤½¤ó¤Ê¿Í¤¤¤Ê¤¤";
+		for(3..$#arg){
+		    (!$rank->{$arg[$_]}||!$rank->{$arg[$_]}->{'exp'})&&next;
+		    $rank->{$arg[2]}->{'exp'}+=$rank->{$arg[$_]}->{'exp'};
+		    $rank->delete($arg[$_]);
+		}
 	    }
 	}
 
@@ -702,7 +709,6 @@ $CF{'admipass'}='admicmd';¤Ê¤é¡¢
 <TH scope="col">REMOTE_ADDR</TH>
 <TH scope="col">HTTP_USER_AGENT</TH>
 _HTML_
-	my %rank = %{$rank->getOnlyHash()};
 	my $i = 0;
 	for(map{{id=>$_,%{$rank{$_}}}}sort{$rank{$b}->{'exp'}<=>$rank{$a}->{'exp'}}keys%rank){
 	    $i++;
@@ -719,6 +725,7 @@ _HTML_
 </TR>
 _HTML_
 	}
+	$rank->dispose;
 	print"</TABLE>";
 	&showFooter;
 	exit;
@@ -1042,14 +1049,14 @@ sub commonRoutineForView{
     #-----------------------------
     #¥³¥Þ¥ó¥É¤ÎÆÉ¤ß¹þ¤ß
     my%EX;
-    for(split(';',$IN{'opt'})){
+    my@option=($IN{'opt'}=~/\w+(?:=(?:"[^"\\]*(?:\\.[^"\\]*)*"|'[^'\\]*(?:\\.[^'\\]*)*'|[^"';]*))?/go);
+    for(@option){
 	my($i,$j)=split('=',$_,2);
 	$i||next;
-	$i=~/(\S+(?:\s+\S+)*)/o||next;
-	$i=$1;
-	$j=defined$j&&$j=~/(\S+(?:\s+\S+)*)/o?$1:'';
+	$j=defined$j&&$j=~/^(?:"(.*)"|'(.*)'|(.*))$/o?$1||$2||$3:'';
 	$EX{$i}=$j;
     }
+    $IN{'_opt'} = \%EX;
     
     #ÀìÍÑ¥¢¥¤¥³¥óµ¡Ç½¡£index.cgi¤ÇÀßÄê¤¹¤ë¡£
     #index.cgi¤Ç»ØÄê¤·¤¿¥¢¥¤¥³¥ó¥Ñ¥¹¥ï¡¼¥É¤Ë¹çÃ×¤¹¤ì¤Ð¡£
@@ -1083,7 +1090,9 @@ sub commonRoutineForView{
     #½ñ¤­¹þ¤ß
     if(length$IN{'body'}){
 	#¥é¥ó¥­¥ó¥°²ÃÅÀ
-	$IN{'exp'}=Rank->plusExp(\%IN);
+	my $rank = Rank->getInstance;
+	$IN{'exp'}=$rank->plusExp(\%IN);
+	$rank->dispose;
 	#È¯¸À½èÍý
 	$chatlog->add(\%IN);
     }elsif($IN{'del'}){
@@ -1258,7 +1267,7 @@ _HTML_
 	    $CK{$id}=$2;
 	}
 	return<<"_HTML_";
-<SELECT name="$id" id="$id"$opt>
+<SELECT name="$id" id="$id"$opt onchange="this.style.color=this.value" onkeydown="this.style.color=this.value">
 $list</SELECT>
 _HTML_
     }
@@ -1321,8 +1330,8 @@ _HTML_
 
 	#ÆþÎÏ¤òÅ¸³«¤·¤Æ¥Ï¥Ã¥·¥å¤ËÆþ¤ì¤ë
 	my%DT;
-	while(@params){
-	    my($i,$j)=split('=',shift(@params),2);
+	for(@params){
+	    my($i,$j)=split('=',$_,2);
 	    $i=~/([a-z][-.:\w]*)/o||next;$i=$1;
 	    defined$j||($DT{$i}='')||next;
 	    study$j;
@@ -1331,14 +1340,14 @@ _HTML_
 	    $j=$j=~/($eucchar*)/o?$1:'';
 	    #¥á¥¤¥ó¥Õ¥ì¡¼¥à¤Î²þ¹Ô¤Ï\x85¤é¤·¤¤¤±¤É¡¢ÂÐ±þ¤¹¤ëÉ¬Í×¤Ê¤¤¤è¤Í¡©
 	    $j=~s/\x0D\x0A/\n/go;$j=~tr/\r/\n/;
-	    if('body'ne$i){
+	    if('body'ne$i&&'opt'ne$i){
 		#ËÜÊ¸°Ê³°¤ÏÁ´ÌÌ¥¿¥°¶Ø»ß
-		$j=~s/\t/&nbsp;&nbsp;/go;
 		$j=~s/&(#?\w+;)?/$1?"&$1":'&#38;'/ego;
 		$j=~s/"/&#34;/go;
 		$j=~s/'/&#39;/go;
 		$j=~s/</&#60;/go;
 		$j=~s/>/&#62;/go;
+		$j=~s/\t/&nbsp;&nbsp;/go;
 		$j=~s/\n+$//o;
 		$j=~s/\n/<BR>/go;
 	    }#ËÜÊ¸¤Ï¸å¤Ç¤Þ¤È¤á¤Æ
@@ -1354,8 +1363,6 @@ _HTML_
 	my$tmp=Filter->filtering($singleton);
 	$singleton=bless$tmp,ref$self;
     }
-
-    #	sub Logfile::DESTROY{shift->dispose}
 }
 
 
@@ -1414,11 +1421,11 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	unless($DT{'body'}){
 	}elsif($::CF{'admipass'}&&$DT{'body'}=~/^\/admin\s*(.*)/o){
 	    $IN{'mode'}='admicmd';
-	    $IN{'opt'}=$1;
+	    $IN{'body'}=$1;
 	    $IN{'mode'}&&return\%IN;
 	}elsif($DT{'body'}=~/^\/(\w+(?:\s.*)?)$/o){
 	    $IN{'mode'}='usercmd';
-	    $IN{'opt'}=$1;
+	    $IN{'body'}=$1;
 	    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($::CK{'id'}||$IN{'name'});
 	    $IN{'mode'}&&return\%IN;
 	}
@@ -1522,8 +1529,10 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		#µÕ¤Ë FONT¥¿¥°¤ä IMG¥¿¥°¤Ê¤ÉÆÃÄê¤Î¥¿¥°¤À¤±ºï½ü¤·¤¿¤¤¾ì¹ç¤Ë¤Ï¡¤ 
 		#$tag_tmp = $2; ¤Î¸å¤Ë¡¤¼¡¤Î¤è¤¦¤Ë¤·¤Æ $tag_tmp ¤ò $result ¤Ë²Ã¤¨¤ë¤è¤¦¤Ë¤¹¤ì¤Ð¤Ç¤­¤Þ¤¹¡¥ 
 		#$result .= $tag_tmp if $tag_tmp !~ /^<\/?(FONT|IMG)(?![\dA-Za-z])/io;
+		my $safe = 0;
 		my$pos=length$str;
 		while($str=~/\G($text_regex)($comment_tag_regex|\03$tag_regex_)?/gso){
+		    $safe++>10000 and die 'AutoLink Processing Error($str)';
 		    $pos=pos$str;
 		    ''eq$1&&!$2&&last;
 		    $result.=$1;
@@ -1568,6 +1577,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $str=~tr/\05/&/;
 	}
 	$str=~s/\t/&nbsp;&nbsp;/go;
+	$str=~s/(\x20{2,})/'&nbsp;' x length$1/ego;
 	$str=~s/\n/<BR>/go;
 	return$str;
     }
@@ -1593,16 +1603,16 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	if(-e$path){
 	    open(LOGFILE,'+<'.$path)||die"Can't read Logfile($path)[$?:$!]";
 	    #+>>¤È¤¹¤ë¤Èseek($fh,0,0)¤¬Æ°¤¤¤Æ¤¯¤ì¤Ê¤¤¤Î¤ÇÃí°Õ¡ª
+	    eval{flock(LOGFILE,2)};
 	    $fh=*LOGFILE{IO};
-	    eval{flock($fh,2)};
 	    #member¤òÄÉ²Ã
 	    while(<$fh>){/\S/o?push(@members,$_):last}
 	    #chatlog¤òÄÉ²Ã
 	    while(<$fh>){/\S/o&&push(@chatlog,$_)}
 	}else{
 	    open(LOGFILE,'>>'.$path)||die"Can't create Logfile($path)[$?:$!]";
+	    eval{flock(LOGFILE,2)};
 	    $fh=*LOGFILE{IO};
-	    eval{flock($fh,2)};
 	    @members=();
 	    @chatlog=();
 	}
@@ -1622,6 +1632,8 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
     #dispose -- ÊÑ¹¹ºÑ¤ß¥Ç¡¼¥¿¤ò¥Õ¥¡¥¤¥ë¤ËÊÝÂ¸
     sub Logfile::dispose{
 	(@members&&@chatlog)||return;
+	Chatlog->getInstance->dispose if Chatlog->hasInstance;
+	Members->getInstance->dispose if Members->hasInstance;
 	my$self=shift;
 	truncate($path,0);#$fh¤¸¤ã¥À¥á
 	seek($fh,0,0);
@@ -1637,7 +1649,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 #
 {package Chatlog;
     my$logfile;
-    my$singleton;
+    my$singleton=undef;
 
     #---------------------------------------
     # Class Methods
@@ -1653,6 +1665,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	$singleton=bless$self,$class;
     }
     sub Chatlog::getInstance{$singleton||Chatlog->new;}
+    sub Chatlog::hasInstance{$singleton}
 
     #¥í¥°¤òÄÉ²Ã
     sub Chatlog::add{
@@ -1726,7 +1739,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 
 {package Members;
     my$logfile;
-    my$singleton;
+    my$singleton=undef;
 
     #---------------------------------------
     # Class Methods
@@ -1742,6 +1755,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	$singleton=bless$self,$class;
     }
     sub Members::getInstance{$singleton||Members->new;}
+    sub Members::hasInstance{$singleton}
 
     sub Members::dispose{
 	$logfile||return;
@@ -1835,28 +1849,30 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
     #---------------------------------------
     # Class Methods
     sub Rank::new{#private
+	Logfile->getInstance; #¥Ç¥Ã¥É¥í¥Ã¥¯ËÉ»ß
 	$singleton&&die '¤³¤ì¤ÏSingleton¤Ê¤Î¤Çnew¤ò¾¡¼ê¤Ë¸Æ¤Ð¤Ê¤¤¤Ç¡ªgetInstance¤ò»È¤¦¤³¤È';
 	my$class=ref($_[0])||$_[0];shift;
 	my%rank=();
 	local*RANK;
 	if(-e$path){
 	    open(RANK,'+<'.$path)||die"Can't open Ranking($path)[$?:$!]";
+	    eval{flock(RANK,2)};
 	    $fh=*RANK{IO};
-	    eval{flock($fh,2)};
 	    seek($fh,0,0);
 	    %rank=map{$_->[0]=>{($_->[1]=~/([^\t]+)=\t([^\t]*);\t/go)}}
 	    map{[/^id=\t([^\t]+);\t((?:[^\t]+=\t[^\t]*;\t)+)/o]}
 	    grep{/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}<$fh>;
 	}else{
 	    open(RANK,'>>'.$path)||die"Can't create Ranking($path)[$?:$!]";
+	    eval{flock(RANK,2)};
 	    $fh=*RANK{IO};
-	    eval{flock($fh,2)};
 	}
 	$singleton=bless \%rank,$class;
     }
     sub Rank::getInstance{$singleton||Rank->new;}
 
     sub Rank::dispose{
+	$singleton&&$fh or return;
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
 	truncate($path,0);#$fh¤¸¤ã¥À¥á
 	seek($fh,0,0);
@@ -1957,7 +1973,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     $CF{'program'} = substr($ENV{'SCRIPT_NAME'}, rindex('/'.$ENV{'SCRIPT_NAME'},'/'));
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.24 $;
+    $CF{'correv'}=qq$Revision: 1.25 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;
