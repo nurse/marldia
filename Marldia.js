@@ -1,7 +1,7 @@
 /*========================================================*/
 // Marldia.js
 // encoding="euc-jp"
-/* $Id: Marldia.js,v 1.1 2004-12-05 18:35:40 naruse Exp $ */
+/* $Id: Marldia.js,v 1.2 2005-01-20 19:25:59 naruse Exp $ */
 var ckCookie;
 var imgPreview;
 var lbSurface;
@@ -9,6 +9,8 @@ var lbIcon;
 var tbOption;
 var bodyContainer;
 var bodySwitch;
+var nameColor;
+var bodyColor;
 var chatHistory = new Array;
 var currentHistoryIndex = 0;
 var maxHistory = 100;
@@ -26,6 +28,8 @@ function init(){
 		tbOption =document.all('opt');
 		bodyContainer=document.all('bodyContainer');
 		bodySwitch=document.all('bodySwitch');
+		nameColor = document.all('color');
+		bodyColor = document.all('bcolo');
 	}else if(document.getElementById){
 		ckCookie=document.getElementById('cook');
 		imgPreview=document.getElementById('preview');
@@ -34,10 +38,14 @@ function init(){
 		tbOption =document.getElementById('opt');
 		bodyContainer=document.getElementById('bodyContainer');
 		bodySwitch=document.getElementById('bodySwitch');
+		nameColor = document.getElementById('color');
+		bodyColor = document.getElementById('bcolo');
 	}else return false;
 	isLoaded=true;
 	autoreset();
 	changeOption();
+	nameColor.style.color = nameColor.value
+	bodyColor.style.color = bodyColor.value
 	return true;
 }
 
@@ -50,7 +58,7 @@ function autoreset(){
 	var tbBody=document.getElementById('body');
 	if(tbBody){
 		while(chatHistory.length>0&&!chatHistory[chatHistory.length-1])chatHistory.pop();
-		chatHistory.push(tbBody.value);
+		if(tbBody.value.length>0)chatHistory.push(tbBody.value);
 		currentHistoryIndex = chatHistory.length;
 		while(chatHistory.length>maxHistory)chatHistory.shift();
 		tbBody.value='';
@@ -309,6 +317,7 @@ function getChatHistoryByMouseWheel(e){
 // Get Chat History
 function getChatHistory(count){
 	var newBody = bodyContainer.firstChild;
+	if(!newBody)return true;
 	chatHistory[currentHistoryIndex] = newBody.value;
 	currentHistoryIndex += count;
 	if(currentHistoryIndex < 0){
