@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 # "This file is written in euc-jp, CRLF." ¶õ
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.15 2003-05-14 17:10:42 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.16 2004-11-22 20:56:24 naruse Exp $;
 require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK %IC);
@@ -41,7 +41,8 @@ $CF{'romreload'}=120;
 $CF{'defline'}=20;
 $CF{'defreload'}=20;
 
-$CF{'index'}= 'index.cgi'; #MIREILLE MAIN CGI
+$CF{'index'} = 'index.cgi'; #MARLDIA MAIN CGI
+$CF{'mobile'} = 'mobile.cgi'; #MARLDIA FOR MOBILE
 $CF{'style'} = 'style.css'; #CascadeStyleSheet
 $CF{'log'}  = 'log.cgi'; #LOG PATH
 $CF{'rank'} = 'rank.cgi'; #LOG PATH
@@ -140,7 +141,7 @@ BEGIN{
 		};
 	}
 	# Revision Number
-	$CF{'idxrev'}=qq$Revision: 1.15 $;
+	$CF{'idxrev'}=qq$Revision: 1.16 $;
 }
 1;
 __END__

@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.20 $
+# $Revision: 1.21 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.20 2004-08-25 16:58:46 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.21 2004-11-22 20:55:35 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -70,7 +70,7 @@ Content-type: text/html; charset=euc-jp
 </HEAD>
 <FRAMESET rows="120,*">
 <FRAME frameborder="0" name="north" src="$CF{'index'}?north">
-<FRAME frameborder="0" name="south" src="$CF{'LogCGI'}?south">
+<FRAME frameborder="0" name="south" src="$CF{'program'}?south">
 <NOFRAMES>
 <BODY>
 <PRE>
@@ -104,7 +104,7 @@ sub modeNorth{
     print"//-->\n</SCRIPT>";
     close(JS);
     print<<"_HTML_";
-<FORM name="north" id="north" method="post" action="$CF{'LogCGI'}" target="south"
+<FORM name="north" id="north" method="post" action="$CF{'program'}" target="south"
 onsubmit="setTimeout(autoreset,20)" onreset="setTimeout(autoreset,20)">
 <TABLE cellspacing="0" style="width:770px" summary="発言フォーム">
 <COL style="width:130px">
@@ -235,79 +235,30 @@ _HTML_
 # South
 #
 sub modeSouth{
-
     #---------------------------------------
-    #引数の前処理
-
-    #-----------------------------
-    #コマンドの読み込み
-    my%EX;
-    for(split(';',$IN{'opt'})){
-	my($i,$j)=split('=',$_,2);
-	$i||next;
-	$i=~/(\S+(?:\s+\S+)*)/o||next;
-	$i=$1;
-	$j=defined$j&&$j=~/(\S+(?:\s+\S+)*)/o?$1:'';
-	$EX{$i}=$j;
-    }
-
-    #専用アイコン機能。index.cgiで設定する。
-    #index.cgiで指定したアイコンパスワードに合致すれば。
-    $IN{'icon'}=$IC{$EX{'icon'}}if$CF{'exicon'}&&$IC{$EX{'icon'}};
-
-    #絶対指定アイコン
-    $IN{'icon'}=''if$CF{'absoluteIcon'}&&$EX{'absoluteIcon'};
-    #相対指定アイコン
-    $IN{'icon'}=''if$CF{'relativeIcon'}&&$EX{'relativeIcon'};
-    #表情アイコン
-    $IN{'icon'}=$IN{'surface'}if!$IN{'icon'}&&$IN{'surface'};
-
-    $IN{'body'}=$IN{'body'}?Filter->filteringBody($IN{'body'},%EX):'';
-    $IN{'isActive'}=$ENV{'CONTENT_LENGTH'}?1:0;
-    $IN{'time'}=$^T;
-
-
-    #-----------------------------
-    #クッキー書き込み
-    $IN{'cook'}&&&setCookie;
-
-    #---------------------------------------
-    #参加者・ランキング・書き込み処理
-    my$chatlog=Chatlog->getInstance;
-    my$members=Members->getInstance;
-
-    #-----------------------------
-    #自分のデータを追加
-    $IN{'reload'}=$members->add(\%IN);
-
-    #-----------------------------
-    #書き込み
-    if(length$IN{'body'}){
-	#-----------------------------
-	#ランキング加点
-	$IN{'exp'}=Rank->plusExp(\%IN);
-	#-----------------------------
-	#発言処理
-	$chatlog->add(\%IN);
-    }elsif($IN{'del'}){
-	#-----------------------------
-	#発言削除
-	$chatlog->delete({id=>$IN{'id'},exp=>$IN{'del'}});
-    }
-
-
-
+    #Viewの共通処理
+    my ($chatlog,$members) = &commonRoutineForView();
+    
     #-----------------------------
     #クエリ
     my$query='south';
+    my $mobileQuery ='south;';
     if($IN{'id'}){
 	$query=join(';',map{my$val=$IN{$_};$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
 		    grep{defined$IN{$_}}qw(name id line reload color));
 	if($IN{'quit'}){
 	    $query.=';quit=on';
+	    $IN{'reload'} = 0;
 	}
     }
-
+    
+    #-----------------------------
+    #携帯電話用クエリ
+    my $mobileQuery ='south;' .
+    	join(';',map{my$val=$IN{$_};$val=~s/&#64;/\@/;$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
+	     grep{defined$IN{$_}}qw(line name color bcolo icon id email opt home))
+	if $IN{'icon'};
+    
     #-----------------------------
     #参加者情報
     my@singers=map{qq(<A style="color:$_->{'color'}" title="$_->{'blank'}秒">$_->{'name'}</A>☆)}
@@ -340,19 +291,24 @@ setTimeout(reload, $IN{'reload'}000);
 <META http-equiv="refresh" content="$IN{'reload'};url='$CF{'index'}?$query'">
 </NOSCRIPT>
 _HTML_
-    &header($IN{'reload'}&&!$IN{'quit'}?$additionalHeader:'');
+    
+    &header($IN{'reload'}?$additionalHeader:'');
+    
     #-----------------------------
     #参加者表示
+    my $reload = $IN{'reload'} ? sprintf('%s秒間隔',$IN{'reload'}) : 'No Reload';
+    $reload = sprintf( '<A href="%s?%s">%s</A>', $CF{'mobile'}, $mobileQuery, $reload) if $mobileQuery;
     print<<"_HTML_";
 <TABLE class="meminfo" summary="参加者情報など"><TR>
 <TD class="reload">[ <A href="$CF{'index'}?$query">@{[sprintf('%02d:%02d:%02d',(localtime$^T)[2,1,0])]}</A> ]</TD>
 <TD class="member">[合計:$intMembers人 参加者:$intSingers人 観客:$intAudiences人] [ $strMembers ]</TD>
-<TD class="respan">(<SPAN>$IN{'reload'}秒間隔</SPAN>)</TD>
+<TD class="respan">($reload)</TD>
 </TR></TABLE>
 _HTML_
-    my$i=0;
+    
     #-----------------------------
     #ログ表示
+    my$i=0;
     for(@{$chatlog}){
 	my%DT=%{$_};
 	'del'eq$DT{'Mar1'}&&next;
@@ -907,6 +863,64 @@ $ $ENV{'TZ'}
     }
     $CF{'TZ'}=$envtz;
     return$CF{'timeOffset'};
+}
+
+
+#-------------------------------------------------
+#引数の前処理
+sub commonRoutineForView{
+    #-----------------------------
+    #コマンドの読み込み
+    my%EX;
+    for(split(';',$IN{'opt'})){
+	my($i,$j)=split('=',$_,2);
+	$i||next;
+	$i=~/(\S+(?:\s+\S+)*)/o||next;
+	$i=$1;
+	$j=defined$j&&$j=~/(\S+(?:\s+\S+)*)/o?$1:'';
+	$EX{$i}=$j;
+    }
+    
+    #専用アイコン機能。index.cgiで設定する。
+    #index.cgiで指定したアイコンパスワードに合致すれば。
+    $IN{'icon'}=$IC{$EX{'icon'}}if$CF{'exicon'}&&$IC{$EX{'icon'}};
+    
+    #絶対指定アイコン
+    $IN{'icon'}=''if$CF{'absoluteIcon'}&&$EX{'absoluteIcon'};
+    #相対指定アイコン
+    $IN{'icon'}=''if$CF{'relativeIcon'}&&$EX{'relativeIcon'};
+    #表情アイコン
+    $IN{'icon'}=$IN{'surface'}if!$IN{'icon'}&&$IN{'surface'};
+    
+    $IN{'body'}=$IN{'body'}?Filter->filteringBody($IN{'body'},%EX):'';
+    $IN{'isActive'}=$ENV{'CONTENT_LENGTH'}?1:0;
+    $IN{'time'}=$^T;
+    
+    #-----------------------------
+    #クッキー書き込み
+    $IN{'cook'}&&&setCookie;
+    
+    #---------------------------------------
+    #参加者・ランキング・書き込み処理
+    my$chatlog=Chatlog->getInstance;
+    my$members=Members->getInstance;
+    
+    #-----------------------------
+    #自分のデータを追加
+    $IN{'reload'}=$members->add(\%IN);
+    
+    #-----------------------------
+    #書き込み
+    if(length$IN{'body'}){
+	#ランキング加点
+	$IN{'exp'}=Rank->plusExp(\%IN);
+	#発言処理
+	$chatlog->add(\%IN);
+    }elsif($IN{'del'}){
+	#発言削除
+	$chatlog->delete({id=>$IN{'id'},exp=>$IN{'del'}});
+    }
+    return($chatlog,$members);
 }
 
 
@@ -1746,9 +1760,10 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
     __FILE__ =~ /^(.*[\\\/:])/o;
     $CF{'ProgramDirectory'} = $1;
+    $CF{'program'} = substr($ENV{'SCRIPT_NAME'}, rindex('/'.$ENV{'SCRIPT_NAME'},'/'));
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.20 $;
+    $CF{'correv'}=qq$Revision: 1.21 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;
