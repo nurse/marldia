@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.6 2002-04-20 16:34:50 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.7 2002-05-04 18:10:30 naruse Exp $;
 require 5.004;
 #use lib './lib';
 use Fcntl qw(:DEFAULT :flock);
@@ -97,7 +97,7 @@ sub north{
 window.onload=autoreset;
 var cook,body,preview,surface;
 _HTML_
-  print qq(var icondir="$CF{'icondir'}";\n);
+  print qq(var icondir='$CF{'icondir'}';\n);
   print<<'_HTML_';
 function autoreset(){
   if(document.all){
@@ -153,10 +153,8 @@ function iconChange(arg){
 }
 
 
-
-
 //--------------------------------------
-// 表情アイコンサンプル
+// 表情アイコン見本
 function surfaceSample(){
   if(!window.createPopup){return;}
   var popup=window.createPopup();
@@ -164,14 +162,14 @@ function surfaceSample(){
   var hei=250;
   var str=
     '<button type="button" id="surface0" style="margin:0;padding:0;width:50px"'
-    +' onclick="top.north.document.all(\'surface\').selectedIndex=0'
+    +' onclick="top.north.document.all(\'surface\').selectedIndex=0;document.all(\'surfaceS\').selectedIndex=0'
     +';top.north.document.all(\'preview\').src=\''+icondir+surface.options[0].value+'\'">'
     +'<img src="'+icondir+surface.options[0].value+'" alt="-"></button>';
 
   for(i=1;i<surface.length;i++){
     str+=
     '<button type="button" id="surface'+i+'" style="margin:0;padding:0;width:50px"'
-    +' onclick="top.north.document.all(\'surface\').selectedIndex='+i
+    +' onclick="top.north.document.all(\'surface\').selectedIndex='+i+';document.all(\'surfaceS\').selectedIndex='+i
     +';top.north.document.all(\'preview\').src=\''+icondir+surface.options[i].value+'\'">'
     +'<img src="'+icondir+surface.options[i].value+'" alt="'+(i-1)+'"></button>';
     if(i%3==2){str+='<br>';}
@@ -180,10 +178,11 @@ function surfaceSample(){
    '<div style="border:3px outset ActiveBorder;height:'+hei+'px;overflow:auto;text-align:left;width:'+wid+'px">'
   +'<div style="color:CaptionText;font:caption;height:15px;padding:2px;width:100%;'
   +'filter:progid:DXImageTransform.Microsoft.Gradient(endColorstr=\'#ffffff\',startColorstr=\'ActiveCaption\','
-  +'gradientType=\'1\');">アイコンサンプル</div>'+str+'<select name="surface" id="surface"'
-  +'onchange="document.all(\'surface\'+[this.selectedIndex]).click()">'+surface.innerHTML+'</select></div>';
+  +'gradientType=\'1\');">アイコン見本</div>'+str+'<select name="surfaceS" id="surfaceS"'
+  +'onchange="document.all(\'surface\'+this.selectedIndex).click()">'+surface.innerHTML+'</select>'
+  +'</div>';
   popup.show(20,20,wid,hei,top.south.document.body);
-  popup.document.body.document.all('surface').focus();
+  popup.document.body.document.all('surfaceS').focus();
   return;
 }
 _HTML_
@@ -273,7 +272,7 @@ _HTML_
 >E-mai<span class="ak">l</span></label>:</th>
 <td colspan="3"><input type="text" name="email" id="email" maxlength="200" size="40"
  style="ime-mode:inactive;width:200px" value="$CK{'email'}" tabindex="111"></td>
-<th style="text-align:center">[ <a href="$CF{'sitehome'}"
+<th style="text-align:center">[ <a href="$CF{'sitehome'}" target="_top"
 title="$CF{'sitename'}へ帰ります\n退室メッセージは出ないので帰りの挨拶を忘れずに"
 >$CF{'sitename'}へ帰る</a> ]</th>
 </tr>
@@ -737,7 +736,7 @@ sub getform{
     $IN{'email'}=($DT{'email'}=~/($mail_regex)/o)?"$1":'';
     $DT{'home'}=($DT{'home'}=~/(.{1,200})/o)?"$1":'';
     $IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?"$1":'';
-    $IN{'icon'}=($DT{'icon'}=~/([\w\.\~\-\%\/\#]+)/o)?"$1":'';
+    $IN{'icon'}=($DT{'icon'}=~/([\w\:\.\~\-\%\/\#]+)/o)?"$1":'';
     ($DT{'surface'}=~/([\w\.\~\-\%\/]+)/o)&&($IN{'surface'}="$1");
     $IN{'cmd'}=($DT{'cmd'}=~/(.+)/o)?"$1":undef;
     $IN{'line'}=(($DT{'line'}=~/(\d+)/o)&&(int$1))?int$1:$CF{'defline'};
@@ -777,7 +776,7 @@ _HTML_
 =cut
   print<<"_HTML_";
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
 <html lang="ja">
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=euc-jp">
@@ -956,12 +955,12 @@ $CF{'icls'}の最初の一文字が' '（半角空白）だった場合複数リストモードになります
     $_[0]=$1;
     $list.=qq(<option value="$_[0]" selected>ファイル指定</option>\n);
   }elsif($_[0]and$list=~s/(value="$_[0]")/$1 selected="selected"/io){
-  }elsif($list=~s/value=(["'])([^\1]+?)\1/value=$1$2$1 selected="selected"/io){
+  }elsif($list=~s/value=(["'])(.+?)\1/value=$1$2$1 selected="selected"/io){
     $_[0]=$2;
   }
   
   $CK{'iconlist'}=<<"_HTML_";
-<select name="icon" id="icon" onchange="iconPreview(this.options[this.selectedIndex].value)"$opt>
+<select name="icon" id="icon" onchange="iconChange(this.options[this.selectedIndex].value)"$opt>
 $list</select>
 _HTML_
   return$CK{'iconlist'};
@@ -1034,9 +1033,9 @@ _HTML_
 <option value="#6b8e23" style="background-color: #6b8e23;">OliveDrab</option>
 <option value="#808000" style="background-color: #808000;">Olive</option>
 _HTML_
-    if($CK{$id}&&$list=~s/(value="$CK{$id}")/$1 selected="selected"/io){
-    }elsif($list=~s/value="([^"]*)"/value="$1" selected="selected"/io){
-      $CK{$id}=$1;
+    if($CK{$id}&&$list=~s/(value=(["'])$CK{$id}\2)/$1 selected="selected"/io){
+    }elsif($list=~s/value=(["'])(.+?)\1/value="$2" selected="selected"/io){
+      $CK{$id}=$2;
     }
     return<<"_HTML_";
 <select name="$id" id="$id"$opt>
@@ -1091,7 +1090,7 @@ _HTML_
 # 初期設定
 BEGIN{
   #Revision Number
-  $CF{'correv'}=qq$Revision: 1.6 $;
+  $CF{'correv'}=qq$Revision: 1.7 $;
   $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
   #エラーが出たらエラー画面を表示するように
   if($0 eq __FILE__){
