@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.15 2003-05-14 17:10:41 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.16 2003-09-04 12:29:14 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -52,9 +52,8 @@ sub main{
 sub modeFrame{
 	print<<"_HTML_";
 Status: 200 OK
-Content-type: text/html; charset=euc-jp
 Content-Language: ja
-Connection: keep-alive
+Content-type: text/html; charset=euc-jp
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <HTML lang="ja-JP">
@@ -62,7 +61,6 @@ Connection: keep-alive
 <META http-equiv="Content-type" content="text/html; charset=euc-jp">
 <META http-equiv="Content-Script-Type" content="text/javascript">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META http-equiv="MSThemeCompatible" content="yes">
 <LINK rel="start" href="$CF{'sitehome'}">
 <LINK rel="index" href="$CF{'index'}">
 <TITLE>$CF{'title'}</TITLE>
@@ -335,8 +333,8 @@ _HTML_
 <BUTTON accesskey="x" type="button" id="surfaceButton" onclick="surfaceSample(event);return false"
  onkeypress="surfaceSample(event);return false"><IMG name="preview" id="preview" alt="" title="$CK{'icon'}"
  src="$CF{'iconDir'}$CK{'icon'}" $CF{'imgatt'} style="margin:0"></BUTTON><BR>
-<LABEL accesskey="z" for="surface" title="hyoZyo&#10;表情アイコンを選択します（使えれば）"
-><SPAN class="ak">Z</SPAN>yo</LABEL><SELECT name="surface" id="surface" tabindex="50"
+<LABEL accesskey="z" for="surface" title="sUrface&#10;表情アイコンを選択します（使えれば）"
+>S<SPAN class="ak">u</SPAN>rface</LABEL><SELECT name="surface" id="surface" tabindex="50"
  onfocus="if(myIcon.value!=getSelectingIcon())changeOption()" onchange="changeSurfaceSelect(this.value)">
 _HTML_
 	if($CK{'icon'}=~/^((?:[^\/#]*\/)*)((?:[^\/#.]*\.)*?[^\/#.]+)(\.[^\/#.]*)?#(\d+)$/o){
@@ -355,7 +353,10 @@ _HTML_
 <TH><LABEL accesskey="n" for="name" title="Name&#10;参加者名、発言者名などで使う名前です"
 >名前(<SPAN class="ak">N</SPAN>)</LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="name" id="name" maxlength="20" size="20"
- style="ime-mode:active;width:100px" value="$CK{'name'}" tabindex="11"></TD>
+ style="ime-mode:active;width:80px" value="$CK{'name'}" tabindex="11">
+<LABEL accesskey="k" for="cook" title="cooKie&#10;チェックを入れると現在の設定をCookieに保存します"
+><INPUT type="checkbox" name="cook" id="cook" class="check" tabindex="12" checked
+>Coo<SPAN class="ak">k</SPAN>ie</LABEL></TD>
 <TH><LABEL accesskey="c" for="color" title="name Color&#10;参加者名、発言者名などで使う名前の色です"
 >名前色(<SPAN class="ak">C</SPAN>)</LABEL>:</TH>
 <TD>@{[&iptcol('color','tabindex="21"')]}</TD>
@@ -371,7 +372,7 @@ _HTML_
 <TR>
 <TH><LABEL accesskey="i" for="icon" title="Icon&#10;使用するアイコンを選択します"
 ><A href="$CF{'index'}?icct" target="south">アイコン</A>(<SPAN class="ak">I</SPAN>)</LABEL></TH>
-<TD>@{[&iptico($CK{'icon'},'tabindex="12"')]}</TD>
+<TD>@{[&iptico($CK{'icon'},'tabindex="13"')]}</TD>
 <TH><LABEL accesskey="c" for="bcolo" title="body Color&#10;発言した本文の色です"
 >文章色(<SPAN class="ak">C</SPAN>)</LABEL>:</TH>
 <TD>@{[&iptcol('bcolo','tabindex="22"')]}</TD>
@@ -388,9 +389,9 @@ _HTML_
 >内容(<SPAN class="ak">B</SPAN>)</LABEL>:</TH>
 <TD colspan="5"><INPUT type="text" class="text" name="body" id="body" maxlength="300" size="100"
  style="ime-mode:active;width:450px" tabindex="1"></TD>
-<TD><LABEL accesskey="k" for="cook" title="cooKie&#10;チェックを入れると現在の設定をCookieに保存します"
-><INPUT type="checkbox" name="cook" id="cook" class="check" tabindex="51" checked="checked"
->クッキ保存(<SPAN class="ak">K</SPAN>)</LABEL></TD>
+<TD style="text-align:center"><INPUT type="checkbox" name="quit" id="quit" class="check" tabindex="51"
+><LABEL accesskey="Q" for="quit" title="quit&#10;チェックを入れると参加者から名前を消します。"
+>退室モード(<SPAN class="ak">Q</SPAN>)</LABEL></TD>
 </TR>
 
 <TR>
@@ -845,11 +846,11 @@ sub locate{
 	}
 	print<<"_HTML_";
 Status: 303 See Other
-Content-type: text/html; charset=euc-jp
 Content-Language: ja-JP
 Pragma: no-cache
 Cache-Control: no-cache
 Location: $i
+Content-type: text/html; charset=euc-jp
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"> 
 <HTML>
@@ -900,11 +901,10 @@ sub getParams{
 sub header{
 	print<<'_HTML_';
 Status: 200 OK
-Content-type: text/html; charset=euc-jp
-Content-Language: ja-JP
-Connection: keep-alive
 Pragma: no-cache
 Cache-Control: no-cache
+Content-Language: ja-JP
+Content-type: text/html; charset=euc-jp
 _HTML_
 	#GZIP Switch
 	my$status='';
@@ -942,7 +942,6 @@ _HTML_
 <META http-equiv="Content-type" content="text/html; charset=euc-jp">
 <META http-equiv="Content-Script-Type" content="text/javascript">
 <META http-equiv="Content-Style-Type" content="text/css">
-<META http-equiv="MSThemeCompatible" content="yes">
 @{[$_[0]||'']}
 <LINK rel="stylesheet" type="text/css" href="$CF{'style'}">
 <LINK rel="start" href="$CF{'sitehome'}">
@@ -1105,7 +1104,7 @@ $ どのような形で返すかの設定
 	my$data=shift;
 	my$text=shift||qq(<IMG src="-!src!-" alt="" title="-!dir!-+-!file!-" $CF{'imgatt'}>);
 	my%DT=(dir=>$CF{'iconDir'},file=>$data->{'icon'});
-	if($CF{'absoluteIcon'}&&$data->{'opt'}=~/(?:^|;)absoluteIcon=([^;]*)/o){
+	if($CF{'absoluteIcon'}&&$data->{'opt'}=~/(?:^|;)absoluteIcon=([^#]*)/o){
 		#絶対指定アイコン
 		$DT{'dir'}='';
 		$DT{'file'}||=$1;
@@ -1145,8 +1144,8 @@ $CF{'iconList'}の最初の一文字が' '（半角空白）だった場合複数リストモードになりま
 '"icon.txt" "exicon.txt"'
 ・複数とみなされる例
 ' "icon.txt" "exicon.txt"'
-│"icon.txt" exicon.txt'
-↓icon.txt exicon.txt'
+' "icon.txt" exicon.txt'
+' icon.txt exicon.txt'
 
 =cut
 
@@ -1258,7 +1257,7 @@ sub showUserError{
 	my$message=shift();
 	&showHeader;
 	print<<"_HTML_";
-<H2 class="mode">- エラーが発生しました -</H2>
+<H2 class="heading2">- エラーが発生しました -</H2>
 <P>ご不便をかけて申し訳ございません<BR>
 <span class="warning">$message</span>ため、<BR>正常な処理を続行することができませんでした<BR>
 以下に念のため今入力されたデータを羅列しておきます<BR>
@@ -1419,7 +1418,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 			
 			if(defined$DT{'body'}){
 				$IN{'body'}=$DT{'body'}||'';
-				$IN{'cook'}=$DT{'cook'}?'on':'0';
+				$IN{'cook'}=$DT{'cook'}?1:0;
 			}
 			if(defined$DT{'del'}){
 				$IN{'del'}=$1 if$DT{'del'}=~/([1-9]\d*)/o;
@@ -1433,7 +1432,8 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 			$DT{'home'}=($DT{'home'}=~/(.{1,200})/o)?$1:'';
 			$IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?$1:'';
 			$IN{'icon'}=($DT{'icon'}=~/([\w\:\.\~\-\%\/\#]+)/o)?$1:'';
-			$IN{'surface'}=$1 if$DT{'surface'}=~/([\w\.\~\-\%\/]+)/o;
+			$IN{'surface'}=$1 if$DT{'surface'}=~/(.+)/o;
+			$IN{'quit'}=$DT{'quit'}?1:0;
 			$IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
 			$IN{'line'}=($DT{'line'}=~/([1-9]\d*)/o)?$1:$::CF{'defline'};
 			$IN{'reload'}=($DT{'reload'}=~/([1-9]\d+|0)/o)?$1:$::CF{'defreload'};
@@ -1507,9 +1507,9 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 					}else{
 						$result.=$tag_tmp;
 					}
-					if($tag_tmp=~/^\03(XMP|PLAINTEXT|SCRIPT)(?![\dA-Za-z])/io){
-						$str=~/(.*?)(?:\03\/$1(?![\dA-Za-z])$tag_regex_|$)/gsi;
-						(my$tag_tmp=$1)=~tr/\01\02/"'/;
+					if($tag_tmp=~/^<(XMP|PLAINTEXT|SCRIPT)(?![\dA-Za-z])/io){
+						$str=~/(.*?)(?:<\/$1(?![\dA-Za-z])$tag_regex_|$)/gsi;
+						(my$tag_tmp=$1)=~tr/\01-\04/"'<>/;
 						$result.=$tag_tmp;
 					}
 				}
@@ -1520,43 +1520,15 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 			
 			#URI自動リンク
 			if($::CF{'noautolink'}||!$EX{'noautolink'}){
-				#[-_.!~*'()a-zA-Z0-9;:&=+$,]	->[!$&-.\w:;=~]
-				#[-_.!~*'()a-zA-Z0-9:@&=+$,]	->[!$&-.\w:=@~]
-				#[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]	->[!$&-/\w:;=?@~]
-				#[-_.!~*'()a-zA-Z0-9;&=+$,]		->[!$&-.\w;=~]
 				#実稼動部
-				my$tag_regex_=q{[^"'<>]*(?:"[^"]*"[^"'<>]*|'[^']*'[^"'<>]*)*(?:>|(?=<)|$(?!\n))};
-				my$comment_tag_regex='<!(?:--[^-]*-(?:[^-]+-)*?-(?:[^>-]*(?:-[^>-]+)*?)??)*(?:>|$(?!\n)|--.*$)';
-				my$tag_regex=qq{$comment_tag_regex|<$tag_regex_};
-				my$text_regex=q{[^<]*};
-				my$result='';
-				my$skip=0;
-				my$pos=length$str;
-				while($str=~/($text_regex)($tag_regex)?/gso){
-					$pos=pos$str;
-					''eq$1&&!$2&&last;
-					my$text_tmp=$1;
-					my$tag_tmp=$2;
-					if($skip){
-						$result.=$text_tmp.$tag_tmp;
-						$skip=0 if$tag_tmp=~/^<\/[aA](?!\w)/o;
-					}else{
-						$text_tmp=~s{($http_URL_regex|$ftp_URL_regex|($mail_regex))}
-						{
-							my$href=$2?'mailto:':'';
-							my$text=$1;
-							($href.=$text)=~tr/"/\01/;
-							qq{<A class="autolink" href="$href" target="_blank">$text</A>}
-						}ego;
-						$result.=$text_tmp.$tag_tmp;
-						$skip=1 if$tag_tmp=~/^<[aA](?!\w)/o;
-						if($tag_tmp=~/^<(XMP|PLAINTEXT|SCRIPT)(?!\w)/i){
-							$str=~/(.*?(?:<\/$1(?!\w)$tag_regex_|$))/gis;
-							$result.=$1;
-						}
-					}
+				my$href_regex=qr{($http_URL_regex|$ftp_URL_regex|($mail_regex))};
+				my@isMail=('<A class="autolink" href="mailto:','<A class="autolink" href="');
+				$str=~s{((?:\G|>)[^<]*?)$href_regex}{$1$isMail[!$3]$2" target="_blank">$2</A>}go;
+				if($str=~/<(?:XMP|PLAINTEXT|SCRIPT)(?![0-9A-Za-z])/io){
+					#XMP/PLAINTEXT/SCRIPTタグがあるとき
+					$str=~s{(<(XMP|PLAINTEXT|SCRIPT)(?![0-9A-Za-z]).*?(?:<\/$2\s*>|$))}
+					{(my$element=$1)=~s/<A class="autolink"[^>]+>(.*?)<\/A>/$1/gos;$element}egios;
 				}
-				$str=$result.substr($str,$pos);
 			}else{
 				#Command:nolink
 			}
@@ -1747,7 +1719,11 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	sub Members::add{
 		my$self=ref($_[0])?$_[0]:getInstance();shift;
 		my%DT=%{shift()};
-		if($DT{'name'}){
+		if($DT{'quit'}){
+			#退室モード
+			delete$singleton->{$DT{'id'}}if$DT{'id'};
+			$singleton->{"$DT{'ra'}"}={id=>$DT{'ra'},(map{$_=>$DT{$_}}qw(reload ra time hua))};
+		}elsif($DT{'name'}){
 			delete$singleton->{"$DT{'ra'}"};
 			if($DT{'isActive'}){
 				#能動的リロード
@@ -1908,7 +1884,7 @@ BEGIN{
 		};
 	}
 	#Revision Number
-	$CF{'correv'}=qq$Revision: 1.15 $;
+	$CF{'correv'}=qq$Revision: 1.16 $;
 	$CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;

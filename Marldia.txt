@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 = Marldia - Web Chat System
 #
-# $Id: Marldia.txt,v 1.15 2003-05-14 17:10:42 naruse Exp $
+# $Id: Marldia.txt,v 1.16 2003-09-04 12:29:13 naruse Exp $
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
@@ -28,6 +28,10 @@ Airemixの掲示板で質問してみてください
 
 #------------------------------------------------------------------------------#
 == Marldia History
+:2003-09-04 Revision: 1.16
+  * 絶対指定アイコンがうまく動かなかったのを修正
+  * 退室モードを追加
+  * ZyoからSurfaceに
 :2003-05-15 Revision: 1.15
   * 内部構造のオブジェクト指向化を進めた
   * 表情アイコン周りを書き直した
@@ -151,13 +155,26 @@ optgroupで囲っていないoptionは最後尾にのみ置けます。
 ちなみにこの場合も実際は(({<img src="$CF{'icon'}moe.png">}))となります。
 注意：アイコンパスワードには[0-9A-Z_a-f]な文字のみが使えます
 
+== 表情アイコンの指定
+=== アイコンのファイル名
+ファイル名を foo.png, foo0.png ,foo1.png・・・と、
+数字無し、拡張子の前に0、拡張子の前に1・・・と連番にする。
+
+=== アイコンリスト側の指定方法
+<OPTION value="foo.png#1">foo</OPTION>
+などとする。
+ただし、「1」の部分は、表情アイコンの連番の数字の中で、一番大きなものにする。
+
+例えば、bar.gif, bar0.gif, bar1.gif, ・・・, bar10.gifと12個のアイコンがある場合、
+"bar.gif#10"とします。
+
 #------------------------------------------------------------------------------#
 == そのほかの説明は
 Mireilleの説明を見れば書いてあるかもしれません^^;;
-アイコン形式や語句強調、自動リンクなどの仕組みはMireilleと100%互換です。
+アイコン形式や自動リンクなどの仕組みはMireilleとほぼ100%互換です。
 
 #------------------------------------------------------------------------------#
 == Copyright
-Copyright (c) 2001-2003 NARUSE Yui (((<Airemix|URL:http://www.airemix.com/>))). All rights reserved.
+Copyright (c) 2001-2003 NARUSE,Yui (((<Airemix|URL:http://www.airemix.com/>))). All rights reserved.
 
 =end
