@@ -2,15 +2,16 @@
 /* Marldia Style Sheet */
 /* LastModified 2000-09-06 [ by NARUSE Yui ] */
 /* "This file is written in shift_jis." 空 */
-/* $Id: style.css,v 1.1 2001-10-21 12:27:17 naruse Exp $ */
+/* $Id: style.css,v 1.2 2001-12-21 09:06:48 naruse Exp $ */
 
 /* --------------------- 全体のスタイル --------------------- */
+/* 通常のリンク文字 */
 a:link{
-  color: #acf;
+  color: #22a;
   text-decoration: none;
 }
 a:visited{
-  color: #acf;
+  color: #44f;
   text-decoration: none;
 }
 a:hover{
@@ -21,14 +22,13 @@ a:active{
   color: #f00;
   text-decoration: underline;
 }
-
 body{
   background-attachment: scroll;
-  background-color: #112;
+  background-color: #ddf;
 /*  background-image: url('');
   background-position: left;
   background-repeat: repeat; */
-  color: #fd0;
+  color: #333;
   font-family: "MS UI Gothic", sans-serif;
   font-size: 13px;
   letter-spacing: 0.1em;
@@ -80,10 +80,9 @@ img {
 
 input,option,textarea{
   background-color: #eef;
-  border-color: #fd0;
+  border-color: #333;
   border-style: solid;
   border-width: 1px;
-  color: #000;
   font-family: "MS UI Gothic", sans-serif;
   font-size: 100%;
 }
@@ -141,27 +140,44 @@ input.reset{
   letter-spacing: 0.15em;
   width: 7em;
 }
+#color,#bcolo{
+  color: #fff;
+}
 /* アクセスキー */
 span.ak{
   text-decoration: underline;
 }
 /* Message */
 table.message{
-  margin: 0.1em 0;
+  margin: 1px auto 1px 5px;
   text-align: left;
-  width: 100%;
 }
-table.message th{
+table.message th,table.message td{
   white-space: nowrap;
   word-break: keep-all; /* MSIE5 */
 }
+.mesicon{
+  text-align: center;
+}
+.mesname{
+}
+.mesbody{
+
+}
+.mesinfo{
+  color: #333;
+  font-size: 12px;
+}
+
 /* 経験値 */
 span.level{
-  color: #999;
-  font-size: 12px;
 }
 /* 発言日時 */
 span.date{
-  color: #999;
-  font-size: 12px;
+}
+/* 著作権表示 */
+.AiremixCopy{
+  font: normal 100% sans-serif;
+  margin: 0.5em;
+  text-align: right;
 }

@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------#
 # 'Marldia' Chat System
 #
-# $Id: Marldia.txt,v 1.1 2001-10-21 12:27:17 naruse Exp $
+# $Id: Marldia.txt,v 1.2 2001-12-21 09:06:48 naruse Exp $
 # http://airemix.site.ne.jp/
 # naruse@airemix.site.ne.jp
 # Scripted by NaRuSe.
@@ -10,6 +10,9 @@
 
 #------------------------------------------------------------------------------#
 ◇Marldia History
+2001-12-21 Revision: 1.2
+全体的にこまごまとした修正をしました
+でも量が多いので何をしたのか忘れたり、、
 2001-10-21 Revision: 1.1
 2001-05-04 Project'Marldia'
 

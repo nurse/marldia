@@ -4,16 +4,16 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.1 2001-10-21 12:27:16 naruse Exp $;
-#use 5.004;
+# $cvsid = q$Id: core.cgi,v 1.2 2001-12-21 09:06:47 naruse Exp $;
+require 5.004;
 #use lib './lib';
 use Fcntl qw(:DEFAULT :flock);
 use strict;
-use vars qw(%CF %IN %CK %IC $iconlist);
+use vars qw(%CF %IN %CK %IC);
 $|=1;
 
 MAIN:{
@@ -23,12 +23,12 @@ MAIN:{
 #  (" $ENV{'REMOT_ADDR'} "=~m/ $CF{'denyra'} /o)&&(&locate($CF{'home'}));
 #  (" $ENV{'REMOT_HOST'} "=~m/ $CF{'denyrh'} /o)&&(&locate($CF{'home'}));
   
-  unless(%IN){
+  if('frame'eq$IN{'mode'}){
     &frame;
-  }elsif(defined$IN{'north'}){
-    &north2;
+  }elsif('north'eq$IN{'mode'}){
+    &north;
   }else{
-    &south1;
+    &south;
   }
   exit;
 }
@@ -49,10 +49,9 @@ Content-Language: ja
 <link rel="start" href="$CF{'home'}">
 <link rel="index" href="$CF{'index'}">
 <link rel="help" href="$CF{'help'}">
-<link rev="made" href="mailto:naruse\@airemix.site.ne.jp">
 <title>$CF{'title'}</title>
 </head>
-<frameset rows="82,*" title="MarldiaFrameset">
+<frameset rows="80,*" title="MarldiaFrameset">
   <frame frameborder="0" name="North" src="index.cgi?north">
   <frame frameborder="0" name="South" src="index.cgi?south">
   <noframes>
@@ -71,21 +70,43 @@ _HTML_
 }
 
 #-------------------------------------------------
-# North Second
-sub north2{
+# North
+sub north{
   &getck;
+  (%CK)||(%CK=%IN);
   &header;
-  &iconlist($CK{'icon'});
-  
+  &iptico($CK{'icon'},'icon','tabindex="12"');
   print<<"_HTML_";
-<script src="script.js" type="text/javascript" charset="shift_jis" defer="defer"></script>
-<form name="north" id="north" method="post" action="index.cgi" target="South" onsubmit="setTimeout(&#34;reset();&#34;,20)">
+<script type="text/javascript" defer="defer">
+<!--
+window.onload=autoreset;
+function autoreset(){
+  if(self.document.north.cook){
+    if(document.cookie){
+      self.document.north.cook.checked=false;
+    }else if(self.document.north.cook.checked==true){
+      self.document.north.cook.checked=true;
+    }
+  }
+  if(self.document.north.mes){
+    self.document.north.mes.value="";
+    self.document.north.mes.focus();
+  }
+}
+function IconPreview(arg){
+  if(document.images["Preview"]){
+    document.images["Preview"].src="$CF{'icon'}"+arg;
+  }
+}
+//-->
+</script>
+<form name="north" id="north" method="post" action="index.cgi" target="South" onsubmit="setTimeout(autoreset,20)">
 <table style="margin:0 auto;width:780px" summary="主要項目">
 <col style="width:100px">
-<col style="width:90px">
-<col style="width:190px">
-<col style="width:70px">
 <col style="width:80px">
+<col style="width:160px">
+<col style="width:80px">
+<col style="width:110px">
 <col style="width:90px">
 <col style="width:40px">
 <col style="width:120px">
@@ -98,8 +119,7 @@ sub north2{
 <td><input type="text" name="name" id="name" maxlength="20" size="20"
  style="ime-mode:active;width:100px" value="$CK{'name'}" tabindex="11"></td>
 <th><label accesskey="c" for="color">名前色(<span class="ak">C</span>)</label>:</th>
-<td><input type="text" name="color" id="color" maxlength='20' size='12'
- style='ime-mode:disabled;width:80px' value="$CK{'color'}" tabindex="21">
+<td>@{[&iptcol($CK{'color'},'color','tabindex="21"')]}</td>
 <th><label accesskey="g" for="line">ログ行数(<span class="ak">G</span>)</label>:</th>
 <td><input type="text" name="line" id="line" maxlength="4" size="4"
  style="ime-mode:disabled;width:32px" value="$CK{'line'}行" tabindex="31"></td>
@@ -108,13 +128,11 @@ sub north2{
 </tr>
 <tr>
 <td rowspan="2" style="text-align:center">
-<img name="Preview" alt="Preview" src="$CF{'icon'}$CK{'icon'}"$CF{'icsz'}></td>
+<img name="Preview" id="Preview" alt="Preview" src="$CF{'icon'}$CK{'icon'}"$CF{'icsz'}></td>
 <th><label accesskey="i" for="icon">アイコン(<span class="ak">I</span>)</label>:</th>
-<td><select name="icon" id="icon" onchange="IconPreview(&#34;$CF{'icon'}&#34;+this.value)" tabindex="12">
-$iconlist</select></td>
+<td>@{[&iptico($CK{'icon'},'icon','tabindex="12"')]}</td>
 <th><label accesskey="b" for="bcolo">文章色(<span class="ak">B</span>)</label>:</th>
-<td><input type="text" name="bcolo" id="bcolo" maxlength='20' size='12'
- style='ime-mode:disabled;width:80px' value="$CK{'bcolo'}" tabindex="22">
+<td>@{[&iptcol($CK{'bcolo'},'bcolo','tabindex="22"')]}</td>
 <th><label accesskey="r" for="reload">更新間隔(<span class="ak">R</span>)</label>:</th>
 <td><input type="text" name="reload" id="reload" maxlength="4" size="4"
  style="ime-mode:disabled;width:32px" value="$CK{'reload'}秒" tabindex="32"></td>
@@ -125,7 +143,7 @@ $iconlist</select></td>
 <td colspan="5"><input type="text" name="mes" id="mes" accesskey="m" maxlength="300" size="100"
  style="ime-mode:active;width:460px" tabindex="1"></td>
 <td><label accesskey="k" for="cook"><input type="checkbox" name="cook" id="cook"
- class="check" tabindex="51">クッキ保存(<span class="ak">K</span>)</label></td>
+ class="check" tabindex="51" checked="checked">クッキ保存(<span class="ak">K</span>)</label></td>
 </tr>
 <tr>
 <td rowspan="2" style="text-align:center">[ <a href="$ENV{'SCRIPT_NAME'}?north" accesskey="q" tabindex="52">再読込(<span class="ak">Q</span>)</a> ]</td>
@@ -152,20 +170,20 @@ _HTML_
 
 
 #-------------------------------------------------
-# South First
-sub south1{
+# South
+sub south{
 
   #補助スイッチ
-  if($IN{'mes'}eq'#rank'){
+  if($IN{'mes'}eq '#rank'){
     #ランキング
     &rank;
   }
-=item
-  elsif($IN{'mes'}eq'#mem'){
+#=item
+  elsif($IN{'mes'}eq '#mem'){
     #参加者詳細
     &mem;
   }
-=cut
+#=cut
 
   my@log=();
   my%RK;
@@ -192,21 +210,13 @@ sub south1{
   if(length$IN{'mes'}){
     #ランキング加点
     sysopen(RANK,$CF{'rank'},O_CREAT|O_RDWR)||die"Can't write rank.";
-    flock(LOG,LOCK_EX);
-    my$i=1;
-    my$j='';
-    while(<RANK>){
-      chomp$_;
-      if($i==1){
-        $j=$_;
-      }else{
-        $RK{"$j"}=$_;
-        $j='';
-      }
-      $i*=-1;
+    flock(RANK,LOCK_EX);
+    my($key,$val,@tmp)=map{$_=~/(.*)/o}('','',<RANK>);
+    while(($key,$val)=splice(@tmp,0,2)){
+      $RK{"$key"}="$val";
     }
-    ($RK{"$IN{'id'}"}=~s[\tpoint=\t(\d+);\t]["\tpoint=\t".($1+1).";\t"]eo)
-      ||($RK{"$IN{'id'}"}="=\t;\tpoint=\t1;\t");
+    ($RK{"$IN{'id'}"}=~s/\tpoint=\t(\d+);\t/\tpoint=\t@{[$1+1]};\t/o)
+     ||($RK{"$IN{'id'}"}="\tpoint=\t1;\t");
     $IN{'point'}=($1)?$1+1:1;
     delete$RK{''};
     truncate(RANK,0);
@@ -231,29 +241,6 @@ sub south1{
     print LOG join('',@log);
     close(LOG);
     
-  }elsif($CF{'logcleaner'}){
-    #自動ログ流し
-    sysopen(LOG,$CF{'cleaner'},O_RDONLY)||die"Can't open file.";
-    flock(LOG,LOCK_SH);
-    my@cleaner=<LOG>;
-    close(LOG);
-    
-    sysopen(LOG,$CF{'log'},O_CREAT|O_RDWR)||die"Can't write file.";
-    flock(LOG,LOCK_EX);
-    @log=<LOG>;
-    
-    my%DT=($log[0]=~m/([^\t]*)=\t([^\t]*);\t/go);
-    if($DT{'time'}-300>$^T){
-      my$i=0;
-      ($DT{'Mar1'}=~m/bot(\d+)/o)&&($i=$1);
-      splice(@log,$CF{'max'}-1);
-      unshift(@log,$cleaner[$i]);
-      truncate(LOG,0);
-      seek(LOG,0,'SEEK_SET');
-      print LOG join('',@log);
-    }
-    close(LOG);
-    
   }else{
     sysopen(LOG,$CF{'log'},O_CREAT|O_RDONLY)||die"Can't open file.";
     flock(LOG,LOCK_SH);
@@ -262,14 +249,11 @@ sub south1{
   }
 
   #参加者読み込み
-  sysopen(MEM,$CF{'mem'},O_CREAT|O_RDWR)||die"Can't write rank.";
-  flock(LOG,LOCK_SH);
-  my$i=1;
-  my$j='';
-  while(<MEM>){
-    chomp$_;
-    $MB{"$_"}=<MEM>;
-    chomp$MB{"$_"};
+  sysopen(MEM,$CF{'mem'},O_CREAT|O_RDWR)||die"Can't write mem.";
+  flock(MEM,LOCK_EX);
+  my($key,$val,@tmp)=map{$_=~/(.*)/o}('','',<MEM>);
+  while(($key,$val)=splice(@tmp,0,2)){
+    $MB{"$key"}="$val";
   }
   delete$MB{''};
   if($IN{'name'}&&$ENV{'CONTENT_LENGTH'}){
@@ -282,20 +266,23 @@ sub south1{
   }else{
     $MB{"$IN{'ra'}"}="reload=\t$IN{'reload'};\taddr=\t$IN{'ra'};\ttime=\t$^T;\t";
   }
-  truncate(MEM,0);
-  seek(MEM,0,'SEEK_SET');
-  print MEM join("\n",each%MB),"\n";
-  close MEM;
-  
   #参加者処理
   my@mb=();
   for(keys%MB){
     my%DT=($MB{"$_"}=~m/([^\t]*)=\t([^\t]*);\t/go);
-    (($DT{'time'}+($DT{'reload'}*5))<$^T)&&(delete$MB{$_},next);#TimeOver
+    ($DT{'reload'}<20)&&($DT{'reload'}=20);
+    (($DT{'time'}+($DT{'reload'}*6))<$^T)&&(delete$MB{$_},next);#TimeOver
     (exists$DT{'color'})||(next);#ROM
     $DT{'expire'}=$^T-$DT{'expire'};
     push(@mb,qq[<a style="color:$DT{'color'}" title="$DT{'expire'}秒">$DT{'name'}</a>☆]);
   }
+  truncate(MEM,0);
+  seek(MEM,0,'SEEK_SET');
+  for(keys%MB){
+    print MEM "$_\n$MB{$_}\n";
+  }
+  close MEM;
+  
   my$visitor=scalar(keys%MB);
   my$entrant=$#mb+1;
   my$audience=$visitor-$entrant;
@@ -307,16 +294,21 @@ sub south1{
       $DT{$_}=~s{(\W)}{'%'.unpack('H2',$1)}ego;
       $_="$_=$DT{$_}";
     }
-    $query="name=$DT{'name'}&id=$DT{'id'}&line=$DT{'line'}&reload=$DT{'reload'}&color=$DT{'color'}";
+    $query='';
+    for(qw(name id line reload color)){
+      $query.="$_=$DT{$_}&amp;";
+    }
   }
   
   if($IN{'reload'}){
-    &header(qq[<meta http-equiv="refresh" content="$IN{'reload'};url=index.cgi?$query">]);
+    &header(qq(<meta http-equiv="refresh" content="$IN{'reload'};url=index.cgi?$query">));
   }else{
     &header;
   }
-  print qq{<div style="text-align:left"><span>[ <a href="index.cgi?$query">Reload</a> ]</span>\n};
-  print qq{<span>[合計:$visitor人 参加者:$entrant人 観客:$audience人] [ @mb ] </span></div>\n};
+  print<<"_HTML_";
+<div style="text-align:left"><span>[ <a href="index.cgi?$query">Reload</a> ]</span>
+<span>[合計:$visitor人 参加者:$entrant人 観客:$audience人] [ @mb ] </span></div>
+_HTML_
   
   #ログ表示
   @log=splice(@log,0,$IN{'line'});
@@ -344,18 +336,21 @@ sub south1{
     
     print<<"_HTML_";
 <table cellspacing="0" class="message" summary="message">
-<col style="width:55px"><col style="width:5em"><col><tr>
-<th><img src="$CF{'icon'}$DT{'icon'}" alt="$DT{'icon'}"$CF{'icsz'}></th>
-<th>$DT{'name'}&nbsp;$DT{'home'}</th>
-<td><span style="color:$DT{'bcolo'};">$DT{'mes'}</span>
-<span class="level">Exp.$DT{'point'}/Lv.$DT{'level'}</span>
+<tr>
+<th class="mesicon"><img src="$CF{'icon'}$DT{'icon'}" alt="$DT{'icon'}"$CF{'icsz'}></th>
+<th class="mesname">$DT{'name'}&nbsp;$DT{'home'}</th>
+<td class="mesbody" style="color:$DT{'bcolo'}">$DT{'mes'}</td>
+<td class="mesinfo"><span class="level">Exp.$DT{'point'}/Lv.$DT{'level'}</span>
 <span class="date">$DT{'date'}</span></td>
-</tr></table>
+</tr>
+</table>
 _HTML_
   }
   
     print<<"_HTML_";
-<div align="right">: Airemix Marldia : $CF{'correv'}</div>
+<div class="AiremixCopy">- <a href="http://airemix.site.ne.jp/" target="_blank" title="Airemix - Mireille -">Airemix Marldia</a>
+<var>$CF{'correv'}</var> -</div>
+</body>
 </html>
 _HTML_
   exit;
@@ -372,19 +367,9 @@ sub rank{
 _HTML_
   sysopen(RANK,$CF{'rank'},O_CREAT|O_RDONLY)||die"Can't read rank.";
   flock(LOG,LOCK_SH);
-  my$i=1;
-  my$j='';
-  while(<RANK>){
-    chomp$_;
-    if($i==1){
-#      $j=$_;
-      print"<tr><th>$_</th>";
-    }else{
-#      $RK{"$j"}=$_;
-#      $j='';
-      print"<td>$_</td></tr>";
-    }
-    $i*=-1;
+  my($key,$val,@tmp)=map{$_=~/(.*)/o}('','',<RANK>);
+  while(($key,$val)=splice(@tmp,0,2)){
+    print"<tr><th>$key</th><td>$val</td></tr>";
   }
   close RANK;
   print<<"_HTML_";
@@ -406,19 +391,9 @@ _HTML_
   #参加者読み込み
   sysopen(MEM,$CF{'mem'},O_CREAT|O_RDONLY)||die"Can't write rank.";
   flock(LOG,LOCK_SH);
-  my$i=1;
-  my$j='';
-  while(<MEM>){
-    chomp$_;
-    if($i==1){
-#      $j=$_;
-      print"<tr><th>$_</th>";
-    }else{
-#      $RK{"$j"}=$_;
-#      $j='';
-      print"<td>$_</td></tr>";
-    }
-    $i*=-1;
+  my($key,$val,@tmp)=map{$_=~/(.*)/o}('','',<MEM>);
+  while(($key,$val)=splice(@tmp,0,2)){
+    print"<tr><th>$key</th><td>$val</td></tr>";
   }
   close MEM;
   print<<"_HTML_";
@@ -444,25 +419,57 @@ sub getfm{
     $i=$ENV{'QUERY_STRING'};
   }
 
-  if(length$i>262114){#送信量制限
-    die"いくらなんでも送信量が多すぎます\n$i";
+  if(length$i>262114){
+    #サイズ制限
+    die"いくらなんでも量が多すぎます\n$i";
+    exit;
+  }elsif(length$i>0){
+    #入力を展開してハッシュに入れる
+    # EUC-JP文字
+    my$ascii='[\x09\x0A\x0D\x20-\x7E]'; # 1バイト EUC-JP文字改
+    my$twoBytes='(?:[\x8E\xA1-\xFE][\xA1-\xFE])'; # 2バイト EUC-JP文字
+    my$threeBytes='(?:\x8F[\xA1-\xFE][\xA1-\xFE])'; # 3バイト EUC-JP文字
+    for(split(/[&;]/o,$i)){
+      my($i,$j)=split('=',$_,2);
+      (defined$j)||($DT{$i}='',next);
+      study$j;
+      $j=~tr/+/\ /;
+      $j=~s/%([0-9A-Fa-f]{2})/pack('H2',$1)/ego;
+      $j=($j=~/((?:$ascii|$twoBytes|$threeBytes)*)/o)?"$1":'';
+      $j=~s/\t/\ \ /go;
+      $j=~s/"/&#34;/go;
+      $j=~s/&(#?\w+;)?/($1)?"&$1":'&#38;'/ego;
+      $j=~s/'/&#39;/go;
+  
+      if('mes'eq$i){
+        #本文のみタグを使ってもいい設定にもできる
+        $j=~s/</&#60;\t/go;
+        $j=~s/>/&#62;\t/go;
+        if($CF{'tags'}){
+          $j=~s{&#60;\t(/?)(\w+)([^\t]*)&#62;\t}
+          {my($a,$b,$c)=($1,$2,$3);($CF{'tags'}=~/\b$2\b/io)?"<$a$b>":"&#60;$a$b$c&#62;"}ego;
+        }
+        $j=~tr/\t//d;
+      }else{
+        $j=~s/</&#60;/go;
+        $j=~s/>/&#62;/go;
+      }
+  
+      $j=~s/\x0D\x0A/<br>/go;$j=~s/\x0D/<br>/go;$j=~s/\x0A/<br>/go;
+      $j=~s/(<br>)+$//o;
+      $DT{$i}=$j;
+    }
   }
 
-  #入力を展開してハッシュに入れる
-  for(split(/[&;]/,$i)){
-    my($i,$j)=split(/=/,$_,2);
-    (defined$j)||($DT{$i}='',next);
-    study$j;
-    $j=~tr/+/\ /;
-    $j=~s/%([0-9A-Fa-f]{2})/pack('H2',$1)/ego;
-    $j=~tr/\t\x0D\x0A//d;
-#    $j=~s/&/&#38;/go;
-#    $j=~s/"/&#34;/go;$j=~s/'/&#39;/go;
-#    $j=~s/</&#60;/go;$j=~s/>/&#62;/go;
-    $DT{$i}=$j;
-  }
   
-  if(defined$DT{'name'}){
+  if((!%DT)||('frame'eq$DT{'mode'})){
+    $IN{'mode'}='frame';
+  }elsif((defined$DT{'north'})||('north'eq$DT{'mode'})){
+    $IN{'mode'}='north';
+    $IN{'line'}=$CF{'defline'};
+    $IN{'reload'}=$CF{'defreload'};
+  }elsif($DT{'name'}){
+    &getck;
     #HTTP URL 正規表現
     my$http_URL_regex =
    q{\b(?:https?|shttp)://(?:(?:[-_.!~*'()a-zA-Z0-9;:&=+$,]|%[0-9A-Fa-f}.
@@ -506,7 +513,7 @@ sub getfm{
       $IN{'cook'}=($DT{'cook'}=~/(.)/o)?'on':'0';
     }
     $IN{'name'}=($DT{'name'}=~/(.{1,100})/o)?"$1":'';
-    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?"$1":"$IN{'name'}";
+    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?"$1":($CK{'id'}?$CK{'id'}:$IN{'name'});
     $IN{'color'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?"$1":'';
     $IN{'bcolo'}=($DT{'bcolo'}=~/([\#\w\(\)\,]{1,20})/o)?"$1":'';
     $DT{'email'}=($DT{'email'}=~/(.{1,200})/o)?"$1":'';
@@ -515,15 +522,13 @@ sub getfm{
     $IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?"$1":'';
     $IN{'icon'}=($DT{'icon'}=~/([\w\.\~\-\%\/]+)/o)?"$1":'';
     $IN{'cmd'}=($DT{'cmd'}=~/(.+)/o)?"$1":undef;
-    $IN{'line'}=(($DT{'line'}=~/(\d+)/o)&&$1)?"$1":'10';
-    $IN{'reload'}=(($DT{'reload'}=~/(\d+)/o)&&$1)?"$1":'0';
+    $IN{'line'}=(($DT{'line'}=~/(\d+)/o)&&(int$1))?int$1:$CF{'defline'};
+    $IN{'reload'}=(($DT{'reload'}=~/(\d+)/o)&&(int$1))?int$1:$CF{'defreload'};
     $IN{'ra'}=($ENV{'REMOTE_ADDR'}=~/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/)?"$1":'';
     $IN{'hua'}=($ENV{'HTTP_USER_AGENT'}=~/([^\t]+)/)?"$1":'';
-  }elsif(defined$DT{'north'}){
-    $IN{'north'}=1;
   }elsif(defined$DT{'south'}){
-    $IN{'line'}='10';
-    $IN{'reload'}='0';
+    $IN{'line'}=$CF{'romline'};
+    $IN{'reload'}=$CF{'romreload'};
   }
   return%IN;
 }
@@ -585,12 +590,16 @@ _HTML_
 # Cookieを取得する
 #
 sub getck{
-  my$cookie=(($ENV{'HTTP_COOKIE'})=~/(.+)/o)?"$1":(return undef);
-  for(split(/; /,$cookie)){
-    my($i,$j)=split(/=/,$_,2);
+  ($ENV{'HTTP_COOKIE'})||(return undef);
+  my$ascii='[\x0A\x0D\x20-\x7E]'; # 1バイト EUC-JP文字改-\x09
+  my$twoBytes='(?:[\x8E\xA1-\xFE][\xA1-\xFE])'; # 2バイト EUC-JP文字
+  my$threeBytes='(?:\x8F[\xA1-\xFE][\xA1-\xFE])'; # 3バイト EUC-JP文字
+  my$cook=($ENV{'HTTP_COOKIE'}=~/([^\t]+)/o)?"$1":'';
+  for(split('; ',$cook)){
+    my($i,$j)=split('=',$_,2);
     ('Marldia'ne$i)&&(next);
     $j=~s/%([0-9A-Fa-f]{2})/pack('H2',$1)/ego;
-    %CK=split(/\t/,$j);
+    %CK=($j=~/(\w+)\t((?:$ascii|$twoBytes|$threeBytes)*)/go);
     last;
   }
   return%CK;
@@ -618,24 +627,113 @@ sub date{
 }
 
 #-------------------------------------------------
-# IconlistTags
-sub iconlist{
-  open(IN,"$CF{'icli'}")||die"Can't open file.";
-  flock(IN,1);
-  my@iconlist = <IN>;
-  close(IN);
-  ($CK{'icon'})=@_;
-  $main::iconlist=join('',@iconlist);
-  if($CK{'icon'}){
-    ($main::iconlist=~s/\"$CK{'icon'}\"/\"$CK{'icon'}\" selected/)
-      ||($main::iconlist.="<option value=\"$CK{'icon'}\" selected>Exclusive</option>\n");
+# アイコンリスト
+#
+sub iptico{
+
+=item
+
+$_[0]: $CK{'icon'}
+$_[1]: 'icon'
+$_[2]: 'tabindex=12'
+
+=cut
+
+  my$name='icon';
+  my$opt='';
+  ($_[1])&&($name=$_[1]);
+  ($_[2])&&($opt=" $_[2]");
+  #リスト読み込み
+  sysopen(RD,"$CF{'icls'}",O_RDONLY);#||die"Can't open iconlist."; #わざわざエラー返さなくても
+  flock(RD,LOCK_SH);
+  my$list=join('',<RD>);
+  close(RD);
+  if($_[0]and$list=~s/(value="$_[0]")/$1 selected="selected"/io){
+  }elsif($list=~s/value="([^"]*)"/value="$1" selected="selected"/io){
+    $_[0]=$1;
+  }
+  return<<"_HTML_";
+<select name="$name" id="$name" onchange="IconPreview(this.form['icon'][this.options.selectedIndex].value)"$opt>
+$list</select>
+_HTML_
+}
+
+
+#-------------------------------------------------
+# カラーリスト読み込み
+#
+sub iptcol{
+
+=item
+
+$_[0]: $CK{'color'}
+$_[1]: 'color'
+$_[2]: 'tabindex=12'
+
+=cut
+
+  my$name='color';
+  my$opt='';
+  ($_[1])&&($name=$_[1]);
+  ($_[2])&&($opt=" $_[2]");
+  if('input'eq$CF{'colway'}){
+    return<<"_HTML_";
+<input type="text" name="$name" id="$name" class="blur" maxlength="20" style="ime-mode:disabled; width:90px;" onFocus="this.className='focus'" onBlur="this.className='blur'" value="$_[0]"$opt>
+_HTML_
   }else{
-    for(@iconlist){
-      ($_=~m/<option/i)||(next);
-      $_=~m/value=[\"\']([^\"\']*)[\"\']/i;
-      $CK{'icon'}=$1;last;
+    my$list=<<"_HTML_";
+<option value="#000000" style="background-color: #000000;">Black</option>
+<option value="#2f4f4f" style="background-color: #2f4f4f;">DarkSlateGray</option>
+<option value="#696969" style="background-color: #696969;">DimGray</option>
+<option value="#808080" style="background-color: #808080;">Gray</option>
+<option value="#708090" style="background-color: #708090;">SlateGray</option>
+<option value="#778899" style="background-color: #778899;">LightSlateGray</option>
+<option value="#8b4513" style="background-color: #8b4513;">SaddleBrown</option>
+<option value="#a0522d" style="background-color: #a0522d;">Sienna</option>
+<option value="#d2691e" style="background-color: #d2691e;">Chocolate</option>
+<option value="#cd5c5c" style="background-color: #cd5c5c;">IndianRed</option>
+<option value="#a52a2a" style="background-color: #a52a2a;">Brown</option>
+<option value="#8b0000" style="background-color: #8b0000;">DarkRed</option>
+<option value="#800000" style="background-color: #800000;">Maroon</option>
+<option value="#b22222" style="background-color: #b22222;">FireBrick</option>
+<option value="#ff6347" style="background-color: #ff6347;">Tomato</option>
+<option value="#ff4500" style="background-color: #ff4500;">OrangeRed</option>
+<option value="#dc143c" style="background-color: #dc143c;">Crimson</option>
+<option value="#c71585" style="background-color: #c71585;">MediumVioletRed</option>
+<option value="#ff1493" style="background-color: #bb1493;">DeepPink</option>
+<option value="#8b008b" style="background-color: #8b008b;">DarkMagenta</option>
+<option value="#800080" style="background-color: #800080;">Purple</option>
+<option value="#9932cc" style="background-color: #9932cc;">DarkOrchid</option>
+<option value="#9400d3" style="background-color: #9400d3;">DarkViolet</option>
+<option value="#8a2be2" style="background-color: #8a2be2;">BlueViolet</option>
+<option value="#6a5acd" style="background-color: #6a5acd;">SlateBlue</option>
+<option value="#4b0082" style="background-color: #4b0082;">Indigo</option>
+<option value="#00008e" style="background-color: #00008e;">DarkBlue</option>
+<option value="#000080" style="background-color: #000080;">Navy</option>
+<option value="#191970" style="background-color: #191970;">MidnightBlue</option>
+<option value="#483d8b" style="background-color: #483d8b;">DarkSlateBlue</option>
+<option value="#0000cd" style="background-color: #0000cd;">MediumBlue</option>
+<option value="#4169e1" style="background-color: #4169e1;">RoyalBlue</option>
+<option value="#5f9ea0" style="background-color: #5f9ae0;">CadetBlue</option>
+<option value="#4682b4" style="background-color: #4682b4;">SteelBlue</option>
+<option value="#008080" style="background-color: #008080;">Teal</option>
+<option value="#008b8b" style="background-color: #008b8b;">Darkcyan</option>
+<option value="#2e8b57" style="background-color: #2e8b57;">SeaGreen</option>
+<option value="#228b22" style="background-color: #228b22;">ForestGreen</option>
+<option value="#006400" style="background-color: #006400;">DarkGreen</option>
+<option value="#556b2f" style="background-color: #556b2f;">DarkOliveGreen</option>
+<option value="#6b8e23" style="background-color: #6b8e23;">OliveDrab</option>
+<option value="#808000" style="background-color: #808000;">Olive</option>
+_HTML_
+    if($_[0]&&$list=~s/(value="$_[0]")/$1 selected="selected"/io){
+    }elsif($list=~s/value="([^"]*)"/value="$1" selected="selected"/io){
+      $_[0]=$1;
     }
-  }return$main::iconlist;
+    return<<"_HTML_";
+<select name="$name" id="$name"$opt>
+$list</select>
+_HTML_
+  }
 }
 
 
@@ -684,7 +782,7 @@ _HTML_
 # 初期設定
 BEGIN{
   # Revision Number
-  $CF{'correv'}=qq$Revision: 1.1 $;
+  $CF{'correv'}=qq$Revision: 1.2 $;
   #エラーが出たらエラー画面を表示するように
   if($0=~m/\bindex.cgi$/o){
     $SIG{'__DIE__'}=sub{
