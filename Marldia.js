@@ -1,7 +1,7 @@
 /*========================================================*/
 // Marldia.js
 // encoding="euc-jp"
-/* $Id: Marldia.js,v 1.2 2005-01-20 19:25:59 naruse Exp $ */
+/* $Id: Marldia.js,v 1.3 2005-03-11 18:47:23 naruse Exp $ */
 var ckCookie;
 var imgPreview;
 var lbSurface;
@@ -11,6 +11,7 @@ var bodyContainer;
 var bodySwitch;
 var nameColor;
 var bodyColor;
+var eForm;
 var chatHistory = new Array;
 var currentHistoryIndex = 0;
 var maxHistory = 100;
@@ -30,6 +31,7 @@ function init(){
 		bodySwitch=document.all('bodySwitch');
 		nameColor = document.all('color');
 		bodyColor = document.all('bcolo');
+		eForm = document.all('north');
 	}else if(document.getElementById){
 		ckCookie=document.getElementById('cook');
 		imgPreview=document.getElementById('preview');
@@ -40,12 +42,13 @@ function init(){
 		bodySwitch=document.getElementById('bodySwitch');
 		nameColor = document.getElementById('color');
 		bodyColor = document.getElementById('bcolo');
+		eForm = document.getElementById('north');
 	}else return false;
 	isLoaded=true;
 	autoreset();
 	changeOption();
-	nameColor.style.color = nameColor.value
-	bodyColor.style.color = bodyColor.value
+	nameColor.style.color = nameColor.value;
+	bodyColor.style.color = bodyColor.value;
 	return true;
 }
 
@@ -55,14 +58,27 @@ function init(){
 function autoreset(){
 	if(!isLoaded)return false;
 	if(ckCookie)ckCookie.checked=document.cookie?false:true;
-	var tbBody=document.getElementById('body');
-	if(tbBody){
-		while(chatHistory.length>0&&!chatHistory[chatHistory.length-1])chatHistory.pop();
-		if(tbBody.value.length>0)chatHistory.push(tbBody.value);
-		currentHistoryIndex = chatHistory.length;
-		while(chatHistory.length>maxHistory)chatHistory.shift();
-		tbBody.value='';
-		tbBody.focus();
+	if(eForm&&eForm['identity']&&eForm['name']){
+		if(!eForm['identity'].value&&eForm['name'].value){
+			eForm['identity'].value = eForm['name'].value;
+		}
+	}
+	var newBody = bodyContainer.firstChild;
+	if(newBody){
+		if(maxHistory>0&&newBody.value){
+			while(chatHistory.length>0&&!chatHistory[chatHistory.length-1])
+				chatHistory.pop();
+			chatHistory.push(newBody.value);
+			if(chatHistory.length>=maxHistory)
+				chatHistory.splice(0,1+chatHistory.length-maxHistory);
+			currentHistoryIndex = chatHistory.length;
+			chatHistory[currentHistoryIndex] = '';
+		}
+		newBody.value='';
+		newBody.focus();
+	}else if(newBody = document.all('body')){
+		newBody.value='';
+		newBody.focus();
 	}
 }
 
@@ -189,8 +205,8 @@ function surfaceSample(e){
 	event.cancelBubble=true;
 	if(popup&&popup.isOpen){
 		popup.hide();
-		var tbBody=document.getElementById('body');
-		tbBody.focus();
+		var newBody = bodyContainer.firstChild;
+		newBody.focus();
 		return false;
 	}
 	popup=window.createPopup();
@@ -290,10 +306,13 @@ function getChatHistoryByKey(e){
 	}else if(document.getElementById){
 		keyCode = e.which;
 	}else return true;
-	if(keyCode==38||keyCode==40){
+	if(e.altKey||e.ctrlKey||e.shiftKey||e.modifiers){
+		return true;
+	}else if(keyCode==38||keyCode==40){
 		getChatHistory(keyCode-39);
+		return false;
 	}
-	return;
+	return true;
 }
 
 
@@ -316,9 +335,13 @@ function getChatHistoryByMouseWheel(e){
 /*========================================================*/
 // Get Chat History
 function getChatHistory(count){
+	if(!chatHistory.length)return true;
 	var newBody = bodyContainer.firstChild;
 	if(!newBody)return true;
-	chatHistory[currentHistoryIndex] = newBody.value;
+	status = 'currentHistoryIndex:' + currentHistoryIndex + ' ';
+	status += 'chatHistory.length:' + chatHistory.length + ' ';
+	if(newBody.value||newBody.value=="")
+		chatHistory[currentHistoryIndex] = newBody.value;
 	currentHistoryIndex += count;
 	if(currentHistoryIndex < 0){
 		currentHistoryIndex = 0;
