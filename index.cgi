@@ -4,15 +4,14 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 # "This file is written in euc-jp, CRLF." ¶õ
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.11 2002-10-22 08:29:15 naruse Exp $;
-require 5.004;
-use strict;
-use vars qw(%CF %IN %CK %IC);
-use lib '../bbs/';
+# $cvsid = q$Id: index.cgi,v 1.12 2002-12-13 14:47:03 naruse Exp $;
+#require 5.005;
+#use strict;
+#use vars qw(%CF %IN %CK %IC);
 
 #YOUR SITE NAME
 $CF{'sitename'}='Airemix';
@@ -153,7 +152,7 @@ _HTML_
     };
   }
   # Revision Number
-  $CF{'idxrev'}=qq$Revision: 1.11 $;
+  $CF{'idxrev'}=qq$Revision: 1.12 $;
 }
 1;
 __END__

@@ -1,7 +1,7 @@
 @charset "EUC-JP";
 /* Marldia Style Sheet */
 /* "This file is written in euc-jp, CRLF." 空 */
-/* $Id: style.css,v 1.11 2002-10-22 08:29:16 naruse Exp $ */
+/* $Id: style.css,v 1.12 2002-12-13 14:47:03 naruse Exp $ */
 
 /* ===================== 全体の標準スタイル ===================== */
 /* 通常のリンク文字 */
@@ -18,12 +18,12 @@ A.autolink:active	{border-bottom: dashed 1px #f00;color:#f00;text-decoration:non
 
 body{
 	background-attachment: scroll;
-	background-color: #ffe;
+	background-color: #fff;
 	background-image: url('/HP_img/bakimg.png');
 /*	background-position: left;
 	background-repeat: repeat; */
 	color: #333;
-	font-family: "MS UI Gothic",osaka,sans-serif;
+	font-family: 'MS UI Gothic',osaka,sans-serif;
 	font-size: 13px;
 	letter-spacing: 0.1em;
 	margin: 0;
@@ -46,7 +46,7 @@ h1 {
 	margin: 0 auto;
 }
 h3 {
-	font-family: "MS UI Gothic",osaka,sans-serif;
+	font-family: 'MS UI Gothic',osaka,sans-serif;
 	font-size: 15px;
 	font-weight: bold;
 	letter-spacing: 0.15em;
@@ -55,7 +55,7 @@ h3 {
 	width: 25em;
 }
 h5{
-	font-family: "MS UI Gothic",osaka,sans-serif;
+	font-family: 'MS UI Gothic',osaka,sans-serif;
 	font-size: 13px;
 	font-weight: normal;
 	letter-spacing: 0.15em;
@@ -70,14 +70,10 @@ img {
 	vertical-align: middle;
 }
 
-input,optgroup,option,select,textarea{
-	background-color: #eef;
-	border-color: #333;
-	border-style: solid;
-	border-width: 1px;
-	font-family: "MS UI Gothic",osaka,sans-serif;
-	font-size: 100%;
+input,select{
+	background-color: #eee;
 }
+
 optgroup,option{
 	border:none;
 }
@@ -135,6 +131,14 @@ input.reset{
 	cursor: hand;
 	letter-spacing: 0.15em;
 	width: 7em;
+}
+/* テキストフォーム */
+INPUT.text,TEXTAREA{
+	border: #ccc solid 1px;
+	color: #355;
+	font-size: 13px;
+	padding: 2px;
+	margin: 0;
 }
 #icon{
 	width:150px;
