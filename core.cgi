@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.3 2001-12-30 06:39:12 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.4 2002-03-14 16:36:12 naruse Exp $;
 require 5.004;
 #use lib './lib';
 use Fcntl qw(:DEFAULT :flock);
@@ -19,12 +19,14 @@ $|=1;
 MAIN:{
   &getfm;
   
-  (" $IN{'name'} "=~m/ $CF{'denyname'} /o)&&(&locate($CF{'home'}));
-#  (" $ENV{'REMOT_ADDR'} "=~m/ $CF{'denyra'} /o)&&(&locate($CF{'home'}));
-#  (" $ENV{'REMOT_HOST'} "=~m/ $CF{'denyrh'} /o)&&(&locate($CF{'home'}));
+  (" $IN{'name'} "=~m/ $CF{'denyname'} /o)&&(&locate($CF{'sitehome'}));
+#  (" $ENV{'REMOT_ADDR'} "=~m/ $CF{'denyra'} /o)&&(&locate($CF{'sitehome'}));
+#  (" $ENV{'REMOT_HOST'} "=~m/ $CF{'denyrh'} /o)&&(&locate($CF{'sitehome'}));
   
   if('frame'eq$IN{'mode'}){
     &frame;
+  }elsif('del'eq$IN{'mode'}){
+    &del;
   }elsif('north'eq$IN{'mode'}){
     &north;
   }else{
@@ -46,12 +48,12 @@ Content-Language: ja
 <meta http-equiv="Content-type" content="text/html; charset=euc-jp">
 <meta http-equiv="Content-Script-Type" content="text/javascript">
 <meta http-equiv="Content-Style-Type" content="text/css">
-<link rel="start" href="$CF{'home'}">
+<link rel="start" href="$CF{'sitehome'}">
 <link rel="index" href="$CF{'index'}">
 <link rel="help" href="$CF{'help'}">
 <title>$CF{'title'}</title>
 </head>
-<frameset rows="80,*">
+<frameset rows="115,*">
   <frame frameborder="0" name="North" src="index.cgi?north">
   <frame frameborder="0" name="South" src="index.cgi?south">
   <noframes>
@@ -75,139 +77,223 @@ sub north{
   &getck;
   (%CK)||(%CK=%IN);
   &header;
-  &iptico($CK{'icon'},'icon','tabindex="12"');
-  print<<"_HTML_";
-<script type="text/javascript" defer="defer">
+  my$selecticon=&iptico($CK{'icon'},'tabindex="12"');
+  print<<'_HTML_';
+<script type="text/javascript" defer>
 <!--
+//--------------------------------------
+// 初期化
 window.onload=autoreset;
+var cook,body,preview,surface;
+_HTML_
+  print qq(var icondir="$CF{'icon'}";\n);
+  print<<'_HTML_';
 function autoreset(){
-  if(self.document.north.cook){
+  if(document.all){
+    cook=document.all('cook');
+    body=document.all('body');
+    preview=document.all('Preview');
+    surface=document.all('surface');
+  }else if(document.getElementById){
+    cook=document.getElementById('cook');
+    body=document.getElementById('body');
+    preview=document.getElementById('Preview');
+    surface=document.getElementById('surface');
+  }else{return}
+
+  if(cook){
     if(document.cookie){
-      self.document.north.cook.checked=false;
-    }else if(self.document.north.cook.checked==true){
-      self.document.north.cook.checked=true;
+      cook.checked=false;
+    }else if(cook.checked==true){
+      cook.checked=true;
     }
   }
-  if(self.document.north.mes){
-    self.document.north.mes.value="";
-    self.document.north.mes.focus();
+  if(body){
+    body.value="";
+    body.focus();
   }
 }
-function IconPreview(arg){
-  if(document.images["Preview"]){
-    document.images["Preview"].src="$CF{'icon'}"+arg;
+
+//--------------------------------------
+// アイコンプレビュー
+function iconPreview(arg){
+  if(!preview&&!arg){return;}
+  arg=icondir+arg;
+  preview.src=arg;
+}
+
+//--------------------------------------
+// アイコンを変えたら
+function iconChange(arg){
+  if(!surface&&!arg){return;}
+  iconPreview(arg);
+  if(!arg.match(/^(([^\/#]*\/)*([^\/#.]*\.)*[^\/#.]+)(\.[^\/#.]*)#(\d+)$/)){
+    surface.length=1;
+    surface.options[0].text='-';
+    surface.options[0].value=arg;
+    return;
+  }
+  var url=RegExp.$1;
+  var ext=RegExp.$4;
+  var len=parseInt(RegExp.$5)+1;
+  surface.length=len+1;
+  surface.options[0].text='-';
+  surface.options[0].value=url+ext;
+  for(i=0;i<len;i++){
+    surface.options[i+1].text=i;
+    surface.options[i+1].value=url+i+ext;
   }
 }
+_HTML_
+  print<<"_HTML_";
 //-->
 </script>
 <form name="north" id="north" method="post" action="index.cgi" target="South" onsubmit="setTimeout(autoreset,20)">
-<table style="margin:0 auto;width:780px" summary="主要項目">
-<col style="width:100px">
-<col style="width:80px">
-<col style="width:160px">
-<col style="width:80px">
+<table style="margin:0 auto;width:770px" summary="主要項目">
 <col style="width:110px">
-<col style="width:90px">
+<col style="width:75px">
+<col style="width:160px">
+<col style="width:75px">
+<col style="width:100px">
+<col style="width:85px">
 <col style="width:40px">
 <col style="width:120px">
 <col>
+
 <tr>
-<th style="font-size:15px;text-align:center">: Marldia :
-<input type="hidden" name="home" value="$CK{'home'}">
-</th>
-<th><label accesskey="n" for="name">名前(<span class="ak">N</span>)</label>:</th>
+<td rowspan="5" style="text-align:center">
+<div><h1>$CF{'pgtit'}</h1>
+<img name="Preview" id="Preview" alt="Preview" src="$CF{'icon'}$CK{'icon'}" $CF{'imgatt'}><br>
+<label accesskey="z" for="surface" title="hyoZyo\n表情アイコンを選択します（使えれば）"
+><span class="ak">Z</span>yo</label><select name="surface" id="surface"
+ onchange="iconPreview(this.options[this.selectedIndex].value)">
+_HTML_
+  if($CK{'icon'}=~/^((?:[^\/#]*\/)*)((?:[^\/#.]*\.)*?[^\/#.]+)(\.[^\/#.]*)?#(\d+)$/o){
+    print qq(<option value="$1$2$3">-</option>\n);
+    for(0..$4){print qq(<option value="$1$2$_$3">$_</option>\n);}
+  }else{
+    print qq(<option value="$CK{'icon'}">-</option>\n);
+  }
+  print<<"_HTML_";
+</select></div>
+<div style="margin:0.3em 0;text-align:center" title="reloadQ\n上フレームをリロードします"
+>[<a href="$CF{'index'}?north" accesskey="q" tabindex="52"
+>再読込(<span class="ak">Q</span>)</a>]</div>
+</td>
+<th><label accesskey="n" for="name" title="Name\n参加者名、発言者名などで使う名前です"
+>名前(<span class="ak">N</span>)</label>:</th>
 <td><input type="text" name="name" id="name" maxlength="20" size="20"
  style="ime-mode:active;width:100px" value="$CK{'name'}" tabindex="11"></td>
-<th><label accesskey="c" for="color">名前色(<span class="ak">C</span>)</label>:</th>
+<th><label accesskey="c" for="color" title="name Color\n参加者名、発言者名などで使う名前の色です"
+>名前色(<span class="ak">C</span>)</label>:</th>
 <td>@{[&iptcol('color','tabindex="21"')]}</td>
-<th><label accesskey="g" for="line">ログ行数(<span class="ak">G</span>)</label>:</th>
+<th><label accesskey="g" for="line" title="log Gyosu\n表示するログの行数です\n最高$CF{'max'}行"
+>ログ行数(<span class="ak">G</span>)</label>:</th>
 <td><input type="text" name="line" id="line" maxlength="4" size="4"
  style="ime-mode:disabled;width:32px" value="$CK{'line'}行" tabindex="31"></td>
-<td><input type="submit" accesskey="s" class="submit" value="OK" tabindex="41"></td>
+<td style="text-align:center"><input type="submit" accesskey="s" class="submit"
+ title="Submit\n現在の内容で発言します" value="OK" tabindex="41"></td>
 <td></td>
 </tr>
+
 <tr>
-<td rowspan="2" style="text-align:center">
-<img name="Preview" id="Preview" alt="Preview" src="$CF{'icon'}$CK{'icon'}"$CF{'icsz'}></td>
-<th><label accesskey="i" for="icon">アイコン(<span class="ak">I</span>)</label>:</th>
-<td>@{[&iptico('icon','tabindex="12"')]}</td>
-<th><label accesskey="b" for="bcolo">文章色(<span class="ak">B</span>)</label>:</th>
+<th><label accesskey="i" for="icon" title="Icon\n使用するアイコンを選択します"
+>アイコン(<span class="ak">I</span>)</label>:</th>
+<td>$selecticon</td>
+<th><label accesskey="c" for="bcolo" title="body Color\n発言した本文の色です"
+>文章色(<span class="ak">C</span>)</label>:</th>
 <td>@{[&iptcol('bcolo','tabindex="22"')]}</td>
-<th><label accesskey="r" for="reload">更新間隔(<span class="ak">R</span>)</label>:</th>
+<th><label accesskey="r" for="reload" title="Reload\n何秒ごとに自動的にリロードするか、です"
+>更新間隔(<span class="ak">R</span>)</label>:</th>
 <td><input type="text" name="reload" id="reload" maxlength="4" size="4"
  style="ime-mode:disabled;width:32px" value="$CK{'reload'}秒" tabindex="32"></td>
-<td><input type="reset" class="reset" value="キャンセル" tabindex="42"></td>
+<td style="text-align:center"><input type="reset" class="reset"
+ title="reset\n内容を初期化します" value="キャンセル" tabindex="42"></td>
 </tr>
+
 <tr>
-<th><label accesskey="m" for="mes">内容(<span class="ak">M</span>)</label>:</th>
-<td colspan="5"><input type="text" name="mes" id="mes" accesskey="m" maxlength="300" size="100"
+<th><label accesskey="b" for="body" title="Body\n発言する本文の内容です"
+>内容(<span class="ak">B</span>)</label>:</th>
+<td colspan="5"><input type="text" name="body" id="body" maxlength="300" size="100"
  style="ime-mode:active;width:460px" tabindex="1"></td>
-<td><label accesskey="k" for="cook"><input type="checkbox" name="cook" id="cook"
+<td><label accesskey="k" for="cook" title="cooKie\nチェックを入れると現在の設定をCookieに保存します"
+><input type="checkbox" name="cook" id="cook"
  class="check" tabindex="51" checked="checked">クッキ保存(<span class="ak">K</span>)</label></td>
 </tr>
+
 <tr>
-<td rowspan="2" style="text-align:center">[ <a href="$ENV{'SCRIPT_NAME'}?north" accesskey="q" tabindex="52">再読込(<span class="ak">Q</span>)</a> ]</td>
-<th><label accesskey="u" for="id">登録名(<span class="ak">U</span>)</label>:</th>
+<th><label accesskey="y" for="id" title="identitY name\nCGI内部で使用する、管理用の名前を選択します
+この名前が実際に表に出ることはありません\nこの登録名が同じだと同一人物だとみなされます"
+>登録名(<span class="ak">Y</span>)</label>:</th>
 <td><input type="text" name="id" id="id" maxlength="20" size="20"
- style="ime-mode:active;width:100px" value="$CK{'id'}" tabindex="101"></td>
-<th><label accesskey="l" for="email">E-Mai<span class="ak">l</span></label>:</th>
+ style="ime-mode:active;width:150px" value="$CK{'id'}" tabindex="101"></td>
+<th><label accesskey="l" for="email" title="e-maiL\nメールアドレスです"
+>E-mai<span class="ak">l</span></label>:</th>
 <td colspan="3"><input type="text" name="email" id="email" maxlength="200" size="40"
  style="ime-mode:inactive;width:200px" value="$CK{'email'}" tabindex="111"></td>
+<th style="text-align:center">[ <a href="$CF{'sitehome'}"
+title="$CF{'sitename'}へ帰ります\n退室メッセージは出ないので帰りの挨拶を忘れずに"
+>$CF{'sitename'}へ帰る</a> ]</th>
 </tr>
+
 <tr>
-<th><label accesskey="x" for="cmd">E<span class="ak">X</span>Icon</label>:</th>
-<td><input type="text" name="cmd" id="cmd" maxlength="200" style="ime-mode:inactive;width:100px"
- onchange="IconPreview(&#34;$CF{'icon'}&#34;+this.value)" value="$CK{'cmd'}" tabindex="102"></td>
-<th><label accesskey="o" for="home">H<span class="ak">o</span>me</label>:</th>
+<th><label accesskey="m" for="cmd" title="coMmand\nコマンド。"
+>Co<span class="ak">m</span>mand</label>:</th>
+<td><input type="text" name="cmd" id="cmd" maxlength="200" style="ime-mode:inactive;width:150px"
+ value="$CK{'cmd'}" tabindex="102"></td>
+<th><label accesskey="o" for="home" title="hOme\nサイトのURLです"
+>H<span class="ak">o</span>me</label>:</th>
 <td colspan="3"><input type="text" name="home" id="home" maxlength="200" size="40"
  style="ime-mode:inactive;width:200px" value="$CK{'home'}" tabindex="112"></td>
+<th style="text-align:center">- <a href="http://www.airemix.com/" title="Airemixへいってみる"
+>Marldia $CF{'version'}</a> -</th>
 </tr>
 </table>
 </form>
+</body>
+</html>
 _HTML_
   exit;
 }
-
 
 #-------------------------------------------------
 # South
 sub south{
   #補助スイッチ
-  if($IN{'mes'}eq '#rank'){
+  if('#rank'eq$IN{'body'}){
     #ランキング
     &rank;
   }
-#=item
-  elsif($IN{'mes'}eq '#mem'){
+=item
+  elsif('#mem'eq$IN{'body'}){
     #参加者詳細
     &mem;
   }
-#=cut
+=cut
 
   my@log=();
   my%RK;
   my%MB;
 
-  #専用アイコン
-  if($IN{'cmd'}){
-#    my%CM=($IN{'cmd'}=~m/([^\t]*)=\t([^\t]*);\t/go);
-#    ($CM{'icon'})&&($IN{'icon'}=$CM{'icon'});
-    $IN{'icon'}=$IN{'cmd'};
+  #表情アイコン
+  if(($IN{'icon'}=~/^((?:[^\/#]*\/)*(?:[^\/#.]*\.)*?[^\/#.]+)(?:\.[^\/#.]*)?#\d+$/o)
+   &&($IN{'surface'}=~/^$1\d*(?:\.[^\/#.]*)?$/o)){
+    $IN{'icon'}=$IN{'surface'};
   }
 
   #クッキー書き込み
   if($IN{'cook'}){
     my$cook="id\t$IN{'id'}\tname\t$IN{'name'}\tcolor\t$IN{'color'}\tbcolo\t$IN{'bcolo'}"
     ."\tline\t$IN{'line'}\treload\t$IN{'reload'}\ticon\t$IN{'icon'}"
-    ."\temail\t$IN{'email'}\thome\t$IN{'home'}";
+    ."\temail\t$IN{'email'}\thome\t$IN{'home'}\tcmd\t$IN{'cmd'}";
     #0-9A-Za-z\-\.\_
     $cook=~s{(\W)}{'%'.unpack('H2',$1)}ego;
-    my$gmt=&date(($^T+20000000),'gmt');
+    my$gmt=&datef(($^T+20000000),'gmt');
     print"Set-Cookie: Marldia=$cook; expires=$gmt\n";
   }
 
   #参加者・ランキング・書き込み処理
-  sysopen(LOG,$CF{'log'},O_CREAT|O_RDWR)||die"Can't write file.";
+  sysopen(LOG,$CF{'log'},O_CREAT|O_RDWR)||die"Can't write log.";
   flock(LOG,LOCK_EX);
   #参加者読み込み
   @log=<LOG>;
@@ -240,7 +326,7 @@ sub south{
     $DT{'expire'}=$^T-$DT{'expire'};
     push(@mb,qq[<a style="color:$DT{'color'}" title="$DT{'expire'}秒">$DT{'name'}</a>☆]);
   }
-  if(length$IN{'mes'}){
+  if(length$IN{'body'}){
     #ランキング加点
     sysopen(RANK,$CF{'rank'},O_CREAT|O_RDWR)||die"Can't write rank.";
     flock(RANK,LOCK_EX);
@@ -250,8 +336,11 @@ sub south{
       ($key||$val)||(last);
       $RK{"$key"}="$val";
     }
-    ($RK{"$IN{'id'}"}=~s/\tpoint=\t(\d+);\t/\tpoint=\t@{[$1+1]};\t/o)
-     ||($RK{"$IN{'id'}"}="\tpoint=\t1;\t");
+    if($RK{"$IN{'id'}"}=~s/\tpoint=\t([^\t]*);\t/\tpoint=\t@{[$1+1]};\t/o){
+      $RK{"$IN{'id'}"}=~s/\tname=\t([^\t]*);\t/\tname=\t$IN{'name'};\t/o;
+    }else{
+      $RK{"$IN{'id'}"}="\tname=\t$IN{'name'};\t\tpoint=\t1;\t";
+    }
     $IN{'point'}=($1)?$1+1:1;
     delete$RK{''};
     truncate(RANK,0);
@@ -261,11 +350,18 @@ sub south{
     }
     close RANK;
     # 発言処理
-    my$data="Mar1=\t;\tname=\t$IN{'name'};\tcolor=\t$IN{'color'};\tbcolo=\t$IN{'bcolo'};\t"
-    ."mes=\t$IN{'mes'};\ticon=\t$IN{'icon'};\thome=\t$IN{'home'};\temail=\t$IN{'email'};\t"
+    my$data="Mar1=\t;\tid=\t$IN{'id'};\tname=\t$IN{'name'};\tcolor=\t$IN{'color'};\tbcolo=\t$IN{'bcolo'};\t"
+    ."body=\t$IN{'body'};\ticon=\t$IN{'icon'};\thome=\t$IN{'home'};\temail=\t$IN{'email'};\t"
     ."point=\t$IN{'point'};\tua=\t$IN{'hua'};\taddr=\t$IN{'ra'};\ttime=\t$^T;\t\n";
     splice(@log,$CF{'max'}-1);
     unshift(@log,$data);
+  }elsif($IN{'del'}){
+    for(@log){
+      ($_=~/\tpoint=\t$IN{'del'};\t/o)||(next);
+      ($_=~/\tid=\t$IN{'id'};\t/o)||(next);
+      $_=~s/^(Mar1=\t)([^\t]*)(;\t)/$1del$3/o;
+      last;
+    }
   }
   truncate(LOG,0);
   seek(LOG,0,'SEEK_SET');
@@ -294,18 +390,23 @@ sub south{
   }
   
   if($IN{'reload'}){
-    &header(qq(<meta http-equiv="refresh" content="$IN{'reload'};url=index.cgi?$query">));
+    &header(qq(<meta http-equiv="refresh" content="$IN{'reload'};url=index.cgi?$query">\n));
   }else{
     &header;
   }
+  my$time=sprintf('%02d:%02d:%02d',(localtime$^T)[2,1,0]);
   print<<"_HTML_";
-<div class="meminfo"><span>[ <a href="index.cgi?$query">Reload</a> ]</span>
-<span>[合計:$visitor人 参加者:$entrant人 観客:$audience人] [ @mb ] </span></div>
+<table class="meminfo" summary="参加者情報など"><tr>
+<td class="reload">[ <a href="index.cgi?$query">$time</a> ]</td>
+<td class="member">[合計:$visitor人 参加者:$entrant人 観客:$audience人] [ @mb ] </td>
+<td class="respan">(<span>$IN{'reload'}秒間隔</span>)</td>
+</tr></table>
 _HTML_
   
   #ログ表示
   @log=splice(@log,0,$IN{'line'});
   for(@log){
+    ($_=~/^Mar1=\tdel;\t/o)&&(next);
     my%DT=($_=~m/([^\t]*)=\t([^\t]*);\t/go);
     $DT{'date'}=&date($DT{'time'});
     
@@ -327,21 +428,24 @@ _HTML_
     srand($DT{'point'});
     $DT{'level'}=1+int(rand(sqrt$DT{'point'}*2));
     
+    my$del='';
+    if(($IN{'id'})&&($DT{'id'}eq$IN{'id'})){
+      $del=qq( <span class="artdel">[<a href="$CF{'index'}?del=$DT{'point'}&amp;$query">削除</a>]</span>);
+    }
     print<<"_HTML_";
-<table cellspacing="0" class="message" summary="message">
+<table cellspacing="0" class="article" summary="article">
 <tr>
-<th class="mesicon"><img src="$CF{'icon'}$DT{'icon'}" alt="$DT{'icon'}"$CF{'icsz'}></th>
-<th class="mesname">$DT{'name'}&nbsp;$DT{'home'}</th>
-<td class="mesbody" style="color:$DT{'bcolo'}">$DT{'mes'}</td>
-<td class="mesinfo"><span class="level">Exp.$DT{'point'}/Lv.$DT{'level'}</span>
-<span class="date">$DT{'date'}</span></td>
+<th class="articon"><img src="$CF{'icon'}$DT{'icon'}" alt="$DT{'icon'}" $CF{'imgatt'}></th>
+<th class="artname">$DT{'name'}&nbsp;$DT{'home'}</th>
+<td class="artbody" style="color:$DT{'bcolo'}">$DT{'body'}<span class="level">Exp.$DT{'point'}/Lv.$DT{'level'}</span>
+<span class="date">$DT{'date'}</span>$del</td>
 </tr>
 </table>
 _HTML_
   }
   
     print<<"_HTML_";
-<div class="AiremixCopy">- <a href="http://airemix.site.ne.jp/" target="_blank" title="Airemix - Mireille -">Airemix Marldia</a>
+<div class="AiremixCopy">- <a href="http://www.airemix.com/" target="_blank" title="Airemix">Airemix Marldia</a>
 <var>$CF{'correv'}</var> -</div>
 </body>
 </html>
@@ -363,8 +467,8 @@ _HTML_
   my($key,$val);
   my@rk=map{$_=~/(.*)/o}(<RANK>);
   while(($key,$val)=(shift@rk,shift@rk)){
-    ($key||$val)||(last);
-    print"<tr><th>$key</th><td>$val</td></tr>";
+    ($key&&$val)||(last);
+    print"<tr><td>$val</td></tr>";
   }
   close RANK;
   print<<"_HTML_";
@@ -384,7 +488,7 @@ sub mem{
 <caption>見物人一覧</caption>
 _HTML_
   #参加者読み込み
-  sysopen(LOG,$CF{'mem'},O_CREAT|O_RDONLY)||die"Can't write rank.";
+  sysopen(LOG,$CF{'log'},O_CREAT|O_RDONLY)||die"Can't read log.";
   flock(LOG,LOCK_SH);
   my($key,$val);
   my@mb=map{$_=~/(.*)/o}(<LOG>);
@@ -410,9 +514,17 @@ _HTML_
 #最後の投稿時刻を知らせる
 sub getfm{
   my$i;my%DT;
-  if($ENV{'REQUEST_METHOD'}eq'POST'){
+  unless($ENV{'REQUEST_METHOD'}){
+  }elsif('HEAD'eq$ENV{'REQUEST_METHOD'}){ #forWWWD
+#MethodがHEADならばLastModifedを出力して、
+#最後の投稿時刻を知らせる
+    my$last=&datef((stat("$CF{'log'}0.cgi"))[9],'last');
+    print"Last-Modified: $last\n";
+    print"Content-Type: text/plain\n\n";
+    exit;
+  }elsif('POST'eq$ENV{'REQUEST_METHOD'}){
     read(STDIN,$i,$ENV{'CONTENT_LENGTH'});
-  }elsif($ENV{'REQUEST_METHOD'}eq'GET'){
+  }elsif('GET'eq$ENV{'REQUEST_METHOD'}){
     $i=$ENV{'QUERY_STRING'};
   }
 
@@ -438,7 +550,7 @@ sub getfm{
       $j=~s/&(#?\w+;)?/($1)?"&$1":'&#38;'/ego;
       $j=~s/'/&#39;/go;
   
-      if('mes'eq$i){
+      if('body'eq$i){
         #本文のみタグを使ってもいい設定にもできる
         $j=~s/</&#60;\t/go;
         $j=~s/>/&#62;\t/go;
@@ -467,7 +579,7 @@ sub getfm{
     $IN{'reload'}=$CF{'defreload'};
   }elsif($DT{'name'}){
     &getck;
-    #HTTP URL 正規表現
+    #http URL の正規表現
     my$http_URL_regex =
    q{\b(?:https?|shttp)://(?:(?:[-_.!~*'()a-zA-Z0-9;:&=+$,]|%[0-9A-Fa-f}.
    q{][0-9A-Fa-f])*@)?(?:(?:[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?\.)}.
@@ -479,16 +591,19 @@ sub getfm{
    q{*)?(?:\?(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])}.
    q{*)?(?:#(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*}.
    q{)?};
-    #FTP URL 正規表現
-    my$ftp_URL_regex=
-   q{\bftp://(?:(?:[-a-zA-Z0-9_.!*'();&=~]|%[0-9A-Fa-f][0-9A-Fa-f])*(?:}
-   .q{:(?:[-a-zA-Z0-9_.!*'();&=~]|%[0-9A-Fa-f][0-9A-Fa-f])*)?@)?(?:(?:[a}
-   .q{-zA-Z0-9](?:(?:[a-zA-Z0-9]|-)*[a-zA-Z0-9])?\.)*[a-zA-Z](?:(?:[a-zA}
-   .q{-Z0-9]|-)*[a-zA-Z0-9])?|[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(?::[0-9]*)}
-   .q{?(?:/(?:[-a-zA-Z0-9_.!*'():@&=~]|%[0-9A-Fa-f][0-9A-Fa-f])*(?:/(?:[}
-   .q{-a-zA-Z0-9_.!*'():@&=~]|%[0-9A-Fa-f][0-9A-Fa-f])*)?(?:;type=[AIDai}
-   .q{d])?)?(?![-a-zA-Z0-9_.!*'():@&=~/])}; #'}
-    #MAIL 正規表現
+    #ftp URL の正規表現
+    my$ftp_URL_regex =
+   q{\bftp://(?:(?:[-_.!~*'()a-zA-Z0-9;&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*}.
+   q{(?::(?:[-_.!~*'()a-zA-Z0-9;&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*)?@)?(?}.
+   q{:(?:[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?\.)*[a-zA-Z](?:[-a-zA-}.
+   q{Z0-9]*[a-zA-Z0-9])?\.?|[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(?::[0-9]*)?}.
+   q{(?:/(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*(?:/(?}.
+   q{:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*)*(?:;type=[}.
+   q{AIDaid])?)?(?:\?(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9}.
+   q{A-Fa-f])*)?(?:#(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9A}.
+   q{-Fa-f])*)?};
+    #メールアドレスの正規表現改
+    #"aaa@localhost"などはWWW上で「メールアドレス」として使うとは思えないので。
     my$mail_regex=
    q{(?:[^(\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
    .q{\[\]\000-\037\x80-\xff])|"[^\\\\\x80-\xff\n\015"]*(?:\\\\[^\x80-\xff][}
@@ -499,16 +614,20 @@ sub getfm{
    .q{00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[^\x80-\xff])*}
    .q{\])(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,}
    .q{;:".\\\\\[\]\000-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[}
-   .q{^\x80-\xff])*\]))*};
+   .q{^\x80-\xff])*\]))+};
     
-    if(defined$DT{'mes'}){
+    if(defined$DT{'body'}){
       #外部入力の汚染除去
-      $DT{'mes'}=~s{($http_URL_regex|$ftp_URL_regex|($mail_regex))}
+      $DT{'body'}=~s{($http_URL_regex|$ftp_URL_regex|($mail_regex))}
       {my($org,$mail)=($1,$2);(my$tmp=$org)=~s/"/&#34;/g;
-      '<a class="user" href="'.($mail ne''?'mailto:':'')."$tmp\" target=\"_blank\">$org</a>"}ego;
-      $IN{'mes'}=($DT{'mes'}=~/(.+)/o)?"$1":'';
+      qq(<a href="@{[''ne$mail?'mailto:':'']}$tmp" target="_blank">$org</a>)}ego;
+      $IN{'body'}=($DT{'body'}=~/(.+)/o)?"$1":'';
       $IN{'cook'}=($DT{'cook'}=~/(.)/o)?'on':'0';
     }
+    if(defined$DT{'del'}){
+      (($DT{'del'}=~/(\d+)/o)&&(int$1))&&($IN{'del'}=int$1);
+    }
+    
     $IN{'name'}=($DT{'name'}=~/(.{1,100})/o)?"$1":'';
     $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?"$1":($CK{'id'}?$CK{'id'}:$IN{'name'});
     $IN{'color'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?"$1":'';
@@ -517,10 +636,11 @@ sub getfm{
     $IN{'email'}=($DT{'email'}=~/($mail_regex)/o)?"$1":'';
     $DT{'home'}=($DT{'home'}=~/(.{1,200})/o)?"$1":'';
     $IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?"$1":'';
-    $IN{'icon'}=($DT{'icon'}=~/([\w\.\~\-\%\/]+)/o)?"$1":'';
+    $IN{'icon'}=($DT{'icon'}=~/([\w\.\~\-\%\/\#]+)/o)?"$1":'';
+    ($DT{'surface'}=~/([\w\.\~\-\%\/]+)/o)&&($IN{'surface'}="$1");
     $IN{'cmd'}=($DT{'cmd'}=~/(.+)/o)?"$1":undef;
     $IN{'line'}=(($DT{'line'}=~/(\d+)/o)&&(int$1))?int$1:$CF{'defline'};
-    $IN{'reload'}=(($DT{'reload'}=~/(\d+)/o)&&(int$1))?int$1:$CF{'defreload'};
+    $IN{'reload'}=($DT{'reload'}=~/(\d+)/o)?int$1:$CF{'defreload'};
     $IN{'ra'}=($ENV{'REMOTE_ADDR'}=~/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/)?"$1":'';
     $IN{'hua'}=($ENV{'HTTP_USER_AGENT'}=~/([^\t]+)/)?"$1":'';
   }elsif(defined$DT{'south'}){
@@ -542,7 +662,7 @@ _HTML_
 =gzip
   if((-x$CF{'gzip'})&&($ENV{'HTTP_ACCEPT_ENCODING'}=~/gzip/)){
     print"Content-encoding: gzip\n\n";
-    open(STDOUT,"| $CF{'gzip'} -1 -c");
+    open(STDOUT,"| $CF{'gzip'} -c");
     print"<!-- gzip enable -->\n";
   }else{print"\n<!-- gzip disable -->\n";}
 =cut
@@ -573,10 +693,10 @@ _HTML_
     print qq{<link rel="stylesheet" type="text/css" href="$CF{'style'}" media="screen" title="DefaultStyle">\n};
   }
   print<<"_HTML_";
-<link rel="start" href="$CF{'home'}">
+<link rel="start" href="$CF{'sitehome'}">
 <link rel="index" href="$CF{'index'}">
 <link rel="help" href="$CF{'help'}">
-<link rev="made" href="mailto:naruse\@airemix.site.ne.jp">
+<link rev="made" href="mailto:naruse\@airemix.com">
 <title>$CF{'title'}</title>
 </head>
 <body>
@@ -604,52 +724,96 @@ sub getck{
 
 #-------------------------------------------------
 # フォーマットされた日付取得を返す
-sub date{
-  if($_[1]eq'gmt'){
+sub datef{
+=item 引数
+$ time形式の時刻
+;
+$ 出力形式(gmt|last)
+=cut
+  unless($_[1]){
+  }elsif($_[1]eq'gmt'){
    # Cookie用
-    return sprintf("%s, %02d-%s-%d %s GMT",(split/\s+/,gmtime($_[0]))[0,2,1,4,3]);
+    return sprintf("%s, %02d-%s-%d %s GMT",(split(/\s+/o,gmtime($_[0])))[0,2,1,4,3]);
   }elsif($_[1]eq'last'){
    # LastModified用
-    return sprintf("%s, %02d %s %s %s GMT",(split/\s+/,gmtime($_[0]))[0,2,1,4,3]);
-  }else{
-   # 投稿日時表示用
-    my($sec,$min,$hour,$mday,$mon,$year,$wday)=localtime($_[0]);
-#    my@wdays=qw(Sun Mon Tue Wed Thu Fri Sat);
-    my@wdays=qw(日 月 火 水 木 金 土);
-    $wday="($wdays[$wday])";
-    ($year<1900)&&($year+=1900);
-#    return sprintf("%4d/%02d/%02d%s %02d:%02d",$year,$mon+1,$mday,$wday,$hour,$min);
-    return sprintf("%4d年%02d月%02d日%s %02d時%02d分",$year,$mon+1,$mday,$wday,$hour,$min);
+    return sprintf("%s, %02d %s %s %s GMT",(split(/\s+/o,gmtime($_[0])))[0,2,1,4,3]);
   }
+  return&date;
 }
+
+
+#-------------------------------------------------
+# 投稿日時表示用にフォーマットされた日付取得を返す
+sub date{
+=item 引数
+$ time形式時刻
+=cut
+  my($sec,$min,$hour,$mday,$mon,$year,$wday)=localtime($_[0]);
+  #sprintfの説明は、Perlの解説を見てください^^;;
+  return sprintf("%4d年%02d月%02d日(%s) %02d時%02d分" #"1970年01月01日(木) 09時00分"の例
+  ,$year+1900,$mon+1,$mday,('日','月','火','水','木','金','土')[$wday],$hour,$min);
+#  return sprintf("%1d:%01d:%2d %4d/%02d/%02d(%s)" #"9:0: 0 1970/01/01(Thu)"の例
+#  ,$hour,$min,$sec,$year+1900,$mon+1,$mday,('Sun','Mon','Tue','Wed','Thu','Fri','Sat')[$wday]);
+}
+
 
 #-------------------------------------------------
 # アイコンリスト
 #
 sub iptico{
+=item 引数
+$ デフォルト指定にしたいアイコンファイル名を入れた書き換え可能な変数
+;
+$ SELECTタグに追加したい属性
+=cut
+  my$opt='';
+  ($_[1])&&($opt=" $_[1]");
 
-=item
-
-$_[0]: 'icon'
-$_[1]: 'tabindex=12'
-
+=item 複数アイコンリスト
+・単一とみなされる例
+'icon.txt'
+'icon1.txt icon2.txt'
+・複数とみなされる例
+'"icon.txt" "exicon.txt"'
+・エラーとなる例
+'"icon.txt" exicon.txt'
 =cut
 
-  my$name='icon';
-  my$opt='';
-  ($_[0])&&($name=$_[0]);
-  ($_[1])&&($opt=" $_[1]");
-  #リスト読み込み
-  sysopen(RD,"$CF{'icls'}",O_RDONLY);#||die"Can't open iconlist."; #わざわざエラー返さなくても
-  flock(RD,LOCK_SH);
-  my$list=join('',<RD>);
-  close(RD);
-  if($CK{$name}and$list=~s/(value="$CK{$name}")/$1 selected="selected"/io){
-  }elsif($list=~s/value="([^"]*)"/value="$1" selected="selected"/io){
-    $CK{$name}=$1;
+  #アイコンリスト読み込み
+  my$list;
+  if($CF{'icls'}=~/^"((?:[^"]|\\")*[^\\])"/o){
+    #複数アイコンリスト読み込み
+    for($CF{'icls'}=~/(?:"((?:[^"]|\\")*[^\\])"|(\S+))/go){
+      ($_)||(next);
+      (sysopen(RD,"$_",O_RDONLY))||(die"Can't open multi-iconlist($_).");
+      flock(RD,LOCK_SH);
+      $list.=join('',<RD>);
+      close(RD);
+    }
+  }else{
+    #単一アイコンリスト読み込み
+    (sysopen(RD,"$CF{'icls'}",O_RDONLY))||(die"Can't open single-iconlist.");
+    flock(RD,LOCK_SH);
+    $list=join('',<RD>);
+    close(RD);
   }
+
+  #選択アイコンの決定＋SELECTタグの中身
+  if($CF{'exicon'}&&($CK{'cmd'}=~/\bicon=([^;]*)/o)){
+    #パスワード型
+    $_[0]=$IC{$1};
+    $list.=qq(<option value="$_[0]" selected>専用アイコン</option>\n);
+  }elsif($CF{'exicfi'}&&($CK{'cmd'}=~/\b$CF{'exicfi'}=([^;]*)/o)){
+    #ファイル指定型
+    $_[0]=$1;
+    $list.=qq(<option value="$_[0]" selected>ファイル指定</option>\n);
+  }elsif($_[0]and$list=~s/(value="$_[0]")/$1 selected="selected"/io){
+  }elsif($list=~s/value="([^"]*)"/value="$1" selected="selected"/io){
+    $_[0]=$1;
+  }
+
   return<<"_HTML_";
-<select name="$name" id="$name" onchange="IconPreview(this.form['icon'][this.options.selectedIndex].value)"$opt>
+<select name="icon" id="icon" onchange="iconChange(this.options[this.selectedIndex].value)"$opt>
 $list</select>
 _HTML_
 }
@@ -660,20 +824,21 @@ _HTML_
 #
 sub iptcol{
 
-=item
+=item 引数
 
 $_[0]: 'color'
 $_[1]: 'tabindex=12'
 
 =cut
 
-  my$name='color';
+  my$id='color';
   my$opt='';
-  ($_[0])&&($name=$_[0]);
+  ($_[0])&&($id=$_[0]);
   ($_[1])&&($opt=" $_[1]");
   if('input'eq$CF{'colway'}){
     return<<"_HTML_";
-<input type="text" name="$name" id="$name" class="blur" maxlength="20" style="ime-mode:disabled; width:90px;" onFocus="this.className='focus'" onBlur="this.className='blur'" value="$CK{$name}"$opt>
+<input type="text" name="$id" id="$id" class="blur" maxlength="20" style="ime-mode:disabled; width:90px;"
+ onFocus="this.className='focus'" onBlur="this.className='blur'" value="$CK{$id}"$opt>
 _HTML_
   }else{
     my$list=<<"_HTML_";
@@ -720,12 +885,12 @@ _HTML_
 <option value="#6b8e23" style="background-color: #6b8e23;">OliveDrab</option>
 <option value="#808000" style="background-color: #808000;">Olive</option>
 _HTML_
-    if($CK{$name}&&$list=~s/(value="$CK{$name}")/$1 selected="selected"/io){
+    if($CK{$id}&&$list=~s/(value="$CK{$id}")/$1 selected="selected"/io){
     }elsif($list=~s/value="([^"]*)"/value="$1" selected="selected"/io){
-      $CK{$name}=$1;
+      $CK{$id}=$1;
     }
     return<<"_HTML_";
-<select name="$name" id="$name"$opt>
+<select name="$id" id="$id"$opt>
 $list</select>
 _HTML_
   }
@@ -766,7 +931,7 @@ Cache-Control: no-cache
 <p>And, please go <a href="$i">here</A>.</p>
 <p>Location: $i</p>
 <p>Marldia <span class="red">$CF{'correv'}</span>.<br>
-Copyright &copy;2001 <a href="http://airemix.site.ne.jp/" title="Airemix">Airemix</a>. All rights reserved.</p>
+Copyright &copy;2001 <a href="http://www.airemix.com/" title="Airemix">Airemix</a>. All rights reserved.</p>
 </body>
 </html>
 _HTML_
@@ -777,7 +942,8 @@ _HTML_
 # 初期設定
 BEGIN{
   # Revision Number
-  $CF{'correv'}=qq$Revision: 1.3 $;
+  $CF{'correv'}=qq$Revision: 1.4 $;
+  $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
   #エラーが出たらエラー画面を表示するように
   if($0=~m/\bindex.cgi$/o){
     $SIG{'__DIE__'}=sub{
@@ -811,7 +977,7 @@ SERVER_SOFTWARE      : $ENV{'SERVER_SOFTWARE'}
 PROCESSOR_IDENTIFIER : $ENV{'PROCESSOR_IDENTIFIER'}
 
 +#       Airemix Marldia        #+
-+#  http://airemix.site.ne.jp/  #+
++#  http://www.airemix.com/  #+
 _HTML_
     exit;
     };

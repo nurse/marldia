@@ -2,53 +2,60 @@
 
 #------------------------------------------------------------------------------#
 # 'Marldia' Chat System
-# - Main Script -
+# - Marldia Core File -
 #
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.3 2001-12-30 06:39:13 naruse Exp $;
-#use 5.004;
-#use lib './lib';
+# $cvsid = q$Id: index.cgi,v 1.4 2002-03-14 16:36:12 naruse Exp $;
+require 5.004;
 use Fcntl qw(:DEFAULT :flock);
 use strict;
 use vars qw(%CF %IN %CK %IC);
 
-$CF{'name'} = 'Airemix'; #YOUR SITE NAME
-$CF{'home'} = '/'; #YOUR SITE TOP
-$CF{'title'}= ': Marldia :'; #CHAT TITLE
-$CF{'icsz'}=' width="48" height="48"'; #ICON SIZE
-$CF{'gzip'} = '/usr/bin/gzip'; #GZIP PATH
+#YOUR SITE NAME
+$CF{'sitename'}='Airemix';
+#YOUR SITE TOP
+$CF{'sitehome'} = '/';
+#titleタグでのチャットタイトル
+$CF{'title'}=': Marldia :';
+#ページ上のチャットタイトル
+$CF{'pgtit'}=': Marldia :';
 
 #最大ログ行数
-$CF{'max'}='50';
+$CF{'max'}=200;
 #アクセス禁止な名前
 $CF{'denyname'}='管理人';
 #使用を許可するタグ（半角スペース区切り）
 $CF{'tags'} = 'DEL EM SMALL STRONG RUBY RB RB RT RP';
 #色の選択方法(select input)
 $CF{'colway'}='input';
+#アイコンのIMGタグに追加する属性
+$CF{'imgatt'}=' width="48" height="48"';
 
-$CF{'romline'}=10;
-$CF{'romreload'}=0;
+$CF{'romline'}=20;
+$CF{'romreload'}=120;
 $CF{'defline'}=20;
 $CF{'defreload'}=20;
 
-$ENV{'TZ'}  = 'JST-9'; #TimeZone
 $CF{'index'}= 'index.cgi'; #MIREILLE MAIN CGI
 $CF{'style'} = 'style.css'; #CascadeStyleSheet
-$CF{'help'} = 'help.html'; #HELP FILE
+#$CF{'help'} = 'help.html'; #HELP FILE
 $CF{'log'}  = 'log.pl'; #LOG PATH
-$CF{'mem'}  = 'mem.pl'; #MEMLIST PATH
 $CF{'rank'} = 'rank.pl'; #LOG PATH
-$CF{'icon'} = '/icon/half/'; #ICON PATH
+$CF{'icon'} = '/icon/half/'; #ICON DIRECTORY PATH
 $CF{'icls'} = 'icon.txt'; #ICON LIST PATH
-$CF{'samp'} = 'icon.html'; #ICON SAMPLE PATH
+#$CF{'samp'} = 'icon.html'; #ICON SAMPLE PATH
+$ENV{'TZ'}  = 'JST-9'; #TimeZone
+$CF{'gzip'} = 'gzip'; #GZIP PATH
 
-$CF{'cmic'}='0';#CustomIconSwitch '1'or'0'
+#EX Iconスイッチ '1'or'0'
+$CF{'exicon'}='0';
+#ファイル名指定アイコン
+$CF{'exicfi'}='iconfile';
 
-#CustomIcon
+#EX Icon
 $IC{'hae'}='mae.png'; #苗
 $IC{'hie'}='mie.png'; #贄
 $IC{'hue'}='mue.png'; #鵺
@@ -67,7 +74,7 @@ if($0 eq __FILE__){
 # 初期設定
 BEGIN{
   # Revision Number
-  $CF{'Index'}=qq$Revision: 1.3 $;
+  $CF{'Index'}=qq$Revision: 1.4 $;
   (getlogin)||(umask(0)); #'nobody'って''だよね？
   # Mireille Error Screen 1.2
   if($0 eq __FILE__){
