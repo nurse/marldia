@@ -1,7 +1,7 @@
 @charset"EUC-JP";
 /* Marldia Style Sheet */
 /* "This file is written in euc-jp, CRLF." 空 */
-/* $Id: style.css,v 1.15 2003-05-14 17:10:42 naruse Exp $ */
+/* $Id: style.css,v 1.16 2004-12-05 18:35:32 naruse Exp $ */
 
 /* ==================== 要素の標準スタイル ==================== */
 /* ========== Structure Module ==========*/
@@ -59,7 +59,7 @@ A:link
 A:visited
 {border-bottom:#c6f solid 1px;color:#000;text-decoration:none}
 A:link:hover,A:visited:hover
-{border-bottom:#f66 solid 1px;color:#f99;position:relative;top:0.2em;text-decoration:none}
+{border-bottom:#f66 solid 1px;color:#f99;position:relative;top:0.1em;text-decoration:none}
 A:active
 {border-bottom:#f60 solid 1px;color:#f00;text-decoration:none}
 
@@ -209,6 +209,11 @@ INPUT.text,TEXTAREA{
 }
 #color,#bcolo{
 	width:125px
+}
+#bodyContainer{
+}
+#bodySwitch{
+	width: 30px;
 }
 
 
