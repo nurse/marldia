@@ -4,13 +4,12 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.6 $
+# $Revision: 1.8 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.6 2002-04-20 16:34:50 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.8 2002-06-12 15:11:43 naruse Exp $;
 require 5.004;
-use Fcntl qw(:DEFAULT :flock);
 use strict;
 use vars qw(%CF %IN %CK %IC);
 
@@ -25,7 +24,7 @@ $CF{'pgtit'}=': Marldia :';
 
 
 #管理モードへ移行する際のパスワード
-$CF{'manpas'}='manage';
+$CF{'admipass'}='manage';
 #最大ログ行数
 $CF{'max'}=200;
 #アクセス禁止な名前
@@ -33,7 +32,7 @@ $CF{'denyname'}='管理人';
 #使用を許可するタグ（半角スペース区切り）
 $CF{'tags'} = 'DEL EM SMALL STRONG RUBY RB RB RT RP';
 #色の選択方法(select input)
-$CF{'colway'}='input';
+$CF{'colway'}='select';
 #アイコンのIMGタグに追加する属性
 $CF{'imgatt'}=' width="48" height="48"';
 
@@ -68,7 +67,7 @@ $IC{'hoe'}='moe.png'; #乃絵
 #-------------------------------------------------
 # 実行 or 読み込み？
 
-if($0 eq __FILE__){
+if($CF{'program'}eq __FILE__){
   #直接実行だったら動き出す
   require './core.cgi';
   &main;
@@ -77,9 +76,8 @@ if($0 eq __FILE__){
 #-------------------------------------------------
 # 初期設定
 BEGIN{
-  # Revision Number
-  $CF{'idxrev'}=qq$Revision: 1.6 $;
-  if($0 eq __FILE__){
+  unless(%CF){
+    $CF{'program'}=__FILE__;
     $SIG{'__DIE__'}=sub{
     print<<"_HTML_";
 Content-Language: ja
@@ -116,6 +114,8 @@ _HTML_
     exit;
     };
   }
+  # Revision Number
+  $CF{'idxrev'}=qq$Revision: 1.8 $;
 }
 1;
 __END__

@@ -1,7 +1,7 @@
 @charset "EUC-JP";
 /* Marldia Style Sheet */
 /* "This file is written in euc-jp, CRLF." 空 */
-/* $Id: style.css,v 1.6 2002-04-20 16:34:50 naruse Exp $ */
+/* $Id: style.css,v 1.8 2002-06-12 15:11:43 naruse Exp $ */
 
 /* --------------------- 全体のスタイル --------------------- */
 /* 通常のリンク文字 */
@@ -36,6 +36,7 @@ body{
   width: 97%;
 }
 
+button{padding:0;}
 form{
   margin: 0;
 }
@@ -74,13 +75,16 @@ img {
   vertical-align: middle;
 }
 
-input,option,textarea{
+input,optgroup,option,select,textarea{
   background-color: #eef;
   border-color: #333;
   border-style: solid;
   border-width: 1px;
   font-family: "MS UI Gothic",osaka,sans-serif;
   font-size: 100%;
+}
+optgroup,option{
+  border:none;
 }
 
 table{
@@ -140,8 +144,8 @@ input.reset{
 #icon{
   width:150px;
 }
-#color option,#bcolo option{
-  color: #fff;
+#color,#bcolo{
+  width:125px
 }
 
 /* アクセスキー */
