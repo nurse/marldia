@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------#
 # 'Marldia' Chat System
 #
-# $Id: Marldia.txt,v 1.9 2002-07-21 13:09:11 naruse Exp $
+# $Id: Marldia.txt,v 1.10 2002-08-29 08:46:13 naruse Exp $
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
@@ -19,6 +19,9 @@
 
 #------------------------------------------------------------------------------#
 ◇Marldia History
+2002-08-29 Revision: 1.10
+ ずっと発言しないとリロード間隔が伸びていく機能をつけた
+ WindowsXPの場合、Windowsの新UI非対応のIE系ブラウザでも新UIになるようにしてみた
 2002-07-21 Revision: 1.9
  CSSをIE6でチャットウィンドウに横スクロールバーが出ないように調整
  そのほか

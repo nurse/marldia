@@ -1,212 +1,213 @@
 @charset "EUC-JP";
 /* Marldia Style Sheet */
 /* "This file is written in euc-jp, CRLF." 空 */
-/* $Id: style.css,v 1.9 2002-07-21 13:09:12 naruse Exp $ */
+/* $Id: style.css,v 1.10 2002-08-29 08:46:13 naruse Exp $ */
 
-/* --------------------- 全体のスタイル --------------------- */
+/* --------------------- 全体の標準スタイル --------------------- */
 /* 通常のリンク文字 */
 a:link{
-  color: #22a;
-  text-decoration: none;
+	color: #22a;
+	text-decoration: none;
 }
 a:visited{
-  color: #44f;
-  text-decoration: none;
+	color: #44f;
+	text-decoration: none;
 }
 a:hover{
-  color: #fa8;
-  text-decoration: underline;
+	color: #fa8;
+	text-decoration: underline;
 }
 a:active{
-  color: #f00;
-  text-decoration: underline;
+	color: #f00;
+	text-decoration: underline;
 }
 body{
-  background-attachment: scroll;
-  background-color: #eee;
-/**/  background-image: url('/HP_img/bakimg.png');
-/*  background-position: left;
-  background-repeat: repeat; */
-  color: #333;
-  font-family: "MS UI Gothic",osaka,sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.1em;
-  margin: 0;
-  text-align: center;
-  width: 99%;
+	background-attachment: scroll;
+	background-color: #eee;
+/**/	background-image: url('/HP_img/bakimg.png');
+/*	background-position: left;
+	background-repeat: repeat; */
+	color: #333;
+	font-family: "MS UI Gothic",osaka,sans-serif;
+	font-size: 13px;
+	letter-spacing: 0.1em;
+	margin: 0;
+	text-align: center;
+	width: 99%;
 }
 
 button{padding:0;}
 form{
-  margin: 0;
+	margin: 0;
 }
 
 h1 {
-  background-color: transparent;
-  color: #333;
-  font-family: 'Comic Sans MS',osaka,sans-serif;
-  font-size: 15px;
-  font-weight: bold;
-  line-height: 100%;
-  margin: 0 auto;
+	background-color: transparent;
+	color: #333;
+	font-family: 'Comic Sans MS',osaka,sans-serif;
+	font-size: 15px;
+	font-weight: bold;
+	line-height: 100%;
+	margin: 0 auto;
 }
 h3 {
-  font-family: "MS UI Gothic",osaka,sans-serif;
-  font-size: 15px;
-  font-weight: bold;
-  letter-spacing: 0.15em;
-  line-height: normal;
-  margin: 5px auto;
-  width: 25em;
+	font-family: "MS UI Gothic",osaka,sans-serif;
+	font-size: 15px;
+	font-weight: bold;
+	letter-spacing: 0.15em;
+	line-height: normal;
+	margin: 5px auto;
+	width: 25em;
 }
 h5{
-  font-family: "MS UI Gothic",osaka,sans-serif;
-  font-size: 13px;
-  font-weight: normal;
-  letter-spacing: 0.15em;
-  line-height: normal;
-  margin: 1px auto;
+	font-family: "MS UI Gothic",osaka,sans-serif;
+	font-size: 13px;
+	font-weight: normal;
+	letter-spacing: 0.15em;
+	line-height: normal;
+	margin: 1px auto;
 }
 
 img {
-  border-color: #ccd;
-  border-style: double;
-  border-width: 3px;
-  vertical-align: middle;
+	border-color: #ccd;
+	border-style: double;
+	border-width: 3px;
+	vertical-align: middle;
 }
 
 input,optgroup,option,select,textarea{
-  background-color: #eef;
-  border-color: #333;
-  border-style: solid;
-  border-width: 1px;
-  font-family: "MS UI Gothic",osaka,sans-serif;
-  font-size: 100%;
+	background-color: #eef;
+	border-color: #333;
+	border-style: solid;
+	border-width: 1px;
+	font-family: "MS UI Gothic",osaka,sans-serif;
+	font-size: 100%;
 }
 optgroup,option{
-  border:none;
+	border:none;
 }
 
 table{
-  border-color: #000;
-  border-style: none;
-  border-width: 1px;
-  font-size: 100%;
-  margin: 0 auto;
-  text-align: left;
-  vertical-align: middle;
+	border-color: #000;
+	border-style: none;
+	border-width: 1px;
+	font-size: 100%;
+	margin: 0 auto;
+	text-align: left;
+	vertical-align: middle;
 }
 td{
-  border-color: #000;
-  border-style: none;
-  border-width: 1px;
-  padding: 0;
+	border-color: #000;
+	border-style: none;
+	border-width: 1px;
+	padding: 0;
 }
 th{
-  border-color: #000;
-  border-style: none;
-  border-width: 1px;
-  font-size: 100%;
-  font-weight: normal;
-  padding: 0;
+	border-color: #000;
+	border-style: none;
+	border-width: 1px;
+	font-size: 100%;
+	font-weight: normal;
+	padding: 0;
 }
 
 
 /* --------------------- 全体に共通のクラス --------------------- */
 /* Checkbox */
 input.check{
-  background-color: transparent;
-  border-style: none;
-  cursor: hand;
+	background-color: transparent;
+	border-style: none;
+	cursor: hand;
 }
 /* OK/Submitボタン */
 input.submit{
-  background-color: #55A;
-  border-color: #fd0;
-  border-width: 1px;
-  border-style: solid;
-  color: #333;
-  cursor: hand;
-  letter-spacing: 0.15em;
-  width: 7em;
+	background-color: #55A;
+	border-color: #fd0;
+	border-width: 1px;
+	border-style: solid;
+	color: #333;
+	cursor: hand;
+	letter-spacing: 0.15em;
+	width: 7em;
 }
 /* Cancel/Resetボタン */
 input.reset{
-  background-color: #A55;
-  border-color: #fd0;
-  border-width: 1px;
-  border-style: solid;
-  color: #333;
-  cursor: hand;
-  letter-spacing: 0.15em;
-  width: 7em;
+	background-color: #A55;
+	border-color: #fd0;
+	border-width: 1px;
+	border-style: solid;
+	color: #333;
+	cursor: hand;
+	letter-spacing: 0.15em;
+	width: 7em;
 }
 #icon{
-  width:150px;
+	width:150px;
 }
 #color,#bcolo{
-  width:125px
+	width:125px
 }
 
 /* アクセスキー */
 span.ak{
-  text-decoration: underline;
+	text-decoration: underline;
 }
 
-/* 参加者一覧など */
+/* --------------------- 参加者一覧など --------------------- */
 table.meminfo{
-  margin-left: 5px;
-  text-align:left;
-  width:99%;
+	margin-left: 5px;
+	text-align: left;
+	width: 99%;
 }
 .meminfo.reload{
-  width:5em;
+	width: 5em;
 }
 .meminfo.member{
 }
 .meminfo.respan{
-  width:6em;
+	text-align: right;
+	width: 6em;
 }
 
 /* Article */
 table.article{
-  margin: 1px auto 1px 3px;
-  text-align: left;
-  width:99%;
+	margin: 1px auto 1px 3px;
+	text-align: left;
+	width: 99%;
 }
 table.article th,table.article td{
-  text-align: left;
-  word-break: break-all; /* MSIE5 */
+	text-align: left;
+	word-break: break-all; /* MSIE5 */
 }
 .articon{
-  text-align: center;
-  width:55px;
+	text-align: center;
+	width:55px;
 }
 .artname{
-  vertical-align: bottom;
-  white-space: nowrap;
+	vertical-align: bottom;
+	white-space: nowrap;
 }
 .artbody{
-  vertical-align: bottom;
-  width:100%;
+	vertical-align: bottom;
+	width:100%;
 }
 .artinfo{
-  color: #333;
-  font-size: 10px;
-  height: 11px;
+	color: #333;
+	font-size: 10px;
+	height: 11px;
 }
 .artdel,.artdel a{
-  color: #f00;
-  font-size: 10px;
-  height: 11px;
-  text-align: center;
+	color: #f00;
+	font-size: 10px;
+	height: 11px;
+	text-align: center;
 }
 .artlev{}
 .artdate{}
 
 /* 著作権表示 */
 .AiremixCopy{
-  font: normal 100% sans-serif;
-  margin: 0.5em;
-  text-align: right;
+	font: normal 100% sans-serif;
+	margin: 0.5em;
+	text-align: right;
 }
