@@ -1,7 +1,7 @@
 @charset "Shift_JIS";
 /* Marldia Style Sheet */
 /* "This file is written in shift_jis, CRLF." 空 */
-/* $Id: style.css,v 1.4 2002-03-14 16:36:13 naruse Exp $ */
+/* $Id: style.css,v 1.5 2002-03-21 02:52:44 naruse Exp $ */
 
 /* --------------------- 全体のスタイル --------------------- */
 /* 通常のリンク文字 */
@@ -46,7 +46,7 @@ h1 {
   font-family: 'Comic Sans MS',osaka,sans-serif;
   font-size: 15px;
   font-weight: bold;
-  line-height: normal;
+  line-height: 100%;
   margin: 0 auto;
 }
 h3 {

@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.4 2002-03-14 16:36:12 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.5 2002-03-21 02:52:43 naruse Exp $;
 require 5.004;
 #use lib './lib';
 use Fcntl qw(:DEFAULT :flock);
@@ -53,7 +53,7 @@ Content-Language: ja
 <link rel="help" href="$CF{'help'}">
 <title>$CF{'title'}</title>
 </head>
-<frameset rows="115,*">
+<frameset rows="120,*">
   <frame frameborder="0" name="North" src="index.cgi?north">
   <frame frameborder="0" name="South" src="index.cgi?south">
   <noframes>
@@ -77,7 +77,7 @@ sub north{
   &getck;
   (%CK)||(%CK=%IN);
   &header;
-  my$selecticon=&iptico($CK{'icon'},'tabindex="12"');
+  &iptico($CK{'icon'},'tabindex="12"');
   print<<'_HTML_';
 <script type="text/javascript" defer>
 <!--
@@ -86,7 +86,7 @@ sub north{
 window.onload=autoreset;
 var cook,body,preview,surface;
 _HTML_
-  print qq(var icondir="$CF{'icon'}";\n);
+  print qq(var icondir="$CF{'icondir'}";\n);
   print<<'_HTML_';
 function autoreset(){
   if(document.all){
@@ -149,7 +149,7 @@ _HTML_
 //-->
 </script>
 <form name="north" id="north" method="post" action="index.cgi" target="South" onsubmit="setTimeout(autoreset,20)">
-<table style="margin:0 auto;width:770px" summary="主要項目">
+<table style="width:770px" summary="主要項目">
 <col style="width:110px">
 <col style="width:75px">
 <col style="width:160px">
@@ -159,11 +159,10 @@ _HTML_
 <col style="width:40px">
 <col style="width:120px">
 <col>
-
 <tr>
 <td rowspan="5" style="text-align:center">
-<div><h1>$CF{'pgtit'}</h1>
-<img name="Preview" id="Preview" alt="Preview" src="$CF{'icon'}$CK{'icon'}" $CF{'imgatt'}><br>
+<h1>$CF{'pgtit'}</h1>
+<img name="Preview" id="Preview" alt="Preview" src="$CF{'icondir'}$CK{'icon'}" $CF{'imgatt'}><br>
 <label accesskey="z" for="surface" title="hyoZyo\n表情アイコンを選択します（使えれば）"
 ><span class="ak">Z</span>yo</label><select name="surface" id="surface"
  onchange="iconPreview(this.options[this.selectedIndex].value)">
@@ -175,10 +174,10 @@ _HTML_
     print qq(<option value="$CK{'icon'}">-</option>\n);
   }
   print<<"_HTML_";
-</select></div>
+</select><be>
 <div style="margin:0.3em 0;text-align:center" title="reloadQ\n上フレームをリロードします"
 >[<a href="$CF{'index'}?north" accesskey="q" tabindex="52"
->再読込(<span class="ak">Q</span>)</a>]</div>
+>再読込(<span class="ak">Q</span>)</a>]
 </td>
 <th><label accesskey="n" for="name" title="Name\n参加者名、発言者名などで使う名前です"
 >名前(<span class="ak">N</span>)</label>:</th>
@@ -199,7 +198,7 @@ _HTML_
 <tr>
 <th><label accesskey="i" for="icon" title="Icon\n使用するアイコンを選択します"
 >アイコン(<span class="ak">I</span>)</label>:</th>
-<td>$selecticon</td>
+<td>@{[&iptico($CK{'icon'},'tabindex="12"')]}</td>
 <th><label accesskey="c" for="bcolo" title="body Color\n発言した本文の色です"
 >文章色(<span class="ak">C</span>)</label>:</th>
 <td>@{[&iptcol('bcolo','tabindex="22"')]}</td>
@@ -337,7 +336,10 @@ sub south{
       $RK{"$key"}="$val";
     }
     if($RK{"$IN{'id'}"}=~s/\tpoint=\t([^\t]*);\t/\tpoint=\t@{[$1+1]};\t/o){
-      $RK{"$IN{'id'}"}=~s/\tname=\t([^\t]*);\t/\tname=\t$IN{'name'};\t/o;
+      my$point=$1+1;
+      unless($RK{"$IN{'id'}"}=~s/\tname=\t([^\t]*);\t/\tname=\t$IN{'name'};\t/o){
+        $RK{"$IN{'id'}"}="\tname=\t$IN{'name'};\t\tpoint=\t$point;\t";
+      }
     }else{
       $RK{"$IN{'id'}"}="\tname=\t$IN{'name'};\t\tpoint=\t1;\t";
     }
@@ -435,8 +437,8 @@ _HTML_
     print<<"_HTML_";
 <table cellspacing="0" class="article" summary="article">
 <tr>
-<th class="articon"><img src="$CF{'icon'}$DT{'icon'}" alt="$DT{'icon'}" $CF{'imgatt'}></th>
-<th class="artname">$DT{'name'}&nbsp;$DT{'home'}</th>
+<th class="articon"><img src="$CF{'icondir'}$DT{'icon'}" alt="$DT{'icon'}" $CF{'imgatt'}></th>
+<th class="artname" nowrap>$DT{'name'}&nbsp;$DT{'home'}</th>
 <td class="artbody" style="color:$DT{'bcolo'}">$DT{'body'}<span class="level">Exp.$DT{'point'}/Lv.$DT{'level'}</span>
 <span class="date">$DT{'date'}</span>$del</td>
 </tr>
@@ -619,8 +621,7 @@ sub getfm{
     if(defined$DT{'body'}){
       #外部入力の汚染除去
       $DT{'body'}=~s{($http_URL_regex|$ftp_URL_regex|($mail_regex))}
-      {my($org,$mail)=($1,$2);(my$tmp=$org)=~s/"/&#34;/g;
-      qq(<a href="@{[''ne$mail?'mailto:':'']}$tmp" target="_blank">$org</a>)}ego;
+      {<a href="@{[''ne$2?'mailto:':'']}$1" target="_blank">$1</a>}go;
       $IN{'body'}=($DT{'body'}=~/(.+)/o)?"$1":'';
       $IN{'cook'}=($DT{'cook'}=~/(.)/o)?'on':'0';
     }
@@ -641,7 +642,7 @@ sub getfm{
     $IN{'cmd'}=($DT{'cmd'}=~/(.+)/o)?"$1":undef;
     $IN{'line'}=(($DT{'line'}=~/(\d+)/o)&&(int$1))?int$1:$CF{'defline'};
     $IN{'reload'}=($DT{'reload'}=~/(\d+)/o)?int$1:$CF{'defreload'};
-    $IN{'ra'}=($ENV{'REMOTE_ADDR'}=~/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/)?"$1":'';
+    $IN{'ra'}=($ENV{'REMOTE_ADDR'}=~/([\d\:\.]{2,56})/o)?"$1":'';
     $IN{'hua'}=($ENV{'HTTP_USER_AGENT'}=~/([^\t]+)/)?"$1":'';
   }elsif(defined$DT{'south'}){
     $IN{'line'}=$CF{'romline'};
@@ -765,6 +766,7 @@ sub iptico{
 $ デフォルト指定にしたいアイコンファイル名を入れた書き換え可能な変数
 ;
 $ SELECTタグに追加したい属性
+$ 拡張コマンド
 =cut
   my$opt='';
   ($_[1])&&($opt=" $_[1]");
@@ -772,16 +774,24 @@ $ SELECTタグに追加したい属性
 =item 複数アイコンリスト
 ・単一とみなされる例
 'icon.txt'
-'icon1.txt icon2.txt'
+'icon1.txt icon2.txt' #"icon1.txt icon2"というテキストファイルだとみなします
 ・複数とみなされる例
 '"icon.txt" "exicon.txt"'
-・エラーとなる例
 '"icon.txt" exicon.txt'
 =cut
 
+  if($CK{'iconlist'}&&defined$_[2]){
+    #キャッシュである$CK{'iconlist'}を返す
+    return$CK{'iconlist'};
+  }elsif('reset'eq$_[2]){
+  }
+  
+  
   #アイコンリスト読み込み
   my$list;
-  if($CF{'icls'}=~/^"((?:[^"]|\\")*[^\\])"/o){
+  if($CK{'cmd'}=~/\biconlist=nolist(;|$)/o){
+   #`icon=nolist`でアイコンリストを読み込まない
+  }elsif($CF{'icls'}=~/^"((?:[^"]|\\")*[^\\])"/o){
     #複数アイコンリスト読み込み
     for($CF{'icls'}=~/(?:"((?:[^"]|\\")*[^\\])"|(\S+))/go){
       ($_)||(next);
@@ -799,7 +809,7 @@ $ SELECTタグに追加したい属性
   }
 
   #選択アイコンの決定＋SELECTタグの中身
-  if($CF{'exicon'}&&($CK{'cmd'}=~/\bicon=([^;]*)/o)){
+  if($CF{'exicon'}&&($CK{'cmd'}=~/\bicon=([^;]*)/o)&&$IC{$1}){
     #パスワード型
     $_[0]=$IC{$1};
     $list.=qq(<option value="$_[0]" selected>専用アイコン</option>\n);
@@ -812,10 +822,11 @@ $ SELECTタグに追加したい属性
     $_[0]=$1;
   }
 
-  return<<"_HTML_";
+  $CK{'iconlist'}=<<"_HTML_";
 <select name="icon" id="icon" onchange="iconChange(this.options[this.selectedIndex].value)"$opt>
 $list</select>
 _HTML_
+  return$CK{'iconlist'};
 }
 
 
@@ -942,7 +953,7 @@ _HTML_
 # 初期設定
 BEGIN{
   # Revision Number
-  $CF{'correv'}=qq$Revision: 1.4 $;
+  $CF{'correv'}=qq$Revision: 1.5 $;
   $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
   #エラーが出たらエラー画面を表示するように
   if($0=~m/\bindex.cgi$/o){

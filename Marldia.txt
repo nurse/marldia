@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------#
 # 'Marldia' Chat System
 #
-# $Id: Marldia.txt,v 1.4 2002-03-14 16:36:12 naruse Exp $
+# $Id: Marldia.txt,v 1.5 2002-03-21 02:52:44 naruse Exp $
 # http://airemix.site.ne.jp/
 # naruse@airemix.site.ne.jp
 # Scripted by NaRuSe.
@@ -10,6 +10,11 @@
 
 #------------------------------------------------------------------------------#
 ◇Marldia History
+2002-03-21 Revision: 1.5
+ アイコン周り修正
+ 表情・専用アイコン周り修正
+ CSSも調整
+ $CF{'icon'}->$CF{'icondir'}
 2002-03-15 Revision: 1.4
  アイコンリストを複数読み込めるようにした
  表情アイコン機能をつけた

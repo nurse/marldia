@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.4 2002-03-14 16:36:12 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.5 2002-03-21 02:52:43 naruse Exp $;
 require 5.004;
 use Fcntl qw(:DEFAULT :flock);
 use strict;
@@ -44,7 +44,7 @@ $CF{'style'} = 'style.css'; #CascadeStyleSheet
 #$CF{'help'} = 'help.html'; #HELP FILE
 $CF{'log'}  = 'log.pl'; #LOG PATH
 $CF{'rank'} = 'rank.pl'; #LOG PATH
-$CF{'icon'} = '/icon/half/'; #ICON DIRECTORY PATH
+$CF{'icondir'} = '/icon/half/'; #ICON DIRECTORY PATH
 $CF{'icls'} = 'icon.txt'; #ICON LIST PATH
 #$CF{'samp'} = 'icon.html'; #ICON SAMPLE PATH
 $ENV{'TZ'}  = 'JST-9'; #TimeZone
@@ -74,7 +74,7 @@ if($0 eq __FILE__){
 # 初期設定
 BEGIN{
   # Revision Number
-  $CF{'Index'}=qq$Revision: 1.4 $;
+  $CF{'Index'}=qq$Revision: 1.5 $;
   (getlogin)||(umask(0)); #'nobody'って''だよね？
   # Mireille Error Screen 1.2
   if($0 eq __FILE__){
