@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.5 2002-03-21 02:52:43 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.6 2002-04-20 16:34:50 naruse Exp $;
 require 5.004;
 use Fcntl qw(:DEFAULT :flock);
 use strict;
@@ -23,6 +23,9 @@ $CF{'title'}=': Marldia :';
 #ページ上のチャットタイトル
 $CF{'pgtit'}=': Marldia :';
 
+
+#管理モードへ移行する際のパスワード
+$CF{'manpas'}='manage';
 #最大ログ行数
 $CF{'max'}=200;
 #アクセス禁止な名前
@@ -68,36 +71,27 @@ $IC{'hoe'}='moe.png'; #乃絵
 if($0 eq __FILE__){
   #直接実行だったら動き出す
   require './core.cgi';
+  &main;
 }
 
 #-------------------------------------------------
 # 初期設定
 BEGIN{
   # Revision Number
-  $CF{'Index'}=qq$Revision: 1.5 $;
-  (getlogin)||(umask(0)); #'nobody'って''だよね？
-  # Mireille Error Screen 1.2
+  $CF{'idxrev'}=qq$Revision: 1.6 $;
   if($0 eq __FILE__){
     $SIG{'__DIE__'}=sub{
-      print<<"_HTML_";
+    print<<"_HTML_";
 Content-Language: ja
 Content-type: text/plain; charset=euc-jp
 
 <pre>
-       :: Mireille ::
-   * Error Screen 1.2 (o__)o// *
+       :: Marldia ::
+   * Error Screen 1.0 (T_T;) *
 
-_HTML_
-      ($_[0])&&(print"ERROR: $_[0]");
-      print"\n";
-      for(qw(Index Style Core Exte)){
-        ($CF{"$_"})&&(print qq($_: $CF{"$_"}\n));
-      }
-      print"\n";
-      for(qw(log icon icls style)){
-        ($CF{"$_"})&&(print qq($_: $CF{"$_"}\n));
-      }
-      print"\ngetlogin : ",getlogin,<<"_HTML_";
+ERROR: $_[0]
+Index : $CF{'idxrev'}
+Core  : $CF{'correv'}
 
 PerlVer  : $]
 PerlPath : $^X
@@ -106,19 +100,22 @@ OS Name  : $^O
 FileName : $0
 
  = = ENV = =
-_HTML_
-      for(qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME OS SERVER_SOFTWARE PROCESSOR_IDENTIFIER)){
-        ($ENV{"$_"})&&(print qq($_:\t$ENV{"$_"}\n));
-      }
-      print<<"_HTML_";
+CONTENT_LENGTH: $ENV{'CONTENT_LENGTH'}
+QUERY_STRING  : $ENV{'QUERY_STRING'}
+REQUEST_METHOD: $ENV{'REQUEST_METHOD'}
 
-+#       Airemix Mireille       #+
-+#  http://airemix.site.ne.jp/  #+
+SERVER_NAME: $ENV{'SERVER_NAME'}
+HTTP_PATH  : $ENV{'HTTP_HOST'} $ENV{'SCRIPT_NAME'}
+ENV_OS     : $ENV{'OS'}
+SERVER_SOFTWARE      : $ENV{'SERVER_SOFTWARE'}
+PROCESSOR_IDENTIFIER : $ENV{'PROCESSOR_IDENTIFIER'}
+
++#       Airemix Marldia        #+
++#  http://www.airemix.com/  #+
 _HTML_
-      exit;
+    exit;
     };
   }
 }
-
 1;
 __END__

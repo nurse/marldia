@@ -1,7 +1,7 @@
-@charset "Shift_JIS";
+@charset "EUC-JP";
 /* Marldia Style Sheet */
-/* "This file is written in shift_jis, CRLF." 空 */
-/* $Id: style.css,v 1.5 2002-03-21 02:52:44 naruse Exp $ */
+/* "This file is written in euc-jp, CRLF." 空 */
+/* $Id: style.css,v 1.6 2002-04-20 16:34:50 naruse Exp $ */
 
 /* --------------------- 全体のスタイル --------------------- */
 /* 通常のリンク文字 */
@@ -23,9 +23,9 @@ a:active{
 }
 body{
   background-attachment: scroll;
-  background-color: #ddf;
-/*  background-image: url('');
-  background-position: left;
+  background-color: #eee;
+/**/  background-image: url('/HP_img/bakimg.png');
+/*  background-position: left;
   background-repeat: repeat; */
   color: #333;
   font-family: "MS UI Gothic",osaka,sans-serif;
@@ -179,27 +179,27 @@ table.article th,table.article td{
   width:55px;
 }
 .artname{
+  vertical-align: bottom;
   white-space: nowrap;
 }
 .artbody{
-  text-align: left;
+  vertical-align: bottom;
   width:100%;
 }
 .artinfo{
   color: #333;
-  font-size: 12px;
+  font-size: 10px;
+  height: 11px;
 }
 .artdel,.artdel a{
   color: #f00;
   font-size: 10px;
+  height: 11px;
+  text-align: center;
 }
+.artlev{}
+.artdate{}
 
-/* 経験値 */
-span.level{
-}
-/* 発言日時 */
-span.date{
-}
 /* 著作権表示 */
 .AiremixCopy{
   font: normal 100% sans-serif;

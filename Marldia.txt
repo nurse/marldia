@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------#
 # 'Marldia' Chat System
 #
-# $Id: Marldia.txt,v 1.5 2002-03-21 02:52:44 naruse Exp $
+# $Id: Marldia.txt,v 1.6 2002-04-20 16:34:50 naruse Exp $
 # http://airemix.site.ne.jp/
 # naruse@airemix.site.ne.jp
 # Scripted by NaRuSe.
@@ -10,6 +10,10 @@
 
 #------------------------------------------------------------------------------#
 ◇Marldia History
+2002-04-21 Revision: 1.6
+ コマンドで経験地統合とかいろいろできるようにしてみたh
+ 表情アイコンを一覧で選べるようにしてみた
+ CSSの漢字コードをEUC-JPに
 2002-03-21 Revision: 1.5
  アイコン周り修正
  表情・専用アイコン周り修正
@@ -42,17 +46,17 @@
 
 ◇アイコンリストの形式
 <optgroup label="グループ名">
-	<option value="ファイル名">アイコン名</option>
-	<option value="ファイル名">アイコン名</option>
+  <option value="ファイル名">アイコン名</option>
+  <option value="ファイル名">アイコン名</option>
 </optgroup>
 <optgroup label="グループ名">
-	<option value="ファイル名">アイコン名</option>
-	<option value="ファイル名">アイコン名</option>
+  <option value="ファイル名">アイコン名</option>
+  <option value="ファイル名">アイコン名</option>
 </optgroup>
-・・・
+  ・・・
 <optgroup label="グループ名">
-	<option value="ファイル名">アイコン名</option>
-	<option value="ファイル名">アイコン名</option>
+  <option value="ファイル名">アイコン名</option>
+  <option value="ファイル名">アイコン名</option>
 </optgroup>
 <option value="ファイル名">アイコン名</option>
 <option value="ファイル名">アイコン名</option>
