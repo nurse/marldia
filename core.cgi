@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.2 2001-12-21 09:06:47 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.3 2001-12-30 06:39:12 naruse Exp $;
 require 5.004;
 #use lib './lib';
 use Fcntl qw(:DEFAULT :flock);
@@ -51,7 +51,7 @@ Content-Language: ja
 <link rel="help" href="$CF{'help'}">
 <title>$CF{'title'}</title>
 </head>
-<frameset rows="80,*" title="MarldiaFrameset">
+<frameset rows="80,*">
   <frame frameborder="0" name="North" src="index.cgi?north">
   <frame frameborder="0" name="South" src="index.cgi?south">
   <noframes>
@@ -119,7 +119,7 @@ function IconPreview(arg){
 <td><input type="text" name="name" id="name" maxlength="20" size="20"
  style="ime-mode:active;width:100px" value="$CK{'name'}" tabindex="11"></td>
 <th><label accesskey="c" for="color">名前色(<span class="ak">C</span>)</label>:</th>
-<td>@{[&iptcol($CK{'color'},'color','tabindex="21"')]}</td>
+<td>@{[&iptcol('color','tabindex="21"')]}</td>
 <th><label accesskey="g" for="line">ログ行数(<span class="ak">G</span>)</label>:</th>
 <td><input type="text" name="line" id="line" maxlength="4" size="4"
  style="ime-mode:disabled;width:32px" value="$CK{'line'}行" tabindex="31"></td>
@@ -130,9 +130,9 @@ function IconPreview(arg){
 <td rowspan="2" style="text-align:center">
 <img name="Preview" id="Preview" alt="Preview" src="$CF{'icon'}$CK{'icon'}"$CF{'icsz'}></td>
 <th><label accesskey="i" for="icon">アイコン(<span class="ak">I</span>)</label>:</th>
-<td>@{[&iptico($CK{'icon'},'icon','tabindex="12"')]}</td>
+<td>@{[&iptico('icon','tabindex="12"')]}</td>
 <th><label accesskey="b" for="bcolo">文章色(<span class="ak">B</span>)</label>:</th>
-<td>@{[&iptcol($CK{'bcolo'},'bcolo','tabindex="22"')]}</td>
+<td>@{[&iptcol('bcolo','tabindex="22"')]}</td>
 <th><label accesskey="r" for="reload">更新間隔(<span class="ak">R</span>)</label>:</th>
 <td><input type="text" name="reload" id="reload" maxlength="4" size="4"
  style="ime-mode:disabled;width:32px" value="$CK{'reload'}秒" tabindex="32"></td>
@@ -172,7 +172,6 @@ _HTML_
 #-------------------------------------------------
 # South
 sub south{
-
   #補助スイッチ
   if($IN{'mes'}eq '#rank'){
     #ランキング
@@ -207,62 +206,27 @@ sub south{
     print"Set-Cookie: Marldia=$cook; expires=$gmt\n";
   }
 
-  if(length$IN{'mes'}){
-    #ランキング加点
-    sysopen(RANK,$CF{'rank'},O_CREAT|O_RDWR)||die"Can't write rank.";
-    flock(RANK,LOCK_EX);
-    my($key,$val,@tmp)=map{$_=~/(.*)/o}('','',<RANK>);
-    while(($key,$val)=splice(@tmp,0,2)){
-      $RK{"$key"}="$val";
-    }
-    ($RK{"$IN{'id'}"}=~s/\tpoint=\t(\d+);\t/\tpoint=\t@{[$1+1]};\t/o)
-     ||($RK{"$IN{'id'}"}="\tpoint=\t1;\t");
-    $IN{'point'}=($1)?$1+1:1;
-    delete$RK{''};
-    truncate(RANK,0);
-    seek(RANK,0,'SEEK_SET');
-    for(keys%RK){
-      print RANK "$_\n$RK{$_}\n";
-    }
-    close RANK;
-
-    # 発言処理
-    my$data="Mar1=\t;\tname=\t$IN{'name'};\tcolor=\t$IN{'color'};\tbcolo=\t$IN{'bcolo'};\t"
-    ."mes=\t$IN{'mes'};\ticon=\t$IN{'icon'};\thome=\t$IN{'home'};\temail=\t$IN{'email'};\t"
-    ."point=\t$IN{'point'};\tua=\t$IN{'hua'};\taddr=\t$IN{'ra'};\ttime=\t$^T;\t\n";
-    
-    sysopen(LOG,$CF{'log'},O_CREAT|O_RDWR)||die"Can't write file.";
-    flock(LOG,LOCK_EX);
-    @log=<LOG>;
-    splice(@log,$CF{'max'}-1);
-    unshift(@log,$data);
-    truncate(LOG,0);
-    seek(LOG,0,'SEEK_SET');
-    print LOG join('',@log);
-    close(LOG);
-    
-  }else{
-    sysopen(LOG,$CF{'log'},O_CREAT|O_RDONLY)||die"Can't open file.";
-    flock(LOG,LOCK_SH);
-    @log=<LOG>;
-    close(LOG);
-  }
-
+  #参加者・ランキング・書き込み処理
+  sysopen(LOG,$CF{'log'},O_CREAT|O_RDWR)||die"Can't write file.";
+  flock(LOG,LOCK_EX);
   #参加者読み込み
-  sysopen(MEM,$CF{'mem'},O_CREAT|O_RDWR)||die"Can't write mem.";
-  flock(MEM,LOCK_EX);
-  my($key,$val,@tmp)=map{$_=~/(.*)/o}('','',<MEM>);
-  while(($key,$val)=splice(@tmp,0,2)){
+  @log=<LOG>;
+  my($key,$val);
+  while(($key,$val)=(shift@log,shift@log)){
+    chomp$key,chomp$val;
+    ($key||$val)||(last);
     $MB{"$key"}="$val";
   }
   delete$MB{''};
   if($IN{'name'}&&$ENV{'CONTENT_LENGTH'}){
     delete$MB{"$IN{'ra'}"};
-    $MB{"$IN{'id'}"}="name=\t$IN{'name'};\tcolor=\t$IN{'color'};\treload=\t$IN{'reload'};\taddr=\t$IN{'ra'};\ttime=\t$^T;\texpire=\t$^T;\t";
+    $MB{"$IN{'id'}"}="name=\t$IN{'name'};\tcolor=\t$IN{'color'};\treload=\t$IN{'reload'};\t"
+    ."addr=\t$IN{'ra'};\ttime=\t$^T;\texpire=\t$^T;\t";
   }elsif($IN{'name'}){
     delete$MB{"$IN{'ra'}"};
     $MB{"$IN{'id'}"}=~m/\texpire=\t(\d+);\t/;
-    $MB{"$IN{'id'}"}="name=\t$IN{'name'};\tcolor=\t$IN{'color'};\treload=\t$IN{'reload'};\taddr=\t$IN{'ra'};\ttime=\t$^T;\texpire=\t$1;\t";
+    $MB{"$IN{'id'}"}="name=\t$IN{'name'};\tcolor=\t$IN{'color'};\treload=\t$IN{'reload'};\t"
+    ."addr=\t$IN{'ra'};\ttime=\t$^T;\texpire=\t$1;\t";
   }else{
     $MB{"$IN{'ra'}"}="reload=\t$IN{'reload'};\taddr=\t$IN{'ra'};\ttime=\t$^T;\t";
   }
@@ -276,12 +240,41 @@ sub south{
     $DT{'expire'}=$^T-$DT{'expire'};
     push(@mb,qq[<a style="color:$DT{'color'}" title="$DT{'expire'}秒">$DT{'name'}</a>☆]);
   }
-  truncate(MEM,0);
-  seek(MEM,0,'SEEK_SET');
-  for(keys%MB){
-    print MEM "$_\n$MB{$_}\n";
+  if(length$IN{'mes'}){
+    #ランキング加点
+    sysopen(RANK,$CF{'rank'},O_CREAT|O_RDWR)||die"Can't write rank.";
+    flock(RANK,LOCK_EX);
+    my($key,$val);
+    my@rk=map{$_=~/(.*)/o}(<RANK>);
+    while(($key,$val)=(shift@rk,shift@rk)){
+      ($key||$val)||(last);
+      $RK{"$key"}="$val";
+    }
+    ($RK{"$IN{'id'}"}=~s/\tpoint=\t(\d+);\t/\tpoint=\t@{[$1+1]};\t/o)
+     ||($RK{"$IN{'id'}"}="\tpoint=\t1;\t");
+    $IN{'point'}=($1)?$1+1:1;
+    delete$RK{''};
+    truncate(RANK,0);
+    seek(RANK,0,'SEEK_SET');
+    for(keys%RK){
+      print RANK "$_\n$RK{$_}\n";
+    }
+    close RANK;
+    # 発言処理
+    my$data="Mar1=\t;\tname=\t$IN{'name'};\tcolor=\t$IN{'color'};\tbcolo=\t$IN{'bcolo'};\t"
+    ."mes=\t$IN{'mes'};\ticon=\t$IN{'icon'};\thome=\t$IN{'home'};\temail=\t$IN{'email'};\t"
+    ."point=\t$IN{'point'};\tua=\t$IN{'hua'};\taddr=\t$IN{'ra'};\ttime=\t$^T;\t\n";
+    splice(@log,$CF{'max'}-1);
+    unshift(@log,$data);
   }
-  close MEM;
+  truncate(LOG,0);
+  seek(LOG,0,'SEEK_SET');
+  for(keys%MB){
+    print LOG "$_\n$MB{$_}\n";
+  }
+  print LOG "\n\n",join('',@log);
+  close(LOG);
+
   
   my$visitor=scalar(keys%MB);
   my$entrant=$#mb+1;
@@ -306,7 +299,7 @@ sub south{
     &header;
   }
   print<<"_HTML_";
-<div style="text-align:left"><span>[ <a href="index.cgi?$query">Reload</a> ]</span>
+<div class="meminfo"><span>[ <a href="index.cgi?$query">Reload</a> ]</span>
 <span>[合計:$visitor人 参加者:$entrant人 観客:$audience人] [ @mb ] </span></div>
 _HTML_
   
@@ -367,8 +360,10 @@ sub rank{
 _HTML_
   sysopen(RANK,$CF{'rank'},O_CREAT|O_RDONLY)||die"Can't read rank.";
   flock(LOG,LOCK_SH);
-  my($key,$val,@tmp)=map{$_=~/(.*)/o}('','',<RANK>);
-  while(($key,$val)=splice(@tmp,0,2)){
+  my($key,$val);
+  my@rk=map{$_=~/(.*)/o}(<RANK>);
+  while(($key,$val)=(shift@rk,shift@rk)){
+    ($key||$val)||(last);
     print"<tr><th>$key</th><td>$val</td></tr>";
   }
   close RANK;
@@ -389,13 +384,15 @@ sub mem{
 <caption>見物人一覧</caption>
 _HTML_
   #参加者読み込み
-  sysopen(MEM,$CF{'mem'},O_CREAT|O_RDONLY)||die"Can't write rank.";
+  sysopen(LOG,$CF{'mem'},O_CREAT|O_RDONLY)||die"Can't write rank.";
   flock(LOG,LOCK_SH);
-  my($key,$val,@tmp)=map{$_=~/(.*)/o}('','',<MEM>);
-  while(($key,$val)=splice(@tmp,0,2)){
+  my($key,$val);
+  my@mb=map{$_=~/(.*)/o}(<LOG>);
+  while(($key,$val)=(shift@mb,shift@mb)){
+    ($key||$val)||(last);
     print"<tr><th>$key</th><td>$val</td></tr>";
   }
-  close MEM;
+  close LOG;
   print<<"_HTML_";
 </table>
 </body>
@@ -633,24 +630,23 @@ sub iptico{
 
 =item
 
-$_[0]: $CK{'icon'}
-$_[1]: 'icon'
-$_[2]: 'tabindex=12'
+$_[0]: 'icon'
+$_[1]: 'tabindex=12'
 
 =cut
 
   my$name='icon';
   my$opt='';
-  ($_[1])&&($name=$_[1]);
-  ($_[2])&&($opt=" $_[2]");
+  ($_[0])&&($name=$_[0]);
+  ($_[1])&&($opt=" $_[1]");
   #リスト読み込み
   sysopen(RD,"$CF{'icls'}",O_RDONLY);#||die"Can't open iconlist."; #わざわざエラー返さなくても
   flock(RD,LOCK_SH);
   my$list=join('',<RD>);
   close(RD);
-  if($_[0]and$list=~s/(value="$_[0]")/$1 selected="selected"/io){
+  if($CK{$name}and$list=~s/(value="$CK{$name}")/$1 selected="selected"/io){
   }elsif($list=~s/value="([^"]*)"/value="$1" selected="selected"/io){
-    $_[0]=$1;
+    $CK{$name}=$1;
   }
   return<<"_HTML_";
 <select name="$name" id="$name" onchange="IconPreview(this.form['icon'][this.options.selectedIndex].value)"$opt>
@@ -666,19 +662,18 @@ sub iptcol{
 
 =item
 
-$_[0]: $CK{'color'}
-$_[1]: 'color'
-$_[2]: 'tabindex=12'
+$_[0]: 'color'
+$_[1]: 'tabindex=12'
 
 =cut
 
   my$name='color';
   my$opt='';
-  ($_[1])&&($name=$_[1]);
-  ($_[2])&&($opt=" $_[2]");
+  ($_[0])&&($name=$_[0]);
+  ($_[1])&&($opt=" $_[1]");
   if('input'eq$CF{'colway'}){
     return<<"_HTML_";
-<input type="text" name="$name" id="$name" class="blur" maxlength="20" style="ime-mode:disabled; width:90px;" onFocus="this.className='focus'" onBlur="this.className='blur'" value="$_[0]"$opt>
+<input type="text" name="$name" id="$name" class="blur" maxlength="20" style="ime-mode:disabled; width:90px;" onFocus="this.className='focus'" onBlur="this.className='blur'" value="$CK{$name}"$opt>
 _HTML_
   }else{
     my$list=<<"_HTML_";
@@ -725,9 +720,9 @@ _HTML_
 <option value="#6b8e23" style="background-color: #6b8e23;">OliveDrab</option>
 <option value="#808000" style="background-color: #808000;">Olive</option>
 _HTML_
-    if($_[0]&&$list=~s/(value="$_[0]")/$1 selected="selected"/io){
+    if($CK{$name}&&$list=~s/(value="$CK{$name}")/$1 selected="selected"/io){
     }elsif($list=~s/value="([^"]*)"/value="$1" selected="selected"/io){
-      $_[0]=$1;
+      $CK{$name}=$1;
     }
     return<<"_HTML_";
 <select name="$name" id="$name"$opt>
@@ -782,7 +777,7 @@ _HTML_
 # 初期設定
 BEGIN{
   # Revision Number
-  $CF{'correv'}=qq$Revision: 1.2 $;
+  $CF{'correv'}=qq$Revision: 1.3 $;
   #エラーが出たらエラー画面を表示するように
   if($0=~m/\bindex.cgi$/o){
     $SIG{'__DIE__'}=sub{

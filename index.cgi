@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.2 2001-12-21 09:06:48 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.3 2001-12-30 06:39:13 naruse Exp $;
 #use 5.004;
 #use lib './lib';
 use Fcntl qw(:DEFAULT :flock);
@@ -27,8 +27,8 @@ $CF{'max'}='50';
 $CF{'denyname'}='管理人';
 #使用を許可するタグ（半角スペース区切り）
 $CF{'tags'} = 'DEL EM SMALL STRONG RUBY RB RB RT RP';
-#色の選択方法
-$CF{'colway'}='select';
+#色の選択方法(select input)
+$CF{'colway'}='input';
 
 $CF{'romline'}=10;
 $CF{'romreload'}=0;
@@ -67,7 +67,7 @@ if($0 eq __FILE__){
 # 初期設定
 BEGIN{
   # Revision Number
-  $CF{'Index'}=qq$Revision: 1.2 $;
+  $CF{'Index'}=qq$Revision: 1.3 $;
   (getlogin)||(umask(0)); #'nobody'って''だよね？
   # Mireille Error Screen 1.2
   if($0 eq __FILE__){
