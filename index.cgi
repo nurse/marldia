@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.16 2004-11-22 20:56:24 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.17 2004-11-23 18:37:58 naruse Exp $;
 require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK %IC);
@@ -43,6 +43,7 @@ $CF{'defreload'}=20;
 
 $CF{'index'} = 'index.cgi'; #MARLDIA MAIN CGI
 $CF{'mobile'} = 'mobile.cgi'; #MARLDIA FOR MOBILE
+$CF{'marldiajs'} = 'Marldia.js'; #MARLDIA JAVA SCRIPT
 $CF{'style'} = 'style.css'; #CascadeStyleSheet
 $CF{'log'}  = 'log.cgi'; #LOG PATH
 $CF{'rank'} = 'rank.cgi'; #LOG PATH
@@ -117,31 +118,38 @@ if($CF{'program'}eq __FILE__){
 #-------------------------------------------------
 # 初期設定
 BEGIN{
-	unless(%CF){
-		$CF{'program'}=__FILE__;
-		$SIG{'__DIE__'}=$ENV{'REQUEST_METHOD'}?sub{
-			if($_[0]=~/^(?=.*?flock)(?=.*?unimplemented)/){return}
-			print"Status: 200 OK\nContent-Language: ja-JP\nContent-type: text/plain; charset=euc-jp"
-			."\n\n<PRE>\t:: Marldia ::\n   * Error Screen 1.4 (o__)o// *\n\n";
-			print"ERROR: $_[0]\n"if@_;
-			print join('',map{"$_\t: $CF{$_}\n"}grep{$CF{"$_"}}qw(idxrev correv))
-			."\n".join('',map{"$_\t: $CF{$_}\n"}grep{$CF{"$_"}}qw(log icon icls style));
-			print"\ngetlogin\t: ".getlogin;
-			print"\n".join('',map{"$$_[0]\t: $$_[1]\n"}
-			([PerlVer=>$]],[PerlPath=>$^X],[BaseTime=>$^T],[OSName=>$^O],[FileName=>$0],[__FILE__=>__FILE__]))
-			."\n\t= = = ENV = = =\n".join('',map{sprintf"%-20.20s : %s\n",$_,$ENV{$_}}grep{$ENV{"$_"}}
-			qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD
-			SERVER_NAME HTTP_HOST SCRIPT_NAME OS SERVER_SOFTWARE PROCESSOR_IDENTIFIER))
-			."\n+#      Airemix  Marldia     #+\n+#  http://www.airemix.com/  #+";
-			exit;
-		}:sub{
-			if($_[0]=~/^(?=.*?flock)(?=.*?unimplemented)/){return}
-			print@_?"ERROR: $_[0]":'ERROR';
-			exit;
-		};
-	}
-	# Revision Number
-	$CF{'idxrev'}=qq$Revision: 1.16 $;
+    #エラーが出たらエラー画面を表示するように
+    # Marldia Error Screen 1.2.2
+    unless($CF{'program'}){
+	$CF{'program'}=__FILE__;
+	$SIG{'__DIE__'}=$ENV{'REQUEST_METHOD'}?sub{
+	    index($_[0],'flock')+1 and index($_[0],'unimplemented')+1 and return;
+	    print "Status: 200 OK\nContent-Language: ja-JP\nContent-type: text/html; charset=$CF{'encoding'}\n\n"
+		. "<HTML>\n<HEAD>\n"
+		.qq(<META http-equiv="Content-type" content="text/html; charset=$CF{'encoding'}">\n)
+		. "<TITLE> Marldia Error Screen 1.2.2</TITLE>\n"
+		. "</HEAD>\n<BODY>\n\n<PRE>\t::  Marldia ::\n   * Error Screen 1.2.2 (o__)o// *\n\n";
+	    print "ERROR: $_[0]\n"if@_;
+	    printf"%-20.20s : %s\n",$_,$CF{$_} for grep{$CF{$_}}qw(Index Style Core Exte);
+	    print "\n";
+	    printf"%-20.20s : %s\n",$_,$CF{$_} for grep{$CF{$_}}qw(index log icon icls style);
+	    print "\n";
+	    printf"%-20.20s : %s\n",$$_[0],$$_[1]
+		for([PerlVer=>$]],[PerlPath=>$^X],[BaseTime=>$^T],[OSName=>$^O],[FileName=>$0],[__FILE__=>__FILE__]);
+	    print"\nRUID:$< EUID:$> RGID:$( EGID:$)\n";
+	    print "\n = = = ENVIRONMENTAL VARIABLE = = =\n";
+	    printf"%-20.20s : %s\n",$_,$ENV{$_} for grep{$ENV{$_}}
+qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME OS SERVER_SOFTWARE);
+	    print "\n+#      Airemix  Marldia     #+\n+#  http://airemix.com/  #+\n</PRE>\n</BODY>\n</HTML>\n";
+	    exit;
+	}:sub{
+	    index($_[0],'flock')+1 and index($_[0],'unimplemented')+1 and return;
+	    print@_?"ERROR: $_[0]":'ERROR';
+	    exit;
+	};
+    }
+    # Revision Number
+    $CF{'idxrev'}=qq$Revision: 1.17 $;
 }
 1;
 __END__
