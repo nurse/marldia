@@ -4,29 +4,25 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.13 2002-12-17 06:10:05 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.14 2003-03-29 19:13:50 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
-#$|=1;
-#$ENV{'HTTP_ACCEPT_ENCODING'}='';
-#use IO::File;
-use Data::Dumper;
+#require Data::Dumper;
 
 #-------------------------------------------------
 # MAIN SWITCH
 #
 sub main{
 	&getParams;
-#	$IN{'name'}&&" $IN{'name'} "=~m/ $CF{'denyname'} /o&&&locate($CF{'sitehome'});
-#	(" $ENV{'REMOT_ADDR'} "=~m/ $CF{'denyra'} /o)&&(&locate($CF{'sitehome'}));
-#	(" $ENV{'REMOT_HOST'} "=~m/ $CF{'denyrh'} /o)&&(&locate($CF{'sitehome'}));
+#	$IN{'name'}&&index(" $IN{'name'} "," $CF{'denyname'} ")&&&locate($CF{'sitehome'});
+#	$ENV{'REMOT_ADDR'}&&index(" $IN{'REMOT_ADDR'} "," $CF{'denyra'} ")&&(&locate($CF{'sitehome'}));
+#	$ENV{'REMOT_HOST'}&&index(" $ENV{'REMOT_HOST'} "," $CF{'denyrh'} ")&&(&locate($CF{'sitehome'}));
 	
-#%IN=(mode=>'south',line=>20,reload=>123);
 	if('south'eq$IN{'mode'}){
 	}elsif('frame'eq$IN{'mode'}){
 		&modeFrame;
@@ -139,7 +135,7 @@ function autoreset(){
 function iconPreview(arg){
 	if(!preview&&!arg){return;}
 	preview.src=icondir+arg;
-	preview.alt=arg;
+	preview.title=arg;
 }
 
 //--------------------------------------
@@ -192,16 +188,16 @@ function surfaceSample(e){
 		'<BUTTON type="button" id="surface0" style="margin:0;padding:0;width:50px;border:0"'
 		+' onclick="top.north.document.all(\'surface\').selectedIndex=0;document.all(\'surfaceS\').selectedIndex=0'
 		+';top.north.document.images[\'preview\'].src=\''+icondir+surface.options[0].value+'\'"'
-		+';top.north.document.images[\'preview\'].alt=\''+surface.options[0].value+'\'">'
-		+'<IMG src="'+icondir+surface.options[0].value+'" alt="-"><\/button>';
+		+';top.north.document.images[\'preview\'].title=\''+surface.options[0].value+'\'">'
+		+'<IMG src="'+icondir+surface.options[0].value+'" alt="" title="-"><\/button>';
 
 	for(i=1;i<surface.length;i++){
 		str+=
 		'<BUTTON type="button" id="surface'+i+'" style="margin:0;padding:0;width:50px;border:0"'
 		+' onclick="top.north.document.all(\'surface\').selectedIndex='+i+';document.all(\'surfaceS\').selectedIndex='+i
 		+';top.north.document.images[\'preview\'].src=\''+icondir+surface.options[i].value+'\'"'
-		+';top.north.document.images[\'preview\'].alt=\''+surface.options[i].value+'\'">'
-		+'<IMG src="'+icondir+surface.options[i].value+'" alt="'+(i-1)+'"><\/button>';
+		+';top.north.document.images[\'preview\'].title=\''+surface.options[i].value+'\'">'
+		+'<IMG src="'+icondir+surface.options[i].value+'" alt="" title="'+(i-1)+'"><\/button>';
 		if(i%3==2){str+='<BR>';}
 	}
 	popup.document.body.innerHTML=
@@ -234,11 +230,11 @@ _HTML_
 <COL style="width:120px">
 
 <TR>
-<TD rowspan="5" style="text-align:center">
+<TD rowspan="5" style="text-align:center;white-space:nowrap" nowrap>
 <H1 contentEditable="true">$CF{'pgtit'}</H1>
-<BUTTON accesskey="x" type="button" style="height:55px;border:none;padding:0;margin:0;"
- onclick="surfaceSample(event)" onkeypress="surfaceSample(event)"><IMG name="preview" id="preview"
- alt="$CK{'icon'}" src="$CF{'iconDir'}$CK{'icon'}" $CF{'imgatt'} style="margin:0"></BUTTON><BR>
+<BUTTON accesskey="x" type="button" id="surfaceButton" onclick="surfaceSample(event);return false"
+ onkeypress="surfaceSample(event);return false"><IMG name="preview" id="preview" alt="" title="$CK{'icon'}"
+ src="$CF{'iconDir'}$CK{'icon'}" $CF{'imgatt'} style="margin:0"></BUTTON><BR>
 <LABEL accesskey="z" for="surface" title="hyoZyo\n表情アイコンを選択します（使えれば）"
 ><SPAN class="ak">Z</SPAN>yo</LABEL><SELECT name="surface" id="surface"
  onchange="iconPreview(this.options[this.selectedIndex].value)" tabindex="50">
@@ -274,7 +270,7 @@ _HTML_
 
 <TR>
 <TH><LABEL accesskey="i" for="icon" title="Icon\n使用するアイコンを選択します"
-><A href="index.cgi?icct" target="south">アイコン</A>(<SPAN class="ak">I</SPAN>)</LABEL></TH>
+><A href="$CF{'index'}?icct" target="south">アイコン</A>(<SPAN class="ak">I</SPAN>)</LABEL></TH>
 <TD>@{[&iptico($CK{'icon'},'tabindex="12"')]}</TD>
 <TH><LABEL accesskey="c" for="bcolo" title="body Color\n発言した本文の色です"
 >文章色(<SPAN class="ak">C</SPAN>)</LABEL>:</TH>
@@ -363,9 +359,9 @@ sub modeSouth{
 	#-----------------------------
 	#本文の処理
 	#form->data変換
-	unless(defined$IN{'body'}&& length$IN{'body'}){
+	unless(defined$IN{'body'}&&length$IN{'body'}){
 		$IN{'body'}='';
-	}elsif($CF{'tags'}&& 'ALLALL'eq$CF{'tags'}){
+	}elsif($CF{'tags'}&&'ALLALL'eq$CF{'tags'}){
 		#ALLALLは全面OK。但し強調は無効。URI自動リンクも無効。
 		#自前でリンクを張ったり、強調してあるものを、二重にリンク・強調してしまいますから
 	}else{
@@ -374,6 +370,7 @@ sub modeSouth{
 		my$str=$IN{'body'};
 		study$str;
 		$str=~tr/"'<>/\01-\04/;
+		$str=~s/&(#?\w+;)/\05$1/go;
 		
 		#タグ処理
 		if($CF{'tags'}&&!$EX{'notag'}){
@@ -400,7 +397,7 @@ sub modeSouth{
 			my$pos=length$str;
 			while($str=~/\G($text_regex)($comment_tag_regex|\03$tag_regex_)?/gso){
 				$pos=pos$str;
-				($1&& length$1)||($2&& length$2)||last;
+				($1&&length$1)||($2&&length$2)||last;
 				$result.=$1;
 				my$tag_tmp=$2;
 				if($tag_tmp=~s/^\03((\/?(?:$remain))(?![\dA-Za-z]).*)\04/<$1>/io){
@@ -493,7 +490,7 @@ sub modeSouth{
 			my$skip=0;
 			my$pos=length$str;
 			while($str=~/($text_regex)($tag_regex)?/gso){
-				''eq$1&&!$2&& last;
+				''eq$1&&!$2&&last;
 				$pos=pos$str;
 				my$text_tmp=$1;
 				my$tag_tmp=$2;
@@ -526,11 +523,12 @@ sub modeSouth{
 			$str=~s{(\04\04No\.(\d+)(-\d+)?)}{<A class="autolink" href="index.cgi?read=$2#art$2$3">$1</A>}go;
 		}
 		
-		$str=~s/&(#?\w+;)?/$1?"&$1":'&#38;'/ego;
+		$str=~s/&/&#38;/go;
 		$str=~s/\01/&#34;/go;
 		$str=~s/\02/&#39;/go;
 		$str=~s/\03/&#60;/go;
 		$str=~s/\04/&#62;/go;
+		$str=~tr/\05/&/;
 		$IN{'body'}=$str;
 	}
 	$IN{'body'}=~s/\t/&nbsp;&nbsp;&nbsp;&nbsp;/go;
@@ -614,8 +612,8 @@ _HTML_
 	#ログ表示
 	for(@{$chatlog}){
 		my%DT=%{$_};
-		'del'eq$DT{'Mar1'}&& next;
-		++$i>$IN{'line'}&& last;
+		'del'eq$DT{'Mar1'}&&next;
+		++$i>$IN{'line'}&&last;
 		
 		#日付
 		my$date=&date($DT{'time'});
@@ -627,9 +625,8 @@ _HTML_
 		:$DT{'name'};
 		#ホーム
 		my$home=$DT{'home'}?qq(<A href="$DT{'home'}" target="_blank" title="$DT{'home'}">≫</A>):'≫';
-		#レベル計算-てきとー
-		srand($DT{'exp'});
-		$DT{'level'}=1+int(rand(sqrt$DT{'exp'}*2));
+		#レベル取得
+		$DT{'level'}=&getLevel($DT{'exp'});
 		#削除ボタン
 		my$del=$IN{'id'}&&$DT{'id'}eq$IN{'id'}?qq([<A href="$CF{'index'}?del=$DT{'exp'}&#59;$query">削除</A>])
 		:'&nbsp;';
@@ -637,7 +634,7 @@ _HTML_
 		print<<"_HTML_";
 <TABLE cellspacing="0" class="article" summary="article">
 <TR>
-<TH class="articon" rowspan="2"><IMG src="$CF{'iconDir'}$DT{'icon'}" alt="$DT{'icon'}" $CF{'imgatt'}></TH>
+<TH class="articon" rowspan="2"><IMG src="$CF{'iconDir'}$DT{'icon'}" alt="" title="$DT{'icon'}" $CF{'imgatt'}></TH>
 <TH class="artname" nowrap>$name&nbsp;$home</TH>
 <TD class="artbody" style="color:$DT{'bcolo'};">$DT{'body'}</TD>
 </TR>
@@ -651,6 +648,23 @@ _HTML_
 	}
 	&showFooter;
 	exit;
+}
+
+#-------------------------------------------------
+# レベル計算
+#
+sub getLevel{
+	#レベル計算-まとも
+	my$lev=0;
+	my$sum=0;
+	while($sum<$_[0]){
+		$lev++;
+		$sum+=int(exp(($lev-1)/15)*100);
+	}
+	return $lev;
+	#レベル計算-てきとー
+	srand($_[0]);
+	return 1+int(rand(sqrt$_[0]*2));
 }
 
 
@@ -684,8 +698,10 @@ sub modeUsercmd{
 		print<<'_HTML_';
 <TABLE class="table" summary="発言ランキング">
 <CAPTION>ハツゲンらんきんぐ（ゆーざーもーど）</CAPTION>
+<COL span="4">
 	<TH scope="col">なまえ</TH>
 	<TH scope="col">けいけんち</TH>
+	<TH scope="col">しょうそく</TH>
 	<TH scope="col">はつとうじょう</TH>
 _HTML_
 		for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash}){
@@ -693,11 +709,12 @@ _HTML_
 <TR>
 	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
 	<TD style="color:$_->{'bcolo'}">$_->{'exp'}</TD>
-	<TD style="color:$_->{'bcolo'}">@{[&date($_->{'firstContact'})]}</TD>
+	<TD style="color:$_->{'bcolo'}">@{[$_->{'lastContact'}?&datef($_->{'lastContact'},'dateTime'):'<HR>']}</TD>
+	<TD style="color:$_->{'bcolo'}">@{[$_->{'firstContact'}?&datef($_->{'firstContact'},'dateTime'):'<HR>']}</TD>
 </TR>
 _HTML_
 		}
-		print"</TABLE>";
+		print"</TABLE>\n";
 		&showFooter;
 		exit;
 	}elsif('member'eq$arg[0]){
@@ -706,6 +723,7 @@ _HTML_
 		print<<'_HTML_';
 <TABLE class="table" summary="参加者の一覧">
 <CAPTION>さんかしゃ いちらん（ゆーざーもーど）</CAPTION>
+<COL span="3">
 	<TH scope="col">なまえ</TH>
 	<TH scope="col">ぶらんく</TH>
 	<TH scope="col">おとさた</TH>
@@ -788,7 +806,7 @@ $CF{'admipass'}='admicmd';なら、
 			my$rank=Rank->getInstance;
 			$rank->{$arg[2]}->{'exp'}||die"そんな人いない";
 			for(3..$#arg){
-				(!$rank->{$arg[$_]}||!$rank->{$arg[$_]}->{'exp'})&& next;
+				(!$rank->{$arg[$_]}||!$rank->{$arg[$_]}->{'exp'})&&next;
 				$rank->{$arg[2]}->{'exp'}+=$rank->{$arg[$_]}->{'exp'};
 				$rank->delete($arg[$_]);
 			}
@@ -799,18 +817,23 @@ $CF{'admipass'}='admicmd';なら、
 		print<<'_HTML_';
 <TABLE class="table" summary="発言ランキング">
 <CAPTION>超！発言ランキング</CAPTION>
+<COL span="7">
 	<TH scope="col">NAME</TH>
+	<TH scope="col">ID</TH>
 	<TH scope="col">EXP</TH>
+	<TH scope="col">LAST CONTACT</TH>
 	<TH scope="col">FIRST CONTACT</TH>
 	<TH scope="col">REMOTE_ADDR</TH>
 	<TH scope="col">HTTP_USER_AGENT</TH>
 _HTML_
-		for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash}){
+		for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash()}){
 			print<<"_HTML_";
 <TR>
 	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
+	<TD style="color:$_->{'bcolo'}">$_->{'id'}</TD>
 	<TD style="color:$_->{'bcolo'}">$_->{'exp'}</TD>
-	<TD style="color:$_->{'bcolo'}">@{[&datef($_->{'firstContact'},'dateTime')]}</TD>
+	<TD style="color:$_->{'bcolo'}">@{[$_->{'lastContact'}?&datef($_->{'lastContact'},'dateTime'):'<HR>']}</TD>
+	<TD style="color:$_->{'bcolo'}">@{[$_->{'firstContact'}?&datef($_->{'firstContact'},'dateTime'):'<HR>']}</TD>
 	<TD style="color:$_->{'bcolo'}">$_->{'ra'}</TD>
 	<TD style="color:$_->{'bcolo'}">$_->{'hua'}</TD>
 </TR>
@@ -825,7 +848,9 @@ _HTML_
 		print<<'_HTML_';
 <TABLE class="table" summary="参加者の一覧">
 <CAPTION>超！参加者一覧</CAPTION>
+<COL span="6">
 	<TH scope="col">NAME</TH>
+	<TH scope="col">ID</TH>
 	<TH scope="col">BLANK</TH>
 	<TH scope="col">OTOSATA</TH>
 	<TH scope="col">REMOTE_ADDR</TH>
@@ -836,6 +861,7 @@ _HTML_
 				print<<"_HTML_";
 <TR>
 	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
+	<TD style="color:$_->{'bcolo'}">$_->{'id'}</TD>
 	<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'lastModified'}]}</TD>
 	<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'time'}]}</TD>
 	<TD style="color:$_->{'bcolo'}">$_->{'ra'}</TD>
@@ -927,11 +953,7 @@ _HTML_
 # Form内容取得
 #
 sub getParams{
-	my$params;
-	my@params;
-	#引数取得
 	unless($ENV{'REQUEST_METHOD'}){
-		@params=@ARGV;
 	}elsif('HEAD'eq$ENV{'REQUEST_METHOD'}){ #forWWWD
 #MethodがHEADならばLastModifedを出力して、
 #最後の投稿時刻を知らせる
@@ -939,154 +961,9 @@ sub getParams{
 		print"Status: 200 OK\nLast-Modified: $last\n"
 		."Content-Type: text/plain\n\nLast-Modified: $last";
 		exit;
-	}elsif('POST'eq$ENV{'REQUEST_METHOD'}){
-		read(STDIN,$params,$ENV{'CONTENT_LENGTH'});
-	}elsif('GET'eq$ENV{'REQUEST_METHOD'}){
-		$params=$ENV{'QUERY_STRING'};
 	}
-	
-	# EUC-JP文字
-	my$eucchar=qr((?:
-		[\x09\x0A\x0D\x20-\x7E]			# 1バイト EUC-JP文字改
-		|(?:[\x8E\xA1-\xFE][\xA1-\xFE])	# 2バイト EUC-JP文字
-		|(?:\x8F[\xA1-\xFE]{2})			# 3バイト EUC-JP文字
-	))x;
-	
-	#引数をハッシュに
-	if(!$params){
-	}elsif(length$params>262114){ # 262114:引数サイズの上限(byte)
-		#サイズ制限
-		&showHeader;
-		print"いくらなんでも量が多すぎます\n$params";
-		&showFooter;
-		exit;
-	}elsif(length$params>0){
-		#入力を展開
-		@params=split(/[&;]/o,$params);
-	}
-
-	#入力を展開してハッシュに入れる
-	my%DT;
-	while(@params){
-		my($i,$j)=split('=',shift(@params),2);
-		$i=~/([a-z][-.:\w]*)/o||next;$i=$1;
-		defined$j||($DT{$i}='')||next;
-		study$j;
-		$j=~tr/+/\ /;
-		$j=~s/%([\dA-Fa-f]{2})/pack('H2',$1)/ego;
-		$j=($j=~/($eucchar*)/o)?$1:'';
-		$j=~s/\x0D\x0A/\n/go;$j=~tr/\r/\n/;
-		if('body'ne$i){
-			#本文以外は全面タグ禁止
-			$j=~s/\t/&nbsp;&nbsp;&nbsp;&nbsp;/go;
-			$j=~s/&(#?\w+;)?/$1?"&$1":'&#38;'/ego;
-			$j=~s/"/&#34;/go;
-			$j=~s/'/&#39;/go;
-			$j=~s/</&#60;/go;
-			$j=~s/>/&#62;/go;
-			$j=~s/\n/<BR>/go;
-			$j=~s/(<BR>)+$//o;
-		}#本文は後でまとめて
-		$DT{$i}=$j;
-	}
-	
-	#引数の汚染除去
-	$IN{'ra'}=($ENV{'REMOTE_ADDR'}&&$ENV{'REMOTE_ADDR'}=~/([\d\:\.]{2,56})/o)?"$1":'';
-	$IN{'hua'}=($ENV{'HTTP_USER_AGENT'}&&$ENV{'HTTP_USER_AGENT'}=~/($eucchar+)/o)?"$1":'';
-	$IN{'hua'}=~tr/\x09\x0A\x0D/\x20\x20\x20/;
-	
-	#コマンド系
-	if($DT{'body'}){
-		if($CF{'admipass'}&&$DT{'body'}=~/^#$CF{'admipass'}\s+(.*)/o){
-			$IN{'mode'}='admicmd';
-			$IN{'cmd'}=$1;
-		}elsif($DT{'body'}=~/^\$(\w.*)/o){
-			$IN{'mode'}='usercmd';
-			$IN{'cmd'}=$1;
-		}
-		$IN{'mode'}&& return;
-	}
-	
-	if(!%DT||($DT{'mode'}&& 'frame'eq$DT{'mode'})){
-		#フレーム
-		$IN{'mode'}='frame';
-	}elsif(defined$DT{'icct'}){
-		#アイコンカタログ
-		$IN{'page'}=($DT{'page'}&&$DT{'page'}=~/([1-9]\d*)/o)?$1:1;
-		$IN{'mode'}='icct';
-	}elsif($DT{'name'}){
-		&getCookie;
-		#http URL の正規表現
-		my$http_URL_regex =
-	 q{\b(?:https?|shttp)://(?:(?:[-_.!~*'()a-zA-Z0-9;:&=+$,]|%[0-9A-Fa-f}.
-	 q{][0-9A-Fa-f])*@)?(?:(?:[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?\.)}.
-	 q{*[a-zA-Z](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?\.?|[0-9]+\.[0-9]+\.[0-9]+\.}.
-	 q{[0-9]+)(?::[0-9]*)?(?:/(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f]}.
-	 q{[0-9A-Fa-f])*(?:;(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-}.
-	 q{Fa-f])*)*(?:/(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f}.
-	 q{])*(?:;(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*)*)}.
-	 q{*)?(?:\?(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])}.
-	 q{*)?(?:#(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*}.
-	 q{)?};
-		#ftp URL の正規表現
-		my$ftp_URL_regex =
-	 q{\bftp://(?:(?:[-_.!~*'()a-zA-Z0-9;&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*}.
-	 q{(?::(?:[-_.!~*'()a-zA-Z0-9;&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*)?@)?(?}.
-	 q{:(?:[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?\.)*[a-zA-Z](?:[-a-zA-}.
-	 q{Z0-9]*[a-zA-Z0-9])?\.?|[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(?::[0-9]*)?}.
-	 q{(?:/(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*(?:/(?}.
-	 q{:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*)*(?:;type=[}.
-	 q{AIDaid])?)?(?:\?(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9}.
-	 q{A-Fa-f])*)?(?:#(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9A}.
-	 q{-Fa-f])*)?};
-		#メールアドレスの正規表現改
-		#"aaa@localhost"などはWWW上で「メールアドレス」として使うとは思えないので
-		my$mail_regex=
-	 q{(?:[^(\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
-	 .q{\[\]\000-\037\x80-\xff])|"[^\\\\\x80-\xff\n\015"]*(?:\\\\[^\x80-\xff][}
-	 .q{^\\\\\x80-\xff\n\015"]*)*")(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\000-\037\x}
-	 .q{80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff])|"[^\\\\\x80-}
-	 .q{\xff\n\015"]*(?:\\\\[^\x80-\xff][^\\\\\x80-\xff\n\015"]*)*"))*@(?:[^(}
-	 .q{\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\0}
-	 .q{00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[^\x80-\xff])*}
-	 .q{\])(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,}
-	 .q{;:".\\\\\[\]\000-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[}
-	 .q{^\x80-\xff])*\]))+};
-		
-		if(defined$DT{'body'}){
-			$IN{'body'}=$DT{'body'}||'';
-			$IN{'cook'}=$DT{'cook'}?'on':'0';
-		}
-		if(defined$DT{'del'}){
-			$IN{'del'}=$1 if$DT{'del'}=~/([1-9]\d*)/o;
-		}
-		$IN{'name'}=($DT{'name'}=~/(.{1,100})/o)?$1:'';
-		$IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($CK{'id'}||$IN{'name'});
-		$IN{'color'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
-		$IN{'bcolo'}=($DT{'bcolo'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
-		$DT{'email'}=($DT{'email'}=~/(.{1,200})/o)?$1:'';
-		$IN{'email'}=($DT{'email'}=~/($mail_regex)/o)?$1:'';
-		$DT{'home'}=($DT{'home'}=~/(.{1,200})/o)?$1:'';
-		$IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?$1:'';
-		$IN{'icon'}=($DT{'icon'}=~/([\w\:\.\~\-\%\/\#]+)/o)?$1:'';
-		$IN{'surface'}=$1 if$DT{'surface'}=~/([\w\.\~\-\%\/]+)/o;
-		$IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
-		$IN{'line'}=($DT{'line'}=~/([1-9]\d*)/o)?$1:$CF{'defline'};
-		$IN{'reload'}=($DT{'reload'}=~/([1-9]\d+|0)/o)?$1:$CF{'defreload'};
-		$IN{'mode'}='south';
-	}elsif((defined$DT{'north'})||('north'eq$DT{'mode'})){
-		#北
-		$IN{'mode'}='north';
-		$IN{'line'}=$CF{'defline'};
-		$IN{'reload'}=$CF{'defreload'};
-	}elsif(defined$DT{'south'}){
-		#南
-		$IN{'mode'}='south';
-		$IN{'line'}=$CF{'romline'};
-		$IN{'reload'}=$CF{'romreload'};
-	}
-	
-	return%IN;
+	my$input=Input->getInstance;
+	%IN=%{$input->filtering};
 }
 
 
@@ -1103,6 +980,9 @@ Pragma: no-cache
 Cache-Control: no-cache
 _HTML_
 	#GZIP Switch
+	my$status='';
+	$status.=join ''
+	,map{qq(<META http-equiv="Set-Cookie" content="$_">\n)}split("\n",$CF{'-setCookie'})if$CF{'-setCookie'};
 	if($CF{'gzip'}&&$ENV{'HTTP_ACCEPT_ENCODING'}&&(index($ENV{'HTTP_ACCEPT_ENCODING'},'gzip')>-1)){
 		print"Content-encoding: gzip\n\n";
 		if(!open(STDOUT,"|$CF{'gzip'} -cfq9")){
@@ -1122,12 +1002,12 @@ _HTML_
 		}
 		#GZIP圧縮転送をかけられるときはかける
 		$ENV{'HTTP_USER_AGENT'}&&(index($ENV{'HTTP_USER_AGENT'},'MSIE')>-1)&&(print ' 'x 2048); #IEのバグ対策
-		print"<!-- gzip enable -->";
+		$status='<!-- gzip enable -->';
 	}else{
-		print"\n<!-- gzip disable -->";
+		print"\n";
+		$status='<!-- gzip disable -->';
 	}
 	print<<"_HTML_";
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <!--DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"-->
 <HTML lang="ja-JP">
@@ -1135,12 +1015,14 @@ _HTML_
 <META http-equiv="Content-type" content="text/html; charset=euc-jp">
 <META http-equiv="Content-Script-Type" content="text/javascript">
 <META http-equiv="Content-Style-Type" content="text/css">
+<META http-equiv="MSThemeCompatible" content="yes">
 @{[$_[0]||'']}
-<LINK rel="stylesheet" type="text/css" href="$CF{'style'}" media="screen,print" title="DefaultStyle">
+<LINK rel="stylesheet" type="text/css" href="$CF{'style'}">
 <LINK rel="start" href="$CF{'sitehome'}">
 <LINK rel="index" href="$CF{'index'}">
 <LINK rel="help" href="\$CF{'help'}">
 <TITLE>$CF{'title'}</TITLE>
+$status
 </HEAD>
 <BODY>
 _HTML_
@@ -1186,10 +1068,16 @@ sub getCookie{
 #
 sub setCookie{
 	my$cook=join('',map{"$_=\t$IN{$_};\t"}qw(id name color bcolo line reload icon email home opt));
-	#0-9A-Za-z\-\.\_
 	$cook=~s{(\W)}{'%'.unpack('H2',$1)}ego;
-	my$gmt=&datef(($^T+20000000),'cookie');
-	print"Set-Cookie: Marldia=$cook; expires=$gmt\n";
+	my$expires=$^T+33554432; #33554432=2<<24; #33554432という数字に特に意味はない、ちなみに一年と少し
+	$CF{'-setCookie'}="Marldia=$cook; expires=".&datef($expires,'cookie');
+	$CF{'set_cookie_by_meta_tags'}=1if index($ENV{'SERVER_NAME'},'tok2.com')>-1&&!defined$CF{'set_cookie_by_meta_tags'};
+	if($CF{'set_cookie_by_meta_tags'}){
+		#tok2対策
+	}else{
+		print map{qq(Set-Cookie: $_\n)}split("\n",$CF{'-setCookie'});
+		undef($CF{'-setCookie'});
+	}
 }
 
 #-------------------------------------------------
@@ -1217,6 +1105,7 @@ $ time形式の時刻
 ;
 $ 出力形式(cookie|last|dateTime)
 =cut
+	defined$_[0]||return undef;
 	my$time=shift;
 	my$type=shift;
 	unless($type){
@@ -1269,13 +1158,16 @@ $ $ENV{'TZ'}
 # アイコンリスト
 #
 sub iptico{
+
 =item 引数
+
 $ デフォルト指定にしたいアイコンファイル名を入れた書き換え可能な変数
 ;
 $ SELECTタグに追加したい属性
 $ 拡張コマンド
 
 =item 複数アイコンリスト
+
 $CF{'iconList'}の最初の一文字が' '（半角空白）だった場合複数リストモードになります
 具体的な例を出すと、
 ・単一とみなされる例
@@ -1286,13 +1178,14 @@ $CF{'iconList'}の最初の一文字が' '（半角空白）だった場合複数リストモードになりま
 ' "icon.txt" "exicon.txt"'
 ' "icon.txt" exicon.txt'
 ' icon.txt exicon.txt'
+
 =cut
 
-	if($CK{'CacheIconList'}&&('reset'ne$_[2])){
-		#キャッシュである$CK{'CacheIconList'}を返す
-		return$CK{'CacheIconList'};
-	}
 	my$opt=$_[1]?" $_[1]":'';
+	if($CF{'-CacheIconList'}&&('reset'ne$_[2])){
+		#キャッシュである$CF{'-CacheIconList'}を返す
+		return$CF{'-CacheIconList'};
+	}
 	
 	#アイコンリスト読み込み
 	my$iconlist='';
@@ -1316,26 +1209,33 @@ $CF{'iconList'}の最初の一文字が' '（半角空白）だった場合複数リストモードになりま
 		read(RD,$iconlist,-s$CF{'iconList'});
 		close(RD);
 	}
-
+	
 	#選択アイコンの決定＋SELECTタグの中身
-	if($CF{'exicon'}&&($CK{'opt'}=~/\bicon=([^;]*)/o)&&$IC{$1}){
+	my$isEconomy=$CK{'opt'}=~/\biconlist=economy(?:\s*;|$)/o;
+	unless(@_){
+	}elsif($CF{'exicon'}&&($CK{'opt'}=~/\bicon=([^;]*)/o)&&$IC{$1}){
 		#パスワード型
 		$_[0]=$IC{$1};
 		$iconlist.=qq(<OPTION value="$_[0]" selected>専用アイコン</OPTION>\n);
-	}elsif($CF{'exicfi'}&&($CK{'opt'}=~/\b$CF{'exicfi'}=([^;]*)/o)){
+	}elsif($CF{'exicfi'}&&($CK{'opt'}=~/\b$CF{'exicfi'}=([^;]*)/o)&&index($1,':')<0&&index($1,'..')<0){
 		#ファイル指定型
 		$_[0]=$1;
-		$iconlist.=qq(<OPTION value="$_[0]" selected>ファイル指定</OPTION>\n);
-	}elsif($_[0]and$iconlist=~s/(value="$_[0]")/$1 selected="selected"/i){
-	}elsif($iconlist=~s/value=(["'])(.+?)\1/value=$1$2$1 selected="selected"/io){
+		if($isEconomy){
+			$iconlist=qq(<OPTION value="$_[0]" selected>ファイル指定</OPTION>\n);
+		}else{
+			$iconlist.=qq(<OPTION value="$_[0]" selected>ファイル指定</OPTION>\n);
+		}
+	}elsif($_[0]and$iconlist=~s/^(.*value=(["'])$_[0]\2)(.*)$/$1 selected$3/imo){
+		$iconlist="$1 selected$3"if$isEconomy;
+	}elsif($iconlist=~s/value=(["'])(.+?)\1/value=$1$2$1 selected/io){
 		$_[0]=$2;
 	}
 	
-	$CK{'CacheIconList'}=<<"_HTML_";
+	$CF{'-CacheIconList'}=<<"_HTML_";
 <SELECT name="icon" id="icon" onchange="iconChange(this.value)"$opt>
 $iconlist</SELECT>
 _HTML_
-	return$CK{'CacheIconList'};
+	return$CF{'-CacheIconList'};
 }
 
 
@@ -1396,6 +1296,184 @@ _HTML_
 
 
 #------------------------------------------------------------------------------#
+# Input Class
+#
+{package Input;
+	my$singleton;
+	#---------------------------------------
+	# Class Methods
+	sub Input::new{#private
+		$singleton&&die 'これはSingletonなのでnewを勝手に呼ばないで！getInstanceを使うこと';
+		my$class=ref($_[0])||$_[0];shift;
+		
+		my$params;
+		my@params;
+		#引数取得
+		unless($ENV{'REQUEST_METHOD'}){@params=@ARGV}
+		elsif('HEAD'eq$ENV{'REQUEST_METHOD'}){return}
+		elsif('POST'eq$ENV{'REQUEST_METHOD'}){read(STDIN,$params,$ENV{'CONTENT_LENGTH'})}
+		elsif('GET'eq$ENV{'REQUEST_METHOD'}){$params=$ENV{'QUERY_STRING'}}
+		# EUC-JP文字
+		my$eucchar=qr((?:[\x09\x0A\x0D\x20-\x7E]|[\x8E\xA1-\xFE][\xA1-\xFE]|\x8F[\xA1-\xFE]{2}))x;
+		
+		#引数をハッシュに
+		if(!$params){
+		}elsif(length$params>262114){ # 262114:引数サイズの上限(byte)
+			#サイズ制限
+			&showHeader;print"いくらなんでも量が多すぎます\n$params";&showFooter;exit;
+		}elsif(length$params>0){
+			#入力を展開
+			@params=split(/[&;]/o,$params);
+		}
+		
+		#入力を展開してハッシュに入れる
+		my%DT;
+		while(@params){
+			my($i,$j)=split('=',shift(@params),2);
+			$i=~/([a-z][-.:\w]*)/o||next;$i=$1;
+			defined$j||($DT{$i}='')||next;
+			study$j;
+			$j=~tr/+/\ /;
+			$j=~s/%([\dA-Fa-f]{2})/pack('H2',$1)/ego;
+			$j=($j=~/($eucchar*)/o)?$1:'';
+			$j=~s/\x0D\x0A/\n/go;$j=~tr/\r/\n/;
+			if('body'ne$i){
+				#本文以外は全面タグ禁止
+				$j=~s/\t/&nbsp;&nbsp;&nbsp;&nbsp;/go;
+				$j=~s/&(#?\w+;)?/$1?"&$1":'&#38;'/ego;
+				$j=~s/"/&#34;/go;
+				$j=~s/'/&#39;/go;
+				$j=~s/</&#60;/go;
+				$j=~s/>/&#62;/go;
+				$j=~s/\n/<BR>/go;
+				$j=~s/(<BR>)+$//o;
+			}#本文は後でまとめて
+			$DT{$i}=$j;
+		}
+		
+		$singleton=bless\%DT,$class;
+	}
+	
+	sub Input::getInstance{$singleton||Input->new}
+	sub Input::filtering{
+		my$self=ref($_[0])?$_[0]:getInstance();shift;
+		my$tmp=Filter->filtering($singleton);
+		$singleton=bless$tmp,ref$self;
+	}
+
+#	sub Logfile::DESTROY{shift->dispose}
+}
+
+
+#------------------------------------------------------------------------------#
+# Filter Class
+#
+{package Filter;
+	# EUC-JP文字
+	my$eucchar=qr((?:[\x09\x0A\x0D\x20-\x7E]|[\x8E\xA1-\xFE][\xA1-\xFE]|\x8F[\xA1-\xFE]{2}))x;
+	#http URL の正規表現
+	my$http_URL_regex =
+ q{\b(?:https?|shttp)://(?:(?:[-_.!~*'()a-zA-Z0-9;:&=+$,]|%[0-9A-Fa-f}.
+ q{][0-9A-Fa-f])*@)?(?:(?:[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?\.)}.
+ q{*[a-zA-Z](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?\.?|[0-9]+\.[0-9]+\.[0-9]+\.}.
+ q{[0-9]+)(?::[0-9]*)?(?:/(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f]}.
+ q{[0-9A-Fa-f])*(?:;(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-}.
+ q{Fa-f])*)*(?:/(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f}.
+ q{])*(?:;(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*)*)}.
+ q{*)?(?:\?(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])}.
+ q{*)?(?:#(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*}.
+ q{)?};
+	#ftp URL の正規表現
+	my$ftp_URL_regex =
+ q{\bftp://(?:(?:[-_.!~*'()a-zA-Z0-9;&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*}.
+ q{(?::(?:[-_.!~*'()a-zA-Z0-9;&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*)?@)?(?}.
+ q{:(?:[a-zA-Z0-9](?:[-a-zA-Z0-9]*[a-zA-Z0-9])?\.)*[a-zA-Z](?:[-a-zA-}.
+ q{Z0-9]*[a-zA-Z0-9])?\.?|[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(?::[0-9]*)?}.
+ q{(?:/(?:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*(?:/(?}.
+ q{:[-_.!~*'()a-zA-Z0-9:@&=+$,]|%[0-9A-Fa-f][0-9A-Fa-f])*)*(?:;type=[}.
+ q{AIDaid])?)?(?:\?(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9}.
+ q{A-Fa-f])*)?(?:#(?:[-_.!~*'()a-zA-Z0-9;/?:@&=+$,]|%[0-9A-Fa-f][0-9A}.
+ q{-Fa-f])*)?};
+	#メールアドレスの正規表現改
+	#"aaa@localhost"などはWWW上で「メールアドレス」として使うとは思えないので
+	my$mail_regex=
+ q{(?:[^(\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
+ .q{\[\]\000-\037\x80-\xff])|"[^\\\\\x80-\xff\n\015"]*(?:\\\\[^\x80-\xff][}
+ .q{^\\\\\x80-\xff\n\015"]*)*")(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\000-\037\x}
+ .q{80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff])|"[^\\\\\x80-}
+ .q{\xff\n\015"]*(?:\\\\[^\x80-\xff][^\\\\\x80-\xff\n\015"]*)*"))*@(?:[^(}
+ .q{\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\\[\]\0}
+ .q{00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[^\x80-\xff])*}
+ .q{\])(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,}
+ .q{;:".\\\\\[\]\000-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[}
+ .q{^\x80-\xff])*\]))+};
+	sub Filter::filtering{
+		shift;
+		my%DT=%{shift()};
+		my%IN;
+		#コマンド系
+		if($DT{'body'}){
+			if($::CF{'admipass'}&&$DT{'body'}=~/^#$::CF{'admipass'}\s+(.*)/o){
+				$IN{'mode'}='admicmd';
+				$IN{'cmd'}=$1;
+			}elsif($DT{'body'}=~/^\$(\w.*)/o){
+				$IN{'mode'}='usercmd';
+				$IN{'cmd'}=$1;
+			}
+			$IN{'mode'}&&return\%IN;
+		}
+		
+		if(!%DT||($DT{'mode'}&&'frame'eq$DT{'mode'})){
+			#フレーム
+			$IN{'mode'}='frame';
+		}elsif(defined$DT{'icct'}){
+			#アイコンカタログ
+			$IN{'page'}=($DT{'page'}&&$DT{'page'}=~/([1-9]\d*)/o)?$1:1;
+			$IN{'mode'}='icct';
+		}elsif($DT{'name'}){
+			&::getCookie;
+			
+			if(defined$DT{'body'}){
+				$IN{'body'}=$DT{'body'}||'';
+				$IN{'cook'}=$DT{'cook'}?'on':'0';
+			}
+			if(defined$DT{'del'}){
+				$IN{'del'}=$1 if$DT{'del'}=~/([1-9]\d*)/o;
+			}
+			$IN{'name'}=($DT{'name'}=~/(.{1,100})/o)?$1:'';
+			$IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($::CK{'id'}||$IN{'name'});
+			$IN{'color'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+			$IN{'bcolo'}=($DT{'bcolo'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+			$DT{'email'}=($DT{'email'}=~/(.{1,200})/o)?$1:'';
+			$IN{'email'}=($DT{'email'}=~/($mail_regex)/o)?$1:'';
+			$DT{'home'}=($DT{'home'}=~/(.{1,200})/o)?$1:'';
+			$IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?$1:'';
+			$IN{'icon'}=($DT{'icon'}=~/([\w\:\.\~\-\%\/\#]+)/o)?$1:'';
+			$IN{'surface'}=$1 if$DT{'surface'}=~/([\w\.\~\-\%\/]+)/o;
+			$IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
+			$IN{'line'}=($DT{'line'}=~/([1-9]\d*)/o)?$1:$::CF{'defline'};
+			$IN{'reload'}=($DT{'reload'}=~/([1-9]\d+|0)/o)?$1:$::CF{'defreload'};
+			$IN{'mode'}='south';
+		}elsif((defined$DT{'north'})||('north'eq$DT{'mode'})){
+			#北
+			$IN{'mode'}='north';
+			$IN{'line'}=$::CF{'defline'};
+			$IN{'reload'}=$::CF{'defreload'};
+		}elsif(defined$DT{'south'}){
+			#南
+			$IN{'mode'}='south';
+			$IN{'line'}=$::CF{'romline'};
+			$IN{'reload'}=$::CF{'romreload'};
+		}
+		$IN{'ra'}=($ENV{'REMOTE_ADDR'}&&$ENV{'REMOTE_ADDR'}=~/([\d\:\.]{2,56})/o)?"$1":'';
+		$IN{'hua'}=($ENV{'HTTP_USER_AGENT'}&&$ENV{'HTTP_USER_AGENT'}=~/($eucchar+)/o)?"$1":'';
+		$IN{'hua'}=~tr/\x09\x0A\x0D/\x20\x20\x20/;
+		return\%IN;
+	}
+}
+
+
+#------------------------------------------------------------------------------#
 # Logfile Class
 #
 {package Logfile;
@@ -1408,43 +1486,42 @@ _HTML_
 	#---------------------------------------
 	# Class Methods
 	sub Logfile::new{#private
-		$fh&& die"これはSingletonなのでnewを勝手に呼ばないで！getInstanceを使うこと";
-		my$proto=shift;my$class=ref($proto)||$proto;
+		$singleton&&die 'これはSingletonなのでnewを勝手に呼ばないで！getInstanceを使うこと';
+		my$class=ref($_[0])||$_[0];shift;
 		local*LOGFILE;
-		if(-e$::CF{'log'}){
+		if(-e$path){
 			open(LOGFILE,'+<'.$path); #+>>とするとseek($fh,0,0)が動いてくれないので注意！
 			$fh=*LOGFILE{IO};
 			eval{flock($fh,2)};
-			seek($fh,0,0);
 			#memberを追加
-			while(<$fh>){/\S/o||last;push(@members,$_);}
+			while(<$fh>){length>1||last;push(@members,$_);}
 			#chatlogを追加
-			while(<$fh>){/\S/o||last;push(@chatlog,$_);}
+			while(<$fh>){length>1||last;push(@chatlog,$_);}
 		}else{
-			open(LOGFILE,'>'.$::CF{'log'});
+			open(LOGFILE,'>'.$path);
 			$fh=*LOGFILE{IO};
 			eval{flock($fh,2)};
 			@members=();
 			@chatlog=();
 		}
 		
-		$singleton=bless [\@chatlog,\@members],$class;
+		$singleton=bless[\@chatlog,\@members],$class;
 	}
 	
-	sub Logfile::getInstance{$singleton||Logfile->new;}
-	sub Logfile::getChatlog	{$singleton||Logfile->new;return @chatlog;}
-	sub Logfile::getMembers	{$singleton||Logfile->new;return @members;}
+	sub Logfile::getInstance{$singleton||Logfile->new}
+	sub Logfile::getChatlog	{$singleton||Logfile->new;return@chatlog}
+	sub Logfile::getMembers	{$singleton||Logfile->new;return@members}
 	
-	sub Logfile::setChatlog	{my$self=shift;@chatlog=@_;}
-	sub Logfile::setMembers	{my$self=shift;@members=@_;}
+	sub Logfile::setChatlog	{@chatlog=(@_[1..$#_])if$#_}
+	sub Logfile::setMembers	{@members=(@_[1..$#_])if$#_}
 	
-	sub Logfile::DESTROY{my$self=shift;$self->dispose;}
+	sub Logfile::DESTROY{shift->dispose}
 	
 	#dispose -- 変更済みデータをファイルに保存
 	sub Logfile::dispose{
 		(@members&&@chatlog)||return;
 		my$self=shift;
-		truncate($path,0);
+		truncate($path,0);#$fhじゃダメ
 		seek($fh,0,0);
 		print $fh join("\n",@members,'',@chatlog,'');
 		close($fh);
@@ -1463,21 +1540,21 @@ _HTML_
 	#---------------------------------------
 	# Class Methods
 	sub Chatlog::new{#private
-		my$proto=shift;
-		my$class=ref($proto)||$proto;
+		$singleton&&die 'これはSingletonなのでnewを勝手に呼ばないで！getInstanceを使うこと';
+		my$class=ref($_[0])||$_[0];shift;
 		$logfile=Logfile->getInstance;
-		my$chatlog=[
+		my$self=[
 			map{{/([^\t]+)=\t([^\t]*);\t/go}}
 			grep{m/^Mar1=\t[^\t]*;\t(?:[^\t]*=\t[^\t]*;\t)*$/o}$logfile->getChatlog
 		];
 		
-		$singleton=bless $chatlog,$class;
+		$singleton=bless$self,$class;
 	}
 	sub Chatlog::getInstance{$singleton||Chatlog->new;}
 	
 	#ログを追加
 	sub Chatlog::add{
-		my$proto=shift;my$self=ref($proto)?$proto:getInstance();
+		my$self=ref($_[0])?$_[0]:getInstance();shift;
 		my%DT=%{shift()};
 		%DT=map{$_=>$DT{$_}}qw(Mar1 id name color bcolo body icon home email exp hua ra time);
 		splice(@{$self},$::CF{'max'}-1);
@@ -1486,7 +1563,7 @@ _HTML_
 	
 	#ログを削除
 	sub Chatlog::delete{
-		my$proto=shift;my$self=ref($proto)?$proto:getInstance();
+		my$self=ref($_[0])?$_[0]:getInstance();shift;
 		my%DT=%{shift()};
 		for(@{$self}){
 			$_->{'id'} eq$DT{'id'} ||next;
@@ -1497,7 +1574,7 @@ _HTML_
 	}
 	sub Chatlog::dispose{
 		$logfile||return;
-		my$proto=shift;my$self=ref($proto)?$proto:getInstance();
+		my$self=ref($_[0])?$_[0]:getInstance();shift;
 		$logfile->setChatlog(
 			map{
 				my%DT=%{$_};
@@ -1524,21 +1601,21 @@ _HTML_
 	#---------------------------------------
 	# Class Methods
 	sub Members::new{#private
-		my$proto=shift;
-		my$class=ref($proto)||$proto;
+		$singleton&&die 'これはSingletonなのでnewを勝手に呼ばないで！getInstanceを使うこと';
+		my$class=ref($_[0])||$_[0];shift;
 		$logfile=Logfile->getInstance;
-		my$members={
+		my$self={
 			map{$_->[0]=>{$_->[1]=~/([^\t]+)=\t([^\t]*);\t/go}}
 			map{m/^id=\t([^\t]+);\t((?:[^\t]+=\t[^\t]*;\t)+)/o;[$1,$2]}
 			grep{m/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}$logfile->getMembers
 		};
-		$singleton=bless $members,$class;
+		$singleton=bless$self,$class;
 	}
 	sub Members::getInstance{$singleton||Members->new;}
 	
 	sub Members::dispose{
 		$logfile||return;
-		my$proto=shift;my$self=ref($proto)?$proto:getInstance();
+		my$self=ref($_[0])?$_[0]:getInstance();shift;
 		$logfile->setMembers(
 			map{
 				my%DT=%{$self->{$_}};
@@ -1551,7 +1628,7 @@ _HTML_
 	
 	#参加者を取得
 	sub Members::getSingersInfo{
-		my$proto=shift;my$self=ref($proto)?$proto:getInstance();
+		my$self=ref($_[0])?$_[0]:getInstance();shift;
 		my@singers;
 		for(keys%{$self}){
 			my$i=$self->{$_};
@@ -1566,7 +1643,7 @@ _HTML_
 	
 	#引数の人を追加
 	sub Members::add{
-		my$proto=shift;my$self=ref($proto)?$proto:getInstance();
+		my$self=ref($_[0])?$_[0]:getInstance();shift;
 		my%DT=%{shift()};
 		if($DT{'name'}){
 			delete$singleton->{"$DT{'ra'}"};
@@ -1601,8 +1678,8 @@ _HTML_
 			while(<MEMBER>){/\S/o?push(@tmp,$_):last}
 			close(MEMBER);
 			
-			%members=map{$_->[0]=>{($_->[1]=~/([^\t]+)=\t([^\t]*);\t/go)}}
-			map{[m/^id=\t([^\t]+);\t((?:[^\t]+=\t[^\t]*;\t)+)/o]}
+			%members=map{$_->[1]=>{($_->[0]=~/([^\t]+)=\t([^\t]*);\t/go)}}
+			map{[m/^(id=\t([^\t]+);\t(?:[^\t]+=\t[^\t]*;\t)+)/o]}
 			grep{m/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}@tmp;
 		
 		}
@@ -1624,12 +1701,11 @@ _HTML_
 	#---------------------------------------
 	# Class Methods
 	sub Rank::new{#private
-		$fh&& die"これはSingletonなのでnewを勝手に呼ばないで！getInstanceを使うこと";
-		my$proto=shift;
-		my$class=ref($proto)||$proto;
+		$singleton&&die 'これはSingletonなのでnewを勝手に呼ばないで！getInstanceを使うこと';
+		my$class=ref($_[0])||$_[0];shift;
 		my%rank=();
 		local*RANK;
-		if(-e$::CF{'rank'}){
+		if(-e$path){
 			open(RANK,'+<'.$path)||die"Can't open Ranking($path)[$?:$!]";
 			$fh=*RANK{IO};
 			eval{flock($fh,2)};
@@ -1638,7 +1714,7 @@ _HTML_
 			map{[m/^id=\t([^\t]+);\t((?:[^\t]+=\t[^\t]*;\t)+)/o]}
 			grep{m/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}<$fh>;
 		}else{
-			open(RANK,'>'.$::CF{'rank'});
+			open(RANK,'>'.$path);
 			$fh=*RANK{IO};
 			eval{flock($fh,2)};
 		}
@@ -1647,8 +1723,8 @@ _HTML_
 	sub Rank::getInstance{$singleton||Rank->new;}
 	
 	sub Rank::dispose{
-		my$proto=shift;my$self=ref($proto)?$proto:getInstance();
-		truncate($path,0);
+		my$self=ref($_[0])?$_[0]:getInstance();shift;
+		truncate($path,0);#$fhじゃダメ
 		seek($fh,0,0);
 		print $fh (
 			join"\n",map{
@@ -1663,7 +1739,7 @@ _HTML_
 	
 	#経験値を+1
 	sub Rank::plusExp{
-		my$proto=shift;my$self=ref($proto)?$proto:getInstance();
+		my$self=ref($_[0])?$_[0]:getInstance();shift;
 		my%DT=%{shift()};
 		
 		if(!$singleton->{"$DT{'id'}"}||!$singleton->{"$DT{'id'}"}->{'exp'}){
@@ -1672,6 +1748,7 @@ _HTML_
 			$singleton->{"$DT{'id'}"}{'exp'}++;
 			$singleton->{"$DT{'id'}"}{'name'}=$DT{'name'};
 		}
+		$singleton->{"$DT{'id'}"}{'lastContact'}=$^T;
 		$singleton->{"$DT{'id'}"}{'firstContact'}||=$^T;
 		$singleton->{"$DT{'id'}"}{'hua'}=$DT{'hua'};
 		$singleton->{"$DT{'id'}"}{'ra'}=$DT{'ra'};
@@ -1686,10 +1763,9 @@ _HTML_
 		}else{
 			open(RANK,'<'.$::CF{'rank'});
 			eval{flock(RANK,1)};
-			<RANK>;#test.
 			seek(RANK,0,0);
-			%rank=map{$_->[0]=>{($_->[1]=~/([^\t]+)=\t([^\t]*);\t/go)}}
-			map{[m/^id=\t([^\t]+);\t((?:[^\t]+=\t[^\t]*;\t)+)/o]}
+			%rank=map{$_->[1]=>{($_->[0]=~/([^\t]+)=\t([^\t]*);\t/go)}}
+			map{[m/^(id=\t([^\t]+);\t(?:[^\t]+=\t[^\t]*;\t)+)/o]}
 			grep{m/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}<RANK>;
 			close(RANK);
 		}
@@ -1709,7 +1785,7 @@ BEGIN{
 	unless(%CF){
 		$CF{'program'}=__FILE__;
 		$SIG{'__DIE__'}=$ENV{'REQUEST_METHOD'}?sub{
-			if($_[0]=~/^(?=.*?flock)(?=.*?unimplemented)/){return}
+			$_[0]=~/^(?=.*?flock)(?=.*?unimplemented)/&&return;
 			print"Status: 200 OK\nContent-Language: ja-JP\nContent-type: text/plain; charset=euc-jp"
 			."\n\n<PRE>\t:: Marldia ::\n   * Error Screen 1.4 (o__)o// *\n\n";
 			print"ERROR: $_[0]\n"if@_;
@@ -1724,13 +1800,13 @@ BEGIN{
 			."\n+#      Airemix  Marldia     #+\n+#  http://www.airemix.com/  #+";
 			exit;
 		}:sub{
-			if($_[0]=~/^(?=.*?flock)(?=.*?unimplemented)/){return}
+			$_[0]=~/^(?=.*?flock)(?=.*?unimplemented)/&&return;
 			print@_?"ERROR: $_[0]":'ERROR';
 			exit;
 		};
 	}
 	#Revision Number
-	$CF{'correv'}=qq$Revision: 1.13 $;
+	$CF{'correv'}=qq$Revision: 1.14 $;
 	$CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;

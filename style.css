@@ -1,41 +1,30 @@
-@charset "EUC-JP";
+@charset"EUC-JP";
 /* Marldia Style Sheet */
-/* "This file is written in euc-jp, CRLF." ãÛ */
-/* $Id: style.css,v 1.13 2002-12-17 06:10:06 naruse Exp $ */
+/* "This file is written in euc-jp, CRLF." ∂ı */
+/* $Id: style.css,v 1.14 2003-03-29 19:13:52 naruse Exp $ */
 
-/* ===================== ëSëÃÇÃïWèÄÉXÉ^ÉCÉã ===================== */
-/* í èÌÇÃÉäÉìÉNï∂éö */
-A:link			{color:#44f;text-decoration:none;}
-A:visited	{color:#44f;text-decoration:none;}
-A:link:hover	{color:#fa8;text-decoration:underline;}
-A:active	{color:#f00;text-decoration:underline;}
-/* ñ{ï∂é©ìÆÉäÉìÉNã@î\ÇÃÉäÉìÉNï∂éö */
-A.autolink:link		{border-bottom: dashed 1px #88f;color:#44f;text-decoration:none;}
-A.autolink:visited	{border-bottom: dashed 1px #b9f;color:#97d;text-decoration:none;}
-A.autolink:link:hover	{border-bottom: dashed 1px #fa8;color:#fa8;text-decoration:none;}
-A.autolink:active	{border-bottom: dashed 1px #f00;color:#f00;text-decoration:none;}
-
-
-body{
-	background-attachment: scroll;
+/* ==================== Õ◊¡«§Œ…∏Ω‡•π•ø•§•Î ==================== */
+/* ========== Structure Module ==========*/
+HTML{
+	overflow-y: scroll;/*WinIE6§Œ…∏Ω‡•‚°º•…¬–∫ˆ*/
+}
+BODY{
+/*	background-attachment: scroll;*/
 	background-color: #fff;
 	background-image: url('/HP_img/bakimg.png');
 /*	background-position: left;
 	background-repeat: repeat; */
+	border-style: none;
 	color: #333;
-	font-family: 'MS UI Gothic',osaka,sans-serif;
+	font-family: 'MS UI Gothic',sans-serif;
 	font-size: 13px;
-	letter-spacing: 0.1em;
-	margin: 0;
+	line-height: 1.2em;
+	margin: 0 3px;
+	padding: 0;
 	text-align: center;
-	width: 99%;
 }
 
-BUTTON{}
-FORM{
-	margin: 0;
-}
-
+/* ========== Text Module Heading ==========*/
 H1{
 	background-color: transparent;
 	color: #333;
@@ -64,21 +53,40 @@ H5{
 	margin: 1px auto;
 }
 
-IMG{
-	border-color: #ccd;
-	border-style: double;
-	border-width: 3px;
-	vertical-align: middle;
-}
+/* ========== Hypertext Module ==========*/
+A:link
+{border-bottom:#36f solid 1px;color:#000;text-decoration:none}
+A:visited
+{border-bottom:#c6f solid 1px;color:#000;text-decoration:none}
+A:link:hover,A:visited:hover
+{border-bottom:#f66 solid 1px;color:#f99;position:relative;top:0.2em;text-decoration:none}
+A:active
+{border-bottom:#f60 solid 1px;color:#f00;text-decoration:none}
 
-INPUT,SELECT{
+/* ========== Forms Module ========== */
+BUTTON,INPUT{
+	font-family: 'MS UI Gothic',sans-serif;
+	font-size: 13px;
+	font-weight: normal;
+}
+FORM{margin:0}
+SELECT{
 	background-color: #eee;
+	font-style: normal;
+}
+OPTGROUP{
+	background-color: #eee;
+	color: #555;
+	font-size: 90%;
+	font-style: normal;
+	font-weight: normal;
+}
+OPTION{
+	background-color: #eee;
+	color: #000;
 }
 
-OPTGROUP,OPTION{
-	border:none;
-}
-
+/* ========== Table Module ========== */
 TABLE{
 	border-color: #000;
 	border-style: none;
@@ -103,15 +111,48 @@ TH{
 	padding: 0;
 }
 
+/* ========== Image ========== */
+IMG{
+	border-color: #ccd;
+	border-style: double;
+	border-width: 3px;
+	vertical-align: middle;
+}
 
-/* ===================== ëSëÃÇ…ã§í ÇÃÉNÉâÉX ===================== */
+
+/* ==================== »∆Õ—•Ø•È•π•π•ø•§•Î ==================== */
+/* ========== •¢•Ø•ª•π•≠°º ========== */
+.ak{
+	text-decoration: underline;
+}
+
+/* ========== º´∆∞•Í•Û•Ø ========== */
+A.autolink:link{
+	border-bottom: dashed 1px #88f;
+	color: #44f;
+	text-decoration: none;
+}
+A.autolink:visited{
+	border-bottom: dashed 1px #b9f;
+	color: #97d;
+	text-decoration: none;
+}
+A.autolink:link:hover,A.autolink:visited:hover{
+	border-bottom: dashed 1px #fa8;
+	color: #fa8;
+	text-decoration: none;
+}
+A.autolink:active{
+	border-bottom: dashed 1px #f00;
+	color: #f00;
+	text-decoration: none;
+}
+
+/* ========== Forms ========== */
 /* Checkbox */
 INPUT.check{
-	background-color: transparent;
-	border-style: none;
-	cursor: hand;
 }
-/* OK/SubmitÉ{É^Éì */
+/* OK/Submit•‹•ø•Û */
 INPUT.submit{
 	background-color: #55A;
 	border-color: #fd0;
@@ -122,7 +163,7 @@ INPUT.submit{
 	letter-spacing: 0.15em;
 	width: 7em;
 }
-/* Cancel/ResetÉ{É^Éì */
+/* Cancel/Reset•‹•ø•Û */
 INPUT.reset{
 	background-color: #A55;
 	border-color: #fd0;
@@ -133,13 +174,24 @@ INPUT.reset{
 	letter-spacing: 0.15em;
 	width: 7em;
 }
-/* ÉeÉLÉXÉgÉtÉHÅ[ÉÄ */
+/* •∆•≠•π•»•’•©°º•‡ */
 INPUT.text,TEXTAREA{
+	background-color: #eee;
 	border: #ccc solid 1px;
 	color: #355;
 	font-size: 13px;
 	padding: 2px;
 	margin: 0;
+}
+
+
+/* ==================== Form ID ==================== */
+#surfaceButton{
+	background-color: #eee;
+	border: none;
+	height: 55px;
+	margin: 0;
+	padding: 0;
 }
 #icon{
 	width:150px;
@@ -148,16 +200,12 @@ INPUT.text,TEXTAREA{
 	width:125px
 }
 
-/* ÉAÉNÉZÉXÉLÅ[ */
-SPAN.ak{
-	text-decoration: underline;
-}
 
-/* ===================== éQâ¡é“àÍóóÇ»Ç« ===================== */
+/* ===================== ª≤≤√º‘∞ÏÕ˜§ §… ===================== */
 TABLE.meminfo{
-	margin-left: 5px;
+	margin:0;
 	text-align: left;
-	width: 99%;
+	width: 100%;
 }
 .meminfo.reload{
 	width: 5em;
@@ -169,11 +217,11 @@ TABLE.meminfo{
 	width: 6em;
 }
 
-/* Article */
+
+/* ==================== µ≠ªˆ§Œ•π•ø•§•Î ==================== */
 TABLE.article{
 	margin: 1px auto 1px 3px;
 	text-align: left;
-	width: 99%;
 }
 TABLE.article TH,TABLE.article TD{
 	text-align: left;
@@ -188,6 +236,14 @@ TABLE.article TH,TABLE.article TD{
 	vertical-align: middle;
 	white-space: nowrap;
 }
+.artname A:link
+{border-bottom:#36f dashed 1px;color:#000;text-decoration:none}
+.artname A:visited
+{border-bottom:#c6f dashed 1px;color:#000;text-decoration:none}
+.artname A:link:hover,.artname A:visited:hover
+{border-bottom:#f66 dashed 1px;color:#f99;position:relative;top:0.2em;text-decoration:none}
+.artname A:active
+{border-bottom:#f60 dashed 1px;color:#f00;text-decoration:none}
 .artbody{
 	vertical-align: middle;
 	width:100%;
@@ -198,15 +254,20 @@ TABLE.article TH,TABLE.article TD{
 	height: 11px;
 }
 .artdel,.artdel A{
+	border: none;
 	color: #f00;
 	font-size: 10px;
 	height: 11px;
 	text-align: center;
+	text-decoration: none;
+}
+.artdel A:hover{
+	text-decoration: underline;
 }
 .artlev{}
 .artdate{}
 
-/* îƒópÉeÅ[ÉuÉã */
+/* ========== »∆Õ—•∆°º•÷•Î ========== */
 TABLE.table{
 	border: solid 1px #333;
 }
@@ -227,9 +288,45 @@ TABLE.table TD{
 	padding: 2px;
 }
 
-/* íòçÏå†ï\é¶ */
+/* ========== √¯∫Ó∏¢…Ωº® ========== */
 .AiremixCopy{
 	font: normal 100% sans-serif;
+	line-height: 2.0em;
 	margin: 0.5em;
 	text-align: right;
+}
+
+
+/* ===================== •¢•§•≥•Û•Í•π•» ===================== */
+/* •¢•§•≥•Û•∞•Î°º•◊§Œ•∆°º•÷•Î */
+TABLE.icon{
+	border: #6ac solid 2px;
+	font-size: 14px;
+	padding: 3px;
+	text-align: center;
+}
+/* •¢•§•≥•Û•∞•Î°º•◊§ŒÃæ¡∞ */
+TABLE.icon CAPTION{
+	background-color: #6ac;
+	color: #fff;
+	font-size: 18px;
+	font-weight: bold;
+	margin: 0 auto;
+	padding: 0.2em;
+	text-align: left;
+	white-space: nowrap;
+	margin-top:0;margin-bottom:0;
+}
+TABLE.icon TD{
+	text-align: center;
+}
+/* •¢•§•≥•Û•∞•Î°º•◊§Œ•’•√•ø */
+TABLE.icon TH.foot{
+	background-color: #cdf;
+	color: #05a;
+	font-size: 15px;
+	font-weight: bold;
+	padding: 0.2em;
+	text-align: right;
+	white-space: nowrap;
 }
