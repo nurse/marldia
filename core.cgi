@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.23 $
+# $Revision: 1.24 $
 # "This file is written in euc-jp, CRLF." ¶õ
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.23 2004-12-04 21:11:27 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.24 2004-12-05 18:35:01 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -263,7 +263,6 @@ _HTML_
 <DIV style="margin:0.3em 0;text-align:center" title="reloadQ&#10;¾å¥Õ¥ì¡¼¥à¤ò¥ê¥í¡¼¥É¤·¤Þ¤¹"
 >[<A href="$CF{'index'}?north" accesskey="q" tabindex="52">ºÆÆÉ¹þ(<SPAN class="ak">Q</SPAN>)</A>]
 <INPUT name="south" type="hidden" value="">
-<INPUT name="previousBody" type="hidden" value="">
 </DIV>
 </TD>
 <TH><LABEL accesskey="n" for="name" title="Name&#10;»²²Ã¼ÔÌ¾¡¢È¯¸À¼ÔÌ¾¤Ê¤É¤Ç»È¤¦Ì¾Á°¤Ç¤¹"
@@ -301,10 +300,11 @@ title="reset&#10;ÆâÍÆ¤ò½é´ü²½¤·¤Þ¤¹" value="¥­¥ã¥ó¥»¥ë" tabindex="42"></TD>
 </TR>
 
 <TR>
-<TH><LABEL accesskey="b" for="body" title="Body&#10;È¯¸À¤¹¤ëËÜÊ¸¤ÎÆâÍÆ¤Ç¤¹&#10;\$rank¤ÇÈ¯¸À¥é¥ó¥­¥ó¥°¡¢\$member¤Ç»²²Ã¼Ô°ìÍ÷¤ò¸«¤ì¤Þ¤¹">ÆâÍÆ(<SPAN class="ak">B</SPAN>)</LABEL>:</TH>
-<TD colspan="5"><SPAN id="body_container"><INPUT type="text" class="text" name="body" id="body"
-maxlength="300" size="100" style="ime-mode:active;width:450px" tabindex="1"></SPAN>
-<INPUT type="button" class="button" value="¢­" onclick="switch_input_body"></TD>
+<TH><LABEL accesskey="b" for="body" title="Body&#10;È¯¸À¤¹¤ëËÜÊ¸¤ÎÆâÍÆ¤Ç¤¹&#10;/rank¤ÇÈ¯¸À¥é¥ó¥­¥ó¥°¡¢/member¤Ç»²²Ã¼Ô°ìÍ÷¤ò¸«¤ì¤Þ¤¹">ÆâÍÆ(<SPAN class="ak">B</SPAN>)</LABEL>:</TH>
+<TD colspan="5" id="bodyContainer"><INPUT type="text" class="text" name="body" id="body"
+maxlength="300" size="100" style="ime-mode:active;width:400px" tabindex="1">
+<INPUT type="button" id="bodySwitch" class="button" value="¢­" tabindex="2"
+onclick="switchBodyFormType(event);return false;"></TD>
 <TD style="text-align:center"><INPUT type="checkbox" name="quit" id="quit" class="check" tabindex="51"
 ><LABEL accesskey="Q" for="quit" title="Quit&#10;¥Á¥§¥Ã¥¯¤òÆþ¤ì¤ë¤È»²²Ã¼Ô¤«¤éÌ¾Á°¤ò¾Ã¤·¤Þ¤¹¡£"
 >Âà¼¼¥â¡¼¥É(<SPAN class="ak">Q</SPAN>)</LABEL></TD>
@@ -329,7 +329,7 @@ title="$CF{'sitename'}¤Øµ¢¤ê¤Þ¤¹&#10;Âà¼¼¥á¥Ã¥»¡¼¥¸¤Ï½Ð¤Ê¤¤¤Î¤Çµ¢¤ê¤Î°§»¢¤òËº¤ì¤
 <TH><LABEL accesskey="p" for="opt" title="oPtion&#10;¥ª¥×¥·¥ç¥ó"
 >O<SPAN class="ak">p</SPAN>tion</LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="opt" id="opt" maxlength="200" style="ime-mode:inactive;width:150px"
-value="$CK{'opt'}" tabindex="102" onchange="changeOption()"></TD>
+value="$CK{'opt'}" tabindex="102" onblur="changeOption()"></TD>
 <TH><LABEL accesskey="o" for="home" title="hOme&#10;¥µ¥¤¥È¤ÎURL¤Ç¤¹"
 >H<SPAN class="ak">o</SPAN>me</LABEL>:</TH>
 <TD colspan="3"><INPUT type="text" class="text" name="home" id="home" maxlength="200" size="40"
@@ -515,6 +515,9 @@ sub modeUsercmd{
 
 ¡þdel <exp>
 È¯¸Àºï½ü
+
+¡þedit <exp> [<key>=<value>]..
+È¯¸ÀÊÔ½¸
 
 =cut
 
@@ -1409,12 +1412,11 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	
 	#¥³¥Þ¥ó¥É·Ï
 	unless($DT{'body'}){
-	}elsif($::CF{'admipass'}&&$DT{'body'}=~/^\s*\/admin\s*(.*)/o){
+	}elsif($::CF{'admipass'}&&$DT{'body'}=~/^\/admin\s*(.*)/o){
 	    $IN{'mode'}='admicmd';
 	    $IN{'opt'}=$1;
 	    $IN{'mode'}&&return\%IN;
-	}elsif($DT{'body'}=~/^ \/\w/o){
-	    $DT{'body'}=~/^ \/(.*)/o;
+	}elsif($DT{'body'}=~/^\/(\w+(?:\s.*)?)$/o){
 	    $IN{'mode'}='usercmd';
 	    $IN{'opt'}=$1;
 	    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($::CK{'id'}||$IN{'name'});
@@ -1779,12 +1781,12 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $singleton->{"$DT{'ra'}"}={id=>$DT{'ra'},(map{$_=>$DT{$_}}qw(reload ra time hua))};
 	}elsif($DT{'name'}){
 	    delete$singleton->{"$DT{'ra'}"};
-	    if($DT{'isActive'}){
+	    if($DT{'isActive'}||!exists$singleton->{$DT{'id'}}){
 		#Ç½Æ°Åª¥ê¥í¡¼¥É
 		$DT{'lastModified'}=$^T;
 	    }else{
 		#ÉáÄÌ¤Ë¥ê¥í¡¼¥É
-		$DT{'lastModified'}=$singleton->{"$DT{'id'}"}->{'lastModified'};
+		$DT{'lastModified'}=$singleton->{$DT{'id'}}->{'lastModified'};
 		if(!$DT{'reload'}||$^T-$DT{'lastModified'}<300){}
 		elsif($DT{'reload'}<280){$DT{'reload'}+=20}
 		else{$DT{'reload'}=300;}
@@ -1955,7 +1957,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     $CF{'program'} = substr($ENV{'SCRIPT_NAME'}, rindex('/'.$ENV{'SCRIPT_NAME'},'/'));
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.23 $;
+    $CF{'correv'}=qq$Revision: 1.24 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;
