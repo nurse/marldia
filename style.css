@@ -1,7 +1,7 @@
 @charset "EUC-JP";
 /* Marldia Style Sheet */
 /* "This file is written in euc-jp, CRLF." 空 */
-/* $Id: style.css,v 1.12 2002-12-13 14:47:03 naruse Exp $ */
+/* $Id: style.css,v 1.13 2002-12-17 06:10:06 naruse Exp $ */
 
 /* ===================== 全体の標準スタイル ===================== */
 /* 通常のリンク文字 */
@@ -31,12 +31,12 @@ body{
 	width: 99%;
 }
 
-button{}
-form{
+BUTTON{}
+FORM{
 	margin: 0;
 }
 
-h1 {
+H1{
 	background-color: transparent;
 	color: #333;
 	font-family: 'Comic Sans MS',osaka,sans-serif;
@@ -44,8 +44,9 @@ h1 {
 	font-weight: bold;
 	line-height: 100%;
 	margin: 0 auto;
+	padding: 0;
 }
-h3 {
+H3{
 	font-family: 'MS UI Gothic',osaka,sans-serif;
 	font-size: 15px;
 	font-weight: bold;
@@ -54,7 +55,7 @@ h3 {
 	margin: 5px auto;
 	width: 25em;
 }
-h5{
+H5{
 	font-family: 'MS UI Gothic',osaka,sans-serif;
 	font-size: 13px;
 	font-weight: normal;
@@ -63,22 +64,22 @@ h5{
 	margin: 1px auto;
 }
 
-img {
+IMG{
 	border-color: #ccd;
 	border-style: double;
 	border-width: 3px;
 	vertical-align: middle;
 }
 
-input,select{
+INPUT,SELECT{
 	background-color: #eee;
 }
 
-optgroup,option{
+OPTGROUP,OPTION{
 	border:none;
 }
 
-table{
+TABLE{
 	border-color: #000;
 	border-style: none;
 	border-width: 1px;
@@ -87,13 +88,13 @@ table{
 	text-align: left;
 	vertical-align: middle;
 }
-td{
+TD{
 	border-color: #000;
 	border-style: none;
 	border-width: 1px;
 	padding: 0;
 }
-th{
+TH{
 	border-color: #000;
 	border-style: none;
 	border-width: 1px;
@@ -105,13 +106,13 @@ th{
 
 /* ===================== 全体に共通のクラス ===================== */
 /* Checkbox */
-input.check{
+INPUT.check{
 	background-color: transparent;
 	border-style: none;
 	cursor: hand;
 }
 /* OK/Submitボタン */
-input.submit{
+INPUT.submit{
 	background-color: #55A;
 	border-color: #fd0;
 	border-width: 1px;
@@ -122,7 +123,7 @@ input.submit{
 	width: 7em;
 }
 /* Cancel/Resetボタン */
-input.reset{
+INPUT.reset{
 	background-color: #A55;
 	border-color: #fd0;
 	border-width: 1px;
@@ -148,12 +149,12 @@ INPUT.text,TEXTAREA{
 }
 
 /* アクセスキー */
-span.ak{
+SPAN.ak{
 	text-decoration: underline;
 }
 
 /* ===================== 参加者一覧など ===================== */
-table.meminfo{
+TABLE.meminfo{
 	margin-left: 5px;
 	text-align: left;
 	width: 99%;
@@ -169,12 +170,12 @@ table.meminfo{
 }
 
 /* Article */
-table.article{
+TABLE.article{
 	margin: 1px auto 1px 3px;
 	text-align: left;
 	width: 99%;
 }
-table.article th,table.article td{
+TABLE.article TH,TABLE.article TD{
 	text-align: left;
 	word-break: break-all; /* MSIE5 */
 }
@@ -183,6 +184,7 @@ table.article th,table.article td{
 	width:55px;
 }
 .artname{
+	font-size: 13px;
 	vertical-align: middle;
 	white-space: nowrap;
 }
@@ -195,7 +197,7 @@ table.article th,table.article td{
 	font-size: 10px;
 	height: 11px;
 }
-.artdel,.artdel a{
+.artdel,.artdel A{
 	color: #f00;
 	font-size: 10px;
 	height: 11px;
@@ -203,6 +205,27 @@ table.article th,table.article td{
 }
 .artlev{}
 .artdate{}
+
+/* 汎用テーブル */
+TABLE.table{
+	border: solid 1px #333;
+}
+TABLE.table CAPTION{
+	background-color:#fee;
+	border: solid 1px #333;
+	font-size: 15px;
+}
+TABLE.table TH{
+	background-color:#ffa;
+	border: solid 1px #333;
+	font-size: 14px;
+	padding: 2px;
+}
+TABLE.table TD{
+	border: solid 1px #333;
+	font-size: 14px;
+	padding: 2px;
+}
 
 /* 著作権表示 */
 .AiremixCopy{

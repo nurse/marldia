@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.12 2002-12-13 14:47:03 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.13 2002-12-17 06:10:06 naruse Exp $;
 #require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK %IC);
@@ -105,54 +105,39 @@ _CONFIG_
 # 実行 or 読み込み？
 
 if($CF{'program'}eq __FILE__){
-  #直接実行だったら動き出す
-  require './core.cgi';
-  &main;
+	#直接実行だったら動き出す
+	require './core.cgi';
+	&main;
 }
 
 #-------------------------------------------------
 # 初期設定
 BEGIN{
-  unless(%CF){
-    $CF{'program'}=__FILE__;
-    $SIG{'__DIE__'}=sub{
-    print<<"_HTML_";
-Content-Language: ja
-Content-type: text/plain; charset=euc-jp
-
-<pre>
-       :: Marldia ::
-   * Error Screen 1.0 (T_T;) *
-
-ERROR: $_[0]
-Index : $CF{'idxrev'}
-Core  : $CF{'correv'}
-
-PerlVer  : $]
-PerlPath : $^X
-BaseTime : $^T
-OS Name  : $^O
-FileName : $0
-
- = = ENV = =
-CONTENT_LENGTH: $ENV{'CONTENT_LENGTH'}
-QUERY_STRING  : $ENV{'QUERY_STRING'}
-REQUEST_METHOD: $ENV{'REQUEST_METHOD'}
-
-SERVER_NAME: $ENV{'SERVER_NAME'}
-HTTP_PATH  : $ENV{'HTTP_HOST'} $ENV{'SCRIPT_NAME'}
-ENV_OS     : $ENV{'OS'}
-SERVER_SOFTWARE      : $ENV{'SERVER_SOFTWARE'}
-PROCESSOR_IDENTIFIER : $ENV{'PROCESSOR_IDENTIFIER'}
-
-+#       Airemix Marldia        #+
-+#  http://www.airemix.com/  #+
-_HTML_
-    exit;
-    };
-  }
-  # Revision Number
-  $CF{'idxrev'}=qq$Revision: 1.12 $;
+	unless(%CF){
+		$CF{'program'}=__FILE__;
+		$SIG{'__DIE__'}=$ENV{'REQUEST_METHOD'}?sub{
+			if($_[0]=~/^(?=.*?flock)(?=.*?unimplemented)/){return}
+			print"Status: 200 OK\nContent-Language: ja-JP\nContent-type: text/plain; charset=euc-jp"
+			."\n\n<PRE>\t:: Marldia ::\n   * Error Screen 1.4 (o__)o// *\n\n";
+			print"ERROR: $_[0]\n"if@_;
+			print join('',map{"$_\t: $CF{$_}\n"}grep{$CF{"$_"}}qw(idxrev correv))
+			."\n".join('',map{"$_\t: $CF{$_}\n"}grep{$CF{"$_"}}qw(log icon icls style));
+			print"\ngetlogin\t: ".getlogin;
+			print"\n".join('',map{"$$_[0]\t: $$_[1]\n"}
+			([PerlVer=>$]],[PerlPath=>$^X],[BaseTime=>$^T],[OSName=>$^O],[FileName=>$0],[__FILE__=>__FILE__]))
+			."\n\t= = = ENV = = =\n".join('',map{sprintf"%-20.20s : %s\n",$_,$ENV{$_}}grep{$ENV{"$_"}}
+			qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD
+			SERVER_NAME HTTP_HOST SCRIPT_NAME OS SERVER_SOFTWARE PROCESSOR_IDENTIFIER))
+			."\n+#      Airemix  Marldia     #+\n+#  http://www.airemix.com/  #+";
+			exit;
+		}:sub{
+			if($_[0]=~/^(?=.*?flock)(?=.*?unimplemented)/){return}
+			print@_?"ERROR: $_[0]":'ERROR';
+			exit;
+		};
+	}
+	# Revision Number
+	$CF{'idxrev'}=qq$Revision: 1.13 $;
 }
 1;
 __END__

@@ -4,25 +4,25 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.12 2002-12-13 14:47:03 naruse Exp $;
-#require 5.005;
-#use strict;
-#use vars qw(%CF %IN %CK %IC);
-$|=1;
-
+# $cvsid = q$Id: core.cgi,v 1.13 2002-12-17 06:10:05 naruse Exp $;
+require 5.005;
+use strict;
+use vars qw(%CF %IN %CK %IC);
+#$|=1;
+#$ENV{'HTTP_ACCEPT_ENCODING'}='';
 #use IO::File;
-#use Data::Dumper;
+use Data::Dumper;
 
 #-------------------------------------------------
 # MAIN SWITCH
 #
 sub main{
-	&getParam;
-	$IN{'name'}&&" $IN{'name'} "=~m/ $CF{'denyname'} /o&&&locate($CF{'sitehome'});
+	&getParams;
+#	$IN{'name'}&&" $IN{'name'} "=~m/ $CF{'denyname'} /o&&&locate($CF{'sitehome'});
 #	(" $ENV{'REMOT_ADDR'} "=~m/ $CF{'denyra'} /o)&&(&locate($CF{'sitehome'}));
 #	(" $ENV{'REMOT_HOST'} "=~m/ $CF{'denyrh'} /o)&&(&locate($CF{'sitehome'}));
 	
@@ -55,8 +55,10 @@ sub main{
 #
 sub modeFrame{
 	print<<"_HTML_";
+Status: 200 OK
 Content-type: text/html; charset=euc-jp
 Content-Language: ja
+Connection: keep-alive
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <HTML lang="ja-JP">
@@ -251,6 +253,8 @@ _HTML_
 </SELECT><BR>
 <DIV style="margin:0.3em 0;text-align:center" title="reloadQ\n上フレームをリロードします"
 >[<A href="$CF{'index'}?north" accesskey="q" tabindex="52">再読込(<SPAN class="ak">Q</SPAN>)</A>]
+<INPUT name="south" type="hidden" value="">
+</DIV>
 </TD>
 <TH><LABEL accesskey="n" for="name" title="Name\n参加者名、発言者名などで使う名前です"
 >名前(<SPAN class="ak">N</SPAN>)</LABEL>:</TH>
@@ -284,7 +288,7 @@ _HTML_
 </TR>
 
 <TR>
-<TH><LABEL accesskey="b" for="body" title="Body\n発言する本文の内容です"
+<TH><LABEL accesskey="b" for="body" title="Body\n発言する本文の内容です\n\$rankで発言ランキング、\$memberで参加者一覧を見れます"
 >内容(<SPAN class="ak">B</SPAN>)</LABEL>:</TH>
 <TD colspan="5"><INPUT type="text" class="text" name="body" id="body" maxlength="300" size="100"
  style="ime-mode:active;width:450px" tabindex="1"></TD>
@@ -359,18 +363,24 @@ sub modeSouth{
 	#-----------------------------
 	#本文の処理
 	#form->data変換
-	if($CF{'tags'}&& 'ALLALL'eq$CF{'tags'}){
+	unless(defined$IN{'body'}&& length$IN{'body'}){
+		$IN{'body'}='';
+	}elsif($CF{'tags'}&& 'ALLALL'eq$CF{'tags'}){
 		#ALLALLは全面OK。但し強調は無効。URI自動リンクも無効。
 		#自前でリンクを張ったり、強調してあるものを、二重にリンク・強調してしまいますから
 	}else{
 		#本文のみタグを使ってもいい設定にもできる
 		my$attrdel=0;#属性を消す/消さない(1/0)
-		my$str=$IN{'body'}||'';
+		my$str=$IN{'body'};
 		study$str;
 		$str=~tr/"'<>/\01-\04/;
 		
 		#タグ処理
 		if($CF{'tags'}&&!$EX{'notag'}){
+			my$tag_regex_='[^\01-\04]*(?:\01[^\01]*\01[^\01-\04]*|\02[^\02]*\02[^\01-\04]*)*(?:\04|(?=\03)|$(?!\n))';
+			my$comment_tag_regex='\03!(?:--[^-]*-(?:[^-]+-)*?-(?:[^\04-]*(?:-[^\04-]+)*?)??)*(?:\04|$(?!\n)|--.*$)';
+			my$text_regex = '[^\03]*';
+			
 			my$tags=$CF{'tags'};
 			my%tagCom=map{m/(!\w+)(?:\(([^()]+)\))?/o;$1," $2 "||''}($tags=~/!\w+(?:\([^()]+\))?/go);
 			if($tagCom{'!SELECTABLE'}){
@@ -379,9 +389,6 @@ sub modeSouth{
 				$tags='\w+';
 			}
 			
-			my$tag_regex_='[^\01-\04]*(?:\01[^\01]*\01[^\01-\04]*|\02[^\02]*\02[^\01-\04]*)*(?:\04|(?=\03)|$(?!\n))';
-			my$comment_tag_regex='\03!(?:--[^-]*-(?:[^-]+-)*?-(?:[^\04-]*(?:-[^\04-]+)*?)??)*(?:\04|$(?!\n)|--.*$)';
-			my$text_regex = '[^\03]*';
 			my$result='';
 			#もし BRタグや Aタグなど特定のタグだけは削除したくない場合には， 
 			#$tag_tmp = $2; の後に，次のようにして $tag_tmp を $result に加えるようにすればできます． 
@@ -477,17 +484,39 @@ sub modeSouth{
 		.q{\])(?:\.(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,}
 		.q{;:".\\\\\[\]\00-\037\x80-\xff])|\[(?:[^\\\\\x80-\xff\n\015\[\]]|\\\\[}
 		.q{^\x80-\xff])*\]))+};
-			#実稼動部、ちょっち適当。。
-			while($str=~m{(?<!["'])($http_URL_regex|$ftp_URL_regex|($mail_regex))(?!["']|[^<>]*</A>)}o){
-				$str=~s{(?<!["'])($http_URL_regex|$ftp_URL_regex|($mail_regex))(?!["'])}
-				{
-					my$content=$1;
-					my$href=$2?'mailto:':'';
-					my$tmp=$content=~s/(&#?\w+;.*)$//o?$1:'';
-					$href.=$content;
-					qq(<A class="autolink" href="$href" target="_blank">$content</A>$tmp);
-				}ego;
+			#実稼動部
+			my$tag_regex_=q{[^"'<>]*(?:"[^"]*"[^"'<>]*|'[^']*'[^"'<>]*)*(?:>|(?=<)|$(?!\n))};
+			my$comment_tag_regex='<!(?:--[^-]*-(?:[^-]+-)*?-(?:[^>-]*(?:-[^>-]+)*?)??)*(?:>|$(?!\n)|--.*$)';
+			my$tag_regex=qq{$comment_tag_regex|<$tag_regex_};
+			my$text_regex=q{[^<]*};
+			my$result='';
+			my$skip=0;
+			my$pos=length$str;
+			while($str=~/($text_regex)($tag_regex)?/gso){
+				''eq$1&&!$2&& last;
+				$pos=pos$str;
+				my$text_tmp=$1;
+				my$tag_tmp=$2;
+				if($skip){
+					$result.=$text_tmp.$tag_tmp;
+					$skip=0 if$tag_tmp=~/^<\/[aA](?!\w)/;
+				}else{
+					$text_tmp=~s{($http_URL_regex|$ftp_URL_regex|($mail_regex))}
+					{
+						my$href=$2?'mailto:':'';
+						my$org=$1;
+						($href.=$org)=~tr/"/\01/;
+						qq{<A class="autolink" href="$href" target="_blank">$org</A>}
+					}ego;
+					$result.=$text_tmp.$tag_tmp;
+					$skip=1 if$tag_tmp=~/^<[aA](?!\w)/;
+					if($tag_tmp=~/^<(XMP|PLAINTEXT|SCRIPT)(?!\w)/i){
+						$str=~/(.*?(?:<\/$1(?!\w)$tag_regex_|$))/gis;
+						$result.=$1;
+					}
+				}
 			}
+			$str=$result.substr($str,$pos);
 		}else{
 			#Command:nolink
 		}
@@ -518,18 +547,12 @@ sub modeSouth{
 	
 	#---------------------------------------
 	#参加者・ランキング・書き込み処理
-	my$log=Chatlog->getInstance;
+	my$chatlog=Chatlog->getInstance;
 	my$members=Members->getInstance;
 	
 	#-----------------------------
 	#自分のデータを追加
 	$IN{'reload'}=$members->add(\%IN);
-	
-	#-----------------------------
-	#参加者処理
-	my@singers=
-	map{qq(<A style="color:$_->{'color'}" title="$_->{'blank'}秒">$_->{'name'}</A>☆)}$members->getSingersInfo;
-	my$intMembers=scalar keys%{$members};
 	
 	#-----------------------------
 	#書き込み
@@ -539,35 +562,31 @@ sub modeSouth{
 		$IN{'exp'}=Rank->plusExp(\%IN);
 		#-----------------------------
 		#発言処理
-		$log->add(\%IN);
+		$chatlog->add(\%IN);
 	}elsif($IN{'del'}){
 		#-----------------------------
 		#発言削除
-		$log->delete({id=>$IN{'id'},exp=>$IN{'del'}});
+		$chatlog->delete({id=>$IN{'id'},exp=>$IN{'del'}});
 	}
-	#ログ書き
-	my@log=@{$log};
-	&viewSouth(\@log,\@singers,$intMembers);
-}
-
-#---------------------------------------
-#表示用データ作り
-sub viewSouth{
-	my@log=@{shift()};
-	my@singers=@{shift()};
-	my$intMembers=shift;
+	
+	
+	
 	#-----------------------------
 	#クエリ
 	my$query='south';
 	if($IN{'id'}){
-		$query=join('&#59;',map{my$val=$IN{$_};$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
-		grep{$IN{$_}}qw(name id line reload color));
+		$query=join(';',map{my$val=$IN{$_};$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
+		grep{defined$IN{$_}}qw(name id line reload color));
 	}
+	
 	#-----------------------------
 	#参加者情報
-	my$strMembers;
+	my@singers=map{qq(<A style="color:$_->{'color'}" title="$_->{'blank'}秒">$_->{'name'}</A>☆)}
+	sort{$a->{'blank'}<=>$b->{'blank'}}$members->getSingersInfo;
+	my$intMembers=scalar keys%{$members};
 	my$intSingers=@singers;
 	my$intAudiences=$intMembers-$intSingers;
+	my$strMembers;
 	if(@singers){
 		$strMembers="@singers";
 	}else{
@@ -579,7 +598,8 @@ sub viewSouth{
 	#データ表示
 	#-----------------------------
 	#ヘッダ出力
-	&header($IN{'reload'}?qq(<META http-equiv="refresh" content="$IN{'reload'};url=$CF{'index'}?$query">\n):'');
+	&header($IN{'reload'}?
+	qq(<META http-equiv="refresh" content="$IN{'reload'};url='$CF{'index'}?$query'">\n):'');
 	#-----------------------------
 	#参加者表示
 	print<<"_HTML_";
@@ -592,7 +612,7 @@ _HTML_
 	my$i=0;
 	#-----------------------------
 	#ログ表示
-	for(@log){
+	for(@{$chatlog}){
 		my%DT=%{$_};
 		'del'eq$DT{'Mar1'}&& next;
 		++$i>$IN{'line'}&& last;
@@ -629,7 +649,7 @@ _HTML_
 </TABLE>
 _HTML_
 	}
-	&footer;
+	&showFooter;
 	exit;
 }
 
@@ -638,11 +658,11 @@ _HTML_
 # 利用者コマンド
 #
 sub modeUsercmd{
-	unless($IN{'usercmd'}){
+	unless($IN{'cmd'}){
 		die"「何もしない＠管理」";
 	}
 	#引数処理
-	my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'usercmd'}=~
+	my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'cmd'}=~
 	/(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
 =item 利用コマンド
 
@@ -662,27 +682,56 @@ sub modeUsercmd{
 		#発言ランキング表示
 		&header;
 		print<<'_HTML_';
-<TABLE summary="Ranking" width="300">
-<CAPTION>発言ランキング</CAPTION>
+<TABLE class="table" summary="発言ランキング">
+<CAPTION>ハツゲンらんきんぐ（ゆーざーもーど）</CAPTION>
+	<TH scope="col">なまえ</TH>
+	<TH scope="col">けいけんち</TH>
+	<TH scope="col">はつとうじょう</TH>
 _HTML_
-		print map{"<TR><TH>$_->{'name'}</TH><TD>$_->{'exp'}</TD></TR>"}values%{Rank->getOnlyHash};
+		for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash}){
+			print<<"_HTML_";
+<TR>
+	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
+	<TD style="color:$_->{'bcolo'}">$_->{'exp'}</TD>
+	<TD style="color:$_->{'bcolo'}">@{[&date($_->{'firstContact'})]}</TD>
+</TR>
+_HTML_
+		}
 		print"</TABLE>";
-		&footer;
+		&showFooter;
 		exit;
-	}elsif('mem'eq$arg[0]){
+	}elsif('member'eq$arg[0]){
 		#見物人一覧
 		&header;
-		print<<"_HTML_";
-<TABLE summary="members" width="300">
-<CAPTION>参加者一覧</CAPTION>
+		print<<'_HTML_';
+<TABLE class="table" summary="参加者の一覧">
+<CAPTION>さんかしゃ いちらん（ゆーざーもーど）</CAPTION>
+	<TH scope="col">なまえ</TH>
+	<TH scope="col">ぶらんく</TH>
+	<TH scope="col">おとさた</TH>
 _HTML_
-		#参加者読み込み
-		print map{"<TR><TH>$_->{'name'}</TH><TD>$_->{'reload'}秒間隔</TD></TR>"}values%{Members->getOnlyHash};
+		for(values%{Members->getOnlyHash}){
+			if($_->{'name'}){
+				print<<"_HTML_";
+<TR>
+	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
+	<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'lastModified'}]}</TD>
+	<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'time'}]}</TD>
+</TR>
+_HTML_
+			}else{
+				print<<"_HTML_";
+<TR>
+	<TD>ROM</TD>
+	<TD>null</TD>
+	<TD>@{[$^T-$_->{'time'}]}</TD>
+</TR>
+_HTML_
+			}
+		}
 		print"</TABLE>";
-		&footer;
+		&showFooter;
 		exit;
-	}elsif(''eq$arg[0]){
-		#
 	}elsif(''eq$arg[0]){
 		#
 	}
@@ -696,11 +745,11 @@ _HTML_
 # 管理コマンド
 #
 sub modeAdmicmd{
-	unless($IN{'admicmd'}){
+	unless($IN{'cmd'}){
 		die"「何もしない＠管理」";
 	}
 	#引数処理
-	my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'admicmd'}=~
+	my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'cmd'}=~
 	/(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
 
 =item 管理コマンド
@@ -748,31 +797,72 @@ $CF{'admipass'}='admicmd';なら、
 		#ランキング表示
 		&header;
 		print<<'_HTML_';
-<TABLE summary="Ranking" width="300">
-<CAPTION>発言ランキング</CAPTION>
+<TABLE class="table" summary="発言ランキング">
+<CAPTION>超！発言ランキング</CAPTION>
+	<TH scope="col">NAME</TH>
+	<TH scope="col">EXP</TH>
+	<TH scope="col">FIRST CONTACT</TH>
+	<TH scope="col">REMOTE_ADDR</TH>
+	<TH scope="col">HTTP_USER_AGENT</TH>
 _HTML_
-		print map{"<TR><TH>$_->{'name'}</TH><TD>$_->{'exp'}</TD></TR>"}values%{Rank->getOnlyHash};
+		for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash}){
+			print<<"_HTML_";
+<TR>
+	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
+	<TD style="color:$_->{'bcolo'}">$_->{'exp'}</TD>
+	<TD style="color:$_->{'bcolo'}">@{[&datef($_->{'firstContact'},'dateTime')]}</TD>
+	<TD style="color:$_->{'bcolo'}">$_->{'ra'}</TD>
+	<TD style="color:$_->{'bcolo'}">$_->{'hua'}</TD>
+</TR>
+_HTML_
+		}
 		print"</TABLE>";
-		&footer;
+		&showFooter;
 		exit;
-	}elsif('mem'eq$arg[0]){
+	}elsif('member'eq$arg[0]){
 		#見物人一覧
 		&header;
-		print<<"_HTML_";
-<TABLE summary="現在の参加者の一覧を表示します" width="300">
-<CAPTION>参加者一覧</CAPTION>
+		print<<'_HTML_';
+<TABLE class="table" summary="参加者の一覧">
+<CAPTION>超！参加者一覧</CAPTION>
+	<TH scope="col">NAME</TH>
+	<TH scope="col">BLANK</TH>
+	<TH scope="col">OTOSATA</TH>
+	<TH scope="col">REMOTE_ADDR</TH>
+	<TH scope="col">HTTP_USER_AGENT</TH>
 _HTML_
-		#参加者読み込み
-		print map{"<TR><TH>$_->{'name'}</TH><TD>$_->{'reload'}秒間隔</TD></TR>"}values%{Members->getOnlyHash};
+		for(values%{Members->getOnlyHash}){
+			if($_->{'name'}){
+				print<<"_HTML_";
+<TR>
+	<TD style="color:$_->{'color'}">$_->{'name'}</TD>
+	<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'lastModified'}]}</TD>
+	<TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'time'}]}</TD>
+	<TD style="color:$_->{'bcolo'}">$_->{'ra'}</TD>
+	<TD style="color:$_->{'bcolo'}">$_->{'hua'}</TD>
+</TR>
+_HTML_
+			}else{
+				print<<"_HTML_";
+<TR>
+	<TD>ROM</TD>
+	<TD>null</TD>
+	<TD>@{[$^T-$_->{'time'}]}</TD>
+	<TD>$_->{'ra'}</TD>
+	<TD>$_->{'hua'}</TD>
+</TR>
+_HTML_
+			}
+		}
 		print"</TABLE>";
-		&footer;
+		&showFooter;
 		exit;
 	}elsif('del'eq$arg[0]){
 		#発言削除
 		Chatlog->delete(id=>$arg[1],exp=>$arg[2])||next;
 		&header;
 		print"<P>削除しましたょ</P>";
-		&footer;
+		&showFooter;
 #	}elsif(''eq$arg[0]){
 #		#
 	}
@@ -836,12 +926,12 @@ _HTML_
 #-------------------------------------------------
 # Form内容取得
 #
-sub getParam{
-	my$param;
-	my@param;
+sub getParams{
+	my$params;
+	my@params;
 	#引数取得
 	unless($ENV{'REQUEST_METHOD'}){
-		@param=@ARGV;
+		@params=@ARGV;
 	}elsif('HEAD'eq$ENV{'REQUEST_METHOD'}){ #forWWWD
 #MethodがHEADならばLastModifedを出力して、
 #最後の投稿時刻を知らせる
@@ -850,9 +940,9 @@ sub getParam{
 		."Content-Type: text/plain\n\nLast-Modified: $last";
 		exit;
 	}elsif('POST'eq$ENV{'REQUEST_METHOD'}){
-		read(STDIN,$param,$ENV{'CONTENT_LENGTH'});
+		read(STDIN,$params,$ENV{'CONTENT_LENGTH'});
 	}elsif('GET'eq$ENV{'REQUEST_METHOD'}){
-		$param=$ENV{'QUERY_STRING'};
+		$params=$ENV{'QUERY_STRING'};
 	}
 	
 	# EUC-JP文字
@@ -863,29 +953,28 @@ sub getParam{
 	))x;
 	
 	#引数をハッシュに
-	if(!$param){
-	}elsif(length$param>262114){ # 262114:引数サイズの上限(byte)
+	if(!$params){
+	}elsif(length$params>262114){ # 262114:引数サイズの上限(byte)
 		#サイズ制限
 		&showHeader;
-		print"いくらなんでも量が多すぎます\n$param";
-		&footer;
+		print"いくらなんでも量が多すぎます\n$params";
+		&showFooter;
 		exit;
-	}elsif(length$param>0){
+	}elsif(length$params>0){
 		#入力を展開
-		@param=split(/[&;]/o,$param);
+		@params=split(/[&;]/o,$params);
 	}
 
 	#入力を展開してハッシュに入れる
 	my%DT;
-	while(@param){
-		my($i,$j)=split('=',shift(@param),2);
-		defined$j||($DT{$i}='',next);
-		$i=($i=~/(\w+)/o)?$1:'';
+	while(@params){
+		my($i,$j)=split('=',shift(@params),2);
+		$i=~/([a-z][-.:\w]*)/o||next;$i=$1;
+		defined$j||($DT{$i}='')||next;
 		study$j;
 		$j=~tr/+/\ /;
 		$j=~s/%([\dA-Fa-f]{2})/pack('H2',$1)/ego;
 		$j=($j=~/($eucchar*)/o)?$1:'';
-		#メインフレームの改行は\x85らしいけど、対応する必要ないよね？
 		$j=~s/\x0D\x0A/\n/go;$j=~tr/\r/\n/;
 		if('body'ne$i){
 			#本文以外は全面タグ禁止
@@ -909,25 +998,21 @@ sub getParam{
 	#コマンド系
 	if($DT{'body'}){
 		if($CF{'admipass'}&&$DT{'body'}=~/^#$CF{'admipass'}\s+(.*)/o){
-			$DT{'admicmd'}=$1;
+			$IN{'mode'}='admicmd';
+			$IN{'cmd'}=$1;
 		}elsif($DT{'body'}=~/^\$(\w.*)/o){
-			$DT{'usercmd'}=$1;
+			$IN{'mode'}='usercmd';
+			$IN{'cmd'}=$1;
 		}
+		$IN{'mode'}&& return;
 	}
 	
 	if(!%DT||($DT{'mode'}&& 'frame'eq$DT{'mode'})){
 		#フレーム
 		$IN{'mode'}='frame';
-	}elsif($DT{'admicmd'}&&!$DT{'nocmd'}){
-		#管理コマンド
-		$IN{'mode'}='admicmd';
-		$IN{'admicmd'}=$DT{'admicmd'};
-	}elsif($DT{'usercmd'}&&!$DT{'nocmd'}){
-		#利用コマンド
-		$IN{'mode'}='usercmd';
-		$IN{'usercmd'}=$DT{'usercmd'};
 	}elsif(defined$DT{'icct'}){
 		#アイコンカタログ
+		$IN{'page'}=($DT{'page'}&&$DT{'page'}=~/([1-9]\d*)/o)?$1:1;
 		$IN{'mode'}='icct';
 	}elsif($DT{'name'}){
 		&getCookie;
@@ -988,6 +1073,7 @@ sub getParam{
 		$IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
 		$IN{'line'}=($DT{'line'}=~/([1-9]\d*)/o)?$1:$CF{'defline'};
 		$IN{'reload'}=($DT{'reload'}=~/([1-9]\d+|0)/o)?$1:$CF{'defreload'};
+		$IN{'mode'}='south';
 	}elsif((defined$DT{'north'})||('north'eq$DT{'mode'})){
 		#北
 		$IN{'mode'}='north';
@@ -1009,8 +1095,10 @@ sub getParam{
 #
 sub header{
 	print<<'_HTML_';
+Status: 200 OK
 Content-type: text/html; charset=euc-jp
 Content-Language: ja-JP
+Connection: keep-alive
 Pragma: no-cache
 Cache-Control: no-cache
 _HTML_
@@ -1062,7 +1150,7 @@ _HTML_
 #-------------------------------------------------
 # フッター出力
 #
-sub footer{
+sub showFooter{
 	print<<"_HTML_";
 <DIV class="AiremixCopy">- <A href="http://www.airemix.com/" target="_top" title="Airemix - Marldia -">Airemix Marldia</A><VAR title="times:@{[times]}">$CF{'version'}</VAR> -</DIV>
 </BODY>
@@ -1105,13 +1193,29 @@ sub setCookie{
 }
 
 #-------------------------------------------------
+# 投稿日時表示用にフォーマットされた日付取得を返す
+sub date{
+=item 引数
+$ time形式時刻
+=cut
+	$CF{'timezone'}||&cfgTimeZone($ENV{'TZ'});
+	my($sec,$min,$hour,$day,$mon,$year,$wday)=gmtime($_[0]+$CF{'timeOffset'});
+	#sprintfの説明は、Perlの解説を見てください^^;;
+	return sprintf("%4d年%02d月%02d日(%s) %02d時%02d分%s" #"1970年01月01日(木) 09時00分"の例
+	,$year+1900,$mon+1,$day,('日','月','火','水','木','金','土')[$wday],$hour,$min,$ENV{'TZ'});
+#	return sprintf("%1d:%01d:%2d %4d/%02d/%02d(%s)" #"9:0: 0 1970/01/01(Thu)"の例
+#	,$hour,$min,$sec,$year+1900,$mon+1,$day,('Sun','Mon','Tue','Wed','Thu','Fri','Sat')[$wday]);
+}
+
+
+#-------------------------------------------------
 # フォーマットされた日付取得を返す
 #
 sub datef{
 =item 引数
 $ time形式の時刻
 ;
-$ 出力形式(cookie|last)
+$ 出力形式(cookie|last|dateTime)
 =cut
 	my$time=shift;
 	my$type=shift;
@@ -1162,22 +1266,6 @@ $ $ENV{'TZ'}
 
 
 #-------------------------------------------------
-# 投稿日時表示用にフォーマットされた日付取得を返す
-#
-sub date{
-=item 引数
-$ time形式時刻
-=cut
-	my($sec,$min,$hour,$mday,$mon,$year,$wday)=localtime($_[0]);
-	#sprintfの説明は、Perlの解説を見てください^^;;
-	return sprintf("%4d年%02d月%02d日(%s) %02d時%02d分" #"1970年01月01日(木) 09時00分"の例
-	,$year+1900,$mon+1,$mday,('日','月','火','水','木','金','土')[$wday],$hour,$min);
-#	return sprintf("%1d:%01d:%2d %4d/%02d/%02d(%s)" #"9:0: 0 1970/01/01(Thu)"の例
-#	,$hour,$min,$sec,$year+1900,$mon+1,$mday,('Sun','Mon','Tue','Wed','Thu','Fri','Sat')[$wday]);
-}
-
-
-#-------------------------------------------------
 # アイコンリスト
 #
 sub iptico{
@@ -1200,9 +1288,9 @@ $CF{'iconList'}の最初の一文字が' '（半角空白）だった場合複数リストモードになりま
 ' icon.txt exicon.txt'
 =cut
 
-	if($CK{'cacheIconList'}&&('reset'ne$_[2])){
-		#キャッシュである$CK{'cacheIconList'}を返す
-		return$CK{'cacheIconList'};
+	if($CK{'CacheIconList'}&&('reset'ne$_[2])){
+		#キャッシュである$CK{'CacheIconList'}を返す
+		return$CK{'CacheIconList'};
 	}
 	my$opt=$_[1]?" $_[1]":'';
 	
@@ -1243,11 +1331,11 @@ $CF{'iconList'}の最初の一文字が' '（半角空白）だった場合複数リストモードになりま
 		$_[0]=$2;
 	}
 	
-	$CK{'cacheIconList'}=<<"_HTML_";
+	$CK{'CacheIconList'}=<<"_HTML_";
 <SELECT name="icon" id="icon" onchange="iconChange(this.value)"$opt>
 $iconlist</SELECT>
 _HTML_
-	return$CK{'cacheIconList'};
+	return$CK{'CacheIconList'};
 }
 
 
@@ -1284,12 +1372,35 @@ _HTML_
 }
 
 
+#-------------------------------------------------
+# ユーザー向けエラー
+#
+sub showUserError{
+	my$message=shift();
+	&showHeader;
+	print<<"_HTML_";
+<H2 class="mode">- エラーが発生しました -</H2>
+<P>ご不便をかけて申し訳ございません<BR>
+<span class="warning">$message</span>ため、<BR>正常な処理を続行することができませんでした<BR>
+以下に念のため今入力されたデータを羅列しておきます<BR>
+重要な情報がある場合、保存しておいて、またの機会に投稿してください</P>
+<TABLE border="1" summary="ユーザー入力変数を表示しておく">
+<CAPTION>今受け取った引数</CAPTION>
+_HTML_
+	print map{"<TR><TH>$_</TH><TD><XMP>$IN{$_}</XMP></TD>\n"}keys%IN;
+	print '</TABLE>';
+	&showgetFooter;
+	exit;
+}
+
+
 
 #------------------------------------------------------------------------------#
 # Logfile Class
 #
 {package Logfile;
 	my$fh;
+	my$path=$::CF{'log'};
 	my@members;
 	my@chatlog;
 	my$singleton;
@@ -1301,7 +1412,7 @@ _HTML_
 		my$proto=shift;my$class=ref($proto)||$proto;
 		local*LOGFILE;
 		if(-e$::CF{'log'}){
-			open(LOGFILE,'+<'.$::CF{'log'}); #+>>とするとseek($fh,0,0)が動いてくれないので注意！
+			open(LOGFILE,'+<'.$path); #+>>とするとseek($fh,0,0)が動いてくれないので注意！
 			$fh=*LOGFILE{IO};
 			eval{flock($fh,2)};
 			seek($fh,0,0);
@@ -1321,8 +1432,8 @@ _HTML_
 	}
 	
 	sub Logfile::getInstance{$singleton||Logfile->new;}
-	sub Logfile::getChatlog	{@chatlog||Logfile->new;return @chatlog;}
-	sub Logfile::getMembers	{@members||Logfile->new;return @members;}
+	sub Logfile::getChatlog	{$singleton||Logfile->new;return @chatlog;}
+	sub Logfile::getMembers	{$singleton||Logfile->new;return @members;}
 	
 	sub Logfile::setChatlog	{my$self=shift;@chatlog=@_;}
 	sub Logfile::setMembers	{my$self=shift;@members=@_;}
@@ -1333,13 +1444,15 @@ _HTML_
 	sub Logfile::dispose{
 		(@members&&@chatlog)||return;
 		my$self=shift;
-		truncate($fh,0);
+		truncate($path,0);
 		seek($fh,0,0);
-		print $fh (join("\n",@members)."\n\n".join("\n",@chatlog));
+		print $fh join("\n",@members,'',@chatlog,'');
 		close($fh);
 		undef$fh;undef@members;undef@chatlog;undef$singleton;
 	}
 }
+
+
 #------------------------------------------------------------------------------#
 # Chatlog Class
 #
@@ -1357,6 +1470,7 @@ _HTML_
 			map{{/([^\t]+)=\t([^\t]*);\t/go}}
 			grep{m/^Mar1=\t[^\t]*;\t(?:[^\t]*=\t[^\t]*;\t)*$/o}$logfile->getChatlog
 		];
+		
 		$singleton=bless $chatlog,$class;
 	}
 	sub Chatlog::getInstance{$singleton||Chatlog->new;}
@@ -1397,6 +1511,7 @@ _HTML_
 	
 	sub Chatlog::DESTROY{my$self=shift;$self->dispose;}
 }
+
 
 #------------------------------------------------------------------------------#
 # MEMBERS CLASS
@@ -1453,22 +1568,22 @@ _HTML_
 	sub Members::add{
 		my$proto=shift;my$self=ref($proto)?$proto:getInstance();
 		my%DT=%{shift()};
-		if($DT{'name'}&&$DT{'isActive'}){
-			#能動的リロード
+		if($DT{'name'}){
 			delete$singleton->{"$DT{'ra'}"};
-			$DT{'lastModified'}=$^T;
-			$singleton->{"$DT{'id'}"}={map{$_=>$DT{$_}}qw(id name color reload ra time lastModified)};
-		}elsif($DT{'name'}){
-			#普通にリロード
-			delete$singleton->{"$DT{'ra'}"};
-			$DT{'lastModified'}=$singleton->{"$DT{'id'}"}->{'lastModified'};
-			$singleton->{"$DT{'id'}"}={map{$_=>$DT{$_}}qw(id name color reload ra time lastModified)};
-			if(!$DT{'reload'}||$^T-$DT{'lastModified'}<300){}
-			elsif($DT{'reload'}<280){$DT{'reload'}+=20}
-			else{$DT{'reload'}=300;}
+			if($DT{'isActive'}){
+				#能動的リロード
+				$DT{'lastModified'}=$^T;
+			}else{
+				#普通にリロード
+				$DT{'lastModified'}=$singleton->{"$DT{'id'}"}->{'lastModified'};
+				if(!$DT{'reload'}||$^T-$DT{'lastModified'}<300){}
+				elsif($DT{'reload'}<280){$DT{'reload'}+=20}
+				else{$DT{'reload'}=300;}
+			}
+			$singleton->{"$DT{'id'}"}={map{$_=>$DT{$_}}qw(id name color bcolo exp reload ra time lastModified hua)};
 		}else{
 			#ろむ
-			$singleton->{"$DT{'ra'}"}={id=>$DT{'ra'},(map{$_=>$DT{$_}}qw(reload ra time))};
+			$singleton->{"$DT{'ra'}"}={id=>$DT{'ra'},(map{$_=>$DT{$_}}qw(reload ra time hua))};
 			$DT{'reload'}+=20;
 		}
 		return$DT{'reload'};
@@ -1497,11 +1612,13 @@ _HTML_
 	sub Members::DESTROY{my$self=shift;$self->dispose;}
 }
 
+
 #------------------------------------------------------------------------------#
 # RANKING CLASS
 #
 {package Rank;
 	my$fh;
+	my$path=$::CF{'rank'};
 	my$singleton;
 	
 	#---------------------------------------
@@ -1511,9 +1628,9 @@ _HTML_
 		my$proto=shift;
 		my$class=ref($proto)||$proto;
 		my%rank=();
-		
+		local*RANK;
 		if(-e$::CF{'rank'}){
-			open(RANK,'+<'.$::CF{'rank'}); #+>>とするとseek($fh,0,0)が動いてくれないので注意！
+			open(RANK,'+<'.$path)||die"Can't open Ranking($path)[$?:$!]";
 			$fh=*RANK{IO};
 			eval{flock($fh,2)};
 			seek($fh,0,0);
@@ -1531,7 +1648,7 @@ _HTML_
 	
 	sub Rank::dispose{
 		my$proto=shift;my$self=ref($proto)?$proto:getInstance();
-		truncate($fh,0);
+		truncate($path,0);
 		seek($fh,0,0);
 		print $fh (
 			join"\n",map{
@@ -1549,13 +1666,18 @@ _HTML_
 		my$proto=shift;my$self=ref($proto)?$proto:getInstance();
 		my%DT=%{shift()};
 		
-		if(!$self->{"$DT{'id'}"}||!$self->{"$DT{'id'}"}->{'exp'}){
-			$self->{"$DT{'id'}"}={name=>$DT{'name'},exp=>1};
+		if(!$singleton->{"$DT{'id'}"}||!$singleton->{"$DT{'id'}"}->{'exp'}){
+			$singleton->{"$DT{'id'}"}={name=>$DT{'name'},exp=>1};
 		}else{
-			$self->{"$DT{'id'}"}->{'exp'}++;
-			$self->{"$DT{'id'}"}->{'name'}=$DT{'name'};
+			$singleton->{"$DT{'id'}"}{'exp'}++;
+			$singleton->{"$DT{'id'}"}{'name'}=$DT{'name'};
 		}
-		return$self->{"$DT{'id'}"}->{'exp'};
+		$singleton->{"$DT{'id'}"}{'firstContact'}||=$^T;
+		$singleton->{"$DT{'id'}"}{'hua'}=$DT{'hua'};
+		$singleton->{"$DT{'id'}"}{'ra'}=$DT{'ra'};
+		$singleton->{"$DT{'id'}"}{'color'}=$DT{'color'};
+		$singleton->{"$DT{'id'}"}{'bcolo'}=$DT{'bcolo'};
+		return$singleton->{"$DT{'id'}"}->{'exp'};
 	}
 	sub Rank::getOnlyHash{
 		my%rank;
@@ -1576,6 +1698,8 @@ _HTML_
 	
 	sub Rank::DESTROY{my$self=shift;$self->dispose;}
 }
+
+
 package main;
 #-------------------------------------------------
 # 初期設定
@@ -1584,44 +1708,29 @@ BEGIN{
 	#エラーが出たらエラー画面を表示するように
 	unless(%CF){
 		$CF{'program'}=__FILE__;
-		$SIG{'__DIE__'}=sub{
-		print<<"_HTML_";
-Content-Language: ja
-Content-type: text/plain; charset=euc-jp
-
-<PRE>
-       :: Marldia ::
-   * Error Screen 1.0 (T_T;) *
-
-ERROR: $_[0]
-Index : $CF{'idxrev'}
-Core  : $CF{'correv'}
-
-PerlVer  : $]
-PerlPath : $^X
-BaseTime : $^T
-OS Name  : $^O
-FileName : $0
-
- = = ENV = =
-CONTENT_LENGTH: $ENV{'CONTENT_LENGTH'}
-QUERY_STRING  : $ENV{'QUERY_STRING'}
-REQUEST_METHOD: $ENV{'REQUEST_METHOD'}
-
-SERVER_NAME: $ENV{'SERVER_NAME'}
-HTTP_PATH  : $ENV{'HTTP_HOST'} $ENV{'SCRIPT_NAME'}
-ENV_OS     : $ENV{'OS'}
-SERVER_SOFTWARE      : $ENV{'SERVER_SOFTWARE'}
-PROCESSOR_IDENTIFIER : $ENV{'PROCESSOR_IDENTIFIER'}
-
-+#       Airemix Marldia     #+
-+#  http://www.airemix.com/  #+
-_HTML_
-		exit;
+		$SIG{'__DIE__'}=$ENV{'REQUEST_METHOD'}?sub{
+			if($_[0]=~/^(?=.*?flock)(?=.*?unimplemented)/){return}
+			print"Status: 200 OK\nContent-Language: ja-JP\nContent-type: text/plain; charset=euc-jp"
+			."\n\n<PRE>\t:: Marldia ::\n   * Error Screen 1.4 (o__)o// *\n\n";
+			print"ERROR: $_[0]\n"if@_;
+			print join('',map{"$_\t: $CF{$_}\n"}grep{$CF{"$_"}}qw(idxrev correv))
+			."\n".join('',map{"$_\t: $CF{$_}\n"}grep{$CF{"$_"}}qw(log icon icls style));
+			print"\ngetlogin\t: ".getlogin;
+			print"\n".join('',map{"$$_[0]\t: $$_[1]\n"}
+			([PerlVer=>$]],[PerlPath=>$^X],[BaseTime=>$^T],[OSName=>$^O],[FileName=>$0],[__FILE__=>__FILE__]))
+			."\n\t= = = ENV = = =\n".join('',map{sprintf"%-20.20s : %s\n",$_,$ENV{$_}}grep{$ENV{"$_"}}
+			qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD
+			SERVER_NAME HTTP_HOST SCRIPT_NAME OS SERVER_SOFTWARE PROCESSOR_IDENTIFIER))
+			."\n+#      Airemix  Marldia     #+\n+#  http://www.airemix.com/  #+";
+			exit;
+		}:sub{
+			if($_[0]=~/^(?=.*?flock)(?=.*?unimplemented)/){return}
+			print@_?"ERROR: $_[0]":'ERROR';
+			exit;
 		};
 	}
 	#Revision Number
-	$CF{'correv'}=qq$Revision: 1.12 $;
+	$CF{'correv'}=qq$Revision: 1.13 $;
 	$CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
 }
 1;
