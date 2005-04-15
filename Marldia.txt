@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 = Marldia - Web Chat System
 #
-# $Id: Marldia.txt,v 1.27 2005-03-11 20:27:46 naruse Exp $
+# $Id: Marldia.txt,v 1.28 2005-04-15 15:23:01 naruse Exp $
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
@@ -28,9 +28,12 @@ Airemixの掲示板で質問してみてください
 
 #------------------------------------------------------------------------------#
 == Marldia History
-:2004-03-12 Revision: 1.27
+:2005-03-12 Revision: 1.28
+  * XML出力対応
+  * URL自動リンクでのリンクの際、Locationで飛ばすように
+:2005-03-12 Revision: 1.27
   * 日本語ドメインのURL自動リンクに対応
-:2004-03-12 Revision: 1.26
+:2005-03-12 Revision: 1.26
   * 管理コマンドの変更
   * 自動消去がIE5でも動くように？
   * 発言履歴のバグ修正

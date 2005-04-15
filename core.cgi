@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.27 $
+# $Revision: 1.28 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.27 2005-03-11 20:27:36 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.28 2005-04-15 15:23:01 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -25,7 +25,11 @@ sub main{
     #	$ENV{'REMOT_HOST'}&&index(" $ENV{'REMOT_HOST'} "," $CF{'denyrh'} ")&&(&locate($CF{'sitehome'}));
 
     $CF{'supass'} = [$CF{'admipass'}]unless$CF{'supass'};
-    if($IN{'hua'} =~ /(?:^Mozilla\/[1-3].0|DoCoMo|^KDDI|^J-PHONE|^ASTEL)/o){
+    if('jump'eq$IN{'mode'}){
+	&locate($IN{'jump'});
+    }elsif('xml'eq$IN{'type'}){
+	&xmlView();
+    }elsif('mobile'eq$IN{'type'} || $IN{'hua'} =~ /(?:^Mozilla\/[1-3].0|DoCoMo|^KDDI|^J-PHONE|^ASTEL)/o){
 	my %default = (
 		       line => 20
 		      );
@@ -77,8 +81,9 @@ Content-type: text/html; charset=euc-jp
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
 <BODY>
-<FORM name="north" method="get" action="$CF{'index'}">
+<FORM name="north" method="post" action="$CF{'index'}">
 <INPUT name="mode" type="hidden" value="south">
+<INPUT name="type" type="hidden" value="mobile">
 名: <INPUT type="text" name="name" value="$IN{'name'}">
 名色: <INPUT type="text" name="color" value="$IN{'color'}" istyle="3">
 行: <INPUT type="text" name="line" value="$IN{'line'}" istyle="4">
@@ -90,7 +95,7 @@ Option: <INPUT type="text" name="opt" value="$IN{'opt'}" istyle="3">
 Home: <INPUT type="text" name="home" value="$IN{'home'}" istyle="3">
 <INPUT type="submit" value="OK">
 </FORM>
--<A href="http://www.airemix.com/" title="Airemixへいってみる">Marldia $CF{'version'}</A>-
+-<A href="http://www.airemix.com/" title="Airemixへいってみる">Marldia v$CF{'version'}</A>-
 </BODY>
 </HTML>
 _HTML_
@@ -180,6 +185,141 @@ Airemix Marldia
 </BODY>
 </HTML>
 _HTML_
+    exit;
+}
+
+
+#-------------------------------------------------
+# XML View
+#
+sub xmlView{
+    #-----------------------------
+    #初期化
+    $IN{'line'} = 50 unless $IN{'line'};
+    $IN{'lastModified'} = 50 unless $IN{'lastModified'};
+    
+    #-----------------------------
+    #クエリ
+    my$query='south;type=xml;';
+    if($IN{'id'}){
+	$query='type=xml;'.join(';',map{my$val=$IN{$_};$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
+		    grep{defined$IN{$_}}qw(name id line reload color));
+	if($IN{'quit'}){
+	    $query.=';quit=on';
+	    $IN{'reload'} = 0;
+	}
+    }
+    
+    #---------------------------------------
+    #Viewの共通処理
+    my ($logfile,$chatlog,$members) = &commonRoutineForView();
+    
+    #-----------------------------
+    #参加者情報
+    my $intMembers = scalar keys%{$members};
+    
+    #---------------------------------------
+    #データ表示
+    my $updated = &datef((stat("$CF{'rank'}"))[9],'dateTime');
+    
+    #-----------------------------
+    #ヘッダ出力
+    print<<"_EOM_";
+Status: 200 OK
+Content-type: application/xml; charset=euc-jp
+
+<?xml version="1.0" encoding="euc-jp"?>
+<document>
+  <updated>$updated</updated>
+  <system>
+    <name>Marldia</name>
+    <version>$CF{'version'}</version>
+  </system>
+  <site>
+    <name>$CF{'sitename'}</name>
+    <link rel="alternative" type="text/html" href="$CF{'sitehome'}" />
+  </site>
+  <entry>
+    <link rel="alternative" type="text/html" href="$CF{'uri'}" />
+    <title>$CF{'title'}</title>
+    <members count="$intMembers">
+_EOM_
+    for(sort{$a->{'blank'}<=>$b->{'blank'}}$members->getSingersInfo){
+	my $updated = &datef($_->{'lastModified'},'dateTime');
+	print<<"_EOM_";
+      <member>
+        <name><![CDATA[$_->{'name'}]]></name>
+        <id><![CDATA[$_->{'id'}]]></id>
+        <color><![CDATA[$_->{'color'}]]></color>
+        <updated>$updated</updated>
+      </member>
+_EOM_
+    }
+    print<<"_EOM_";
+    </members>
+    <log>
+_EOM_
+    #-----------------------------
+    #ログ表示
+    my$i=0;
+    my $isAdmin = 0;
+    if($IN{'_opt'}{'su'}&&$CF{'supass'}){
+	for(@{$CF{'supass'}}){
+	    $IN{'_opt'}{'su'}eq$_ or next;
+	    $isAdmin = 1;
+	    last;
+    	}
+    }
+    for(@{$chatlog}){
+	my%DT=%{$_};
+	$DT{'time'} < $IN{'lastModified'} and last;
+	!$isAdmin&&'del'eq$DT{'Mar1'}&&next;
+	++$i>$IN{'line'}&&last;
+	
+	my $option = '';
+	#アイコン
+	my %icon = &getIconTag(\%DT);
+	$option .= qq(\n        <icon dir="$icon{'dir'}" file="$icon{'file'}" src="$icon{'src'}" />);
+	#レベル取得
+	$DT{'level'}=&getLevel($DT{'exp'});
+	#削除ボタン
+	if('del'eq$DT{'Mar1'}){
+	    $option .= qq(\n        <delete />);
+	}elsif($IN{'id'}&&$DT{'id'}eq$IN{'id'}){
+	    $option .= qq(\n        <delete href="$CF{'index'}?del=$DT{'exp'}&#59;$query" />);
+	}elsif($isAdmin){
+	    my$id = $DT{'id'};
+	    $id=~s{(\W)}{'%'.unpack('H2',$1)}ego;
+	    $option .= qq(\n        <delete href="$CF{'index'}?del=$DT{'exp'}_$id&#59;$query" />);
+	}
+	my $updated = &datef($DT{'time'},'dateTime');
+	my $body = $DT{'body'};
+	$body =~ s/<A class="autolink"[^>]*>([^<]+)<\/A>/$1/go;
+	
+	#出力
+	print <<"_EOM_";
+      <article>
+        <id><![CDATA[$DT{'id'}]]></id>
+        <name><![CDATA[$DT{'name'}]]></name>
+        <color><![CDATA[$DT{'color'}]]></color>
+        <updated>$updated</updated>
+        <email>$DT{'email'}</email>
+        <home><![CDATA[$DT{'home'}]]></home>
+        <bcolo><![CDATA[$DT{'bcolo'}]]></bcolo>
+        <body><![CDATA[$body]]></body>
+        <exp>$DT{'exp'}</exp>
+        <level>$DT{'level'}</level>$option
+      </article>
+_EOM_
+    }
+    $members->dispose;
+    $chatlog->dispose;
+    $logfile->dispose;
+    print<<"_EOM_";
+    </log>
+  </entry>
+</document>
+_EOM_
     exit;
 }
 
@@ -339,7 +479,7 @@ value="$CK{'opt'}" tabindex="102" onblur="changeOption()"></TD>
 <TD colspan="3"><INPUT type="text" class="text" name="home" id="home" maxlength="200" size="40"
 style="ime-mode:inactive;width:200px" value="$CK{'home'}" tabindex="112"></TD>
 <TH style="letter-cpacing:-1px;text-align:center">-<A href="http://airemix.com/" title="Airemixへいってみる"
-target="_top">Marldia $CF{'version'}</A>-</TH>
+target="_top">Marldia v$CF{'version'}</A>-</TH>
 </TR>
 </TABLE>
 </FORM>
@@ -373,7 +513,6 @@ sub modeSouth{
     #-----------------------------
     #クエリ
     my$query='south';
-    my $mobileQuery ='south;';
     if($IN{'id'}){
 	$query=join(';',map{my$val=$IN{$_};$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
 		    grep{defined$IN{$_}}qw(name id line reload color));
@@ -385,8 +524,8 @@ sub modeSouth{
     
     #-----------------------------
     #携帯電話用クエリ
-    my $mobileQuery ='south;' .
-    	join(';',map{my$val=$IN{$_};$val=~s/&#64;/\@/;$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
+    my $mobileQuery = 'south&amp;type=mobile&amp;' .
+    	join('&amp;',map{my$val=$IN{$_};$val=~s/&#64;/\@/;$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
 	     grep{defined$IN{$_}}qw(line name color bcolo icon id email opt home))
 	if $IN{'icon'};
     
@@ -827,6 +966,7 @@ sub locate{
     my$i;
     if($_[0]=~/^http:/){
 	$i=$_[0];
+	$i=~s/&#38;/&/go;
     }elsif($_[0]=~/\?/){
 	$i=sprintf('http://%s%s/',$ENV{'SERVER_NAME'},
 		   substr($ENV{'SCRIPT_NAME'},0,rindex($ENV{'SCRIPT_NAME'},'/')));
@@ -953,7 +1093,7 @@ _HTML_
 #
 sub showFooter{
     print<<"_HTML_";
-<DIV class="AiremixCopy">- <A href="http://airemix.com/" target="_top" title="Airemix - Marldia -">Airemix Marldia</A><VAR title="times:@{[times]}">$CF{'version'}</VAR> -</DIV>
+<DIV class="AiremixCopy">- <A href="http://airemix.com/" target="_top" title="Airemix - Marldia -">Airemix Marldia</A><VAR title="times:@{[times]}">v$CF{'version'}</VAR> -</DIV>
 </BODY>
 </HTML>
 _HTML_
@@ -1082,6 +1222,64 @@ $ $ENV{'TZ'}
 
 
 #-------------------------------------------------
+
+=head2 日付を解析
+
+=head3 Arguments
+
+  $ 日付
+
+=head3 Return Value
+
+  $jd,$year,$mon,$day,$hour,$min,$sec,$unix
+
+=head3 対応日付形式
+
+RFC1123, ANSI C形式, ISO9601 dateTime
+
+=head3 See Also
+
+=over
+
+=item RFC1123形式の日付を解析
+
+  http://www.faireal.net/articles/3/16/
+
+=back
+
+=cut
+
+sub parse_date{
+    my$date=shift();
+    my($day,$mon,$year,$hour,$min,$sec);
+    my$months='(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)';
+    my%month=qw(Jan 1 Feb 2 Mar 3 Apr 4 May 5 Jun 6 Jul 7 Aug 8 Sep 9 Oct 10 Nov 11 Dec 12);
+    if($date=~/\w+,?\s*(\d+)(?:-|\s+)($months)(?:-|\s+)(\d+) (\d+):(\d+):(\d+)\s*GMT/o){
+	# RFC1123 'Thu, 01 Jan 1970 00:00:00 GMT'
+	($year,$mon,$day,$hour,$min,$sec)=map{int}($3,$month{$2},$1,$4,$5,$6);
+    }elsif($date=~/\w+\s+($months)\s+(\d+)\s+(\d+):(\d+):(\d+)\s+(\d+)/o){
+	#gmtime() 'Thu Jan  1 00:00:00 1970'
+	($year,$mon,$day,$hour,$min,$sec)=map{int}($6,$month{$1},$2,$3,$4,$5);
+    }elsif($date=~/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:Z|([-+])(\d{2})(?::(\d{2})))?/o){
+	# ISO 8601 dateTime (CCYY-MM-DDThh:mm:ss+09:00)
+	($year,$mon,$day,$hour,$min,$sec)=map{int}($1,$2,$3,$4,$5,$6);
+	'+'eq$7?($hour-=$8,$9 and$min-=$9):($hour+=$8,$9 and$min+=$9)if$7&&$8;
+    }else{
+	return 0;
+    }
+    $mon||return 0;
+    my($_Y,$_M,$_day)=($year,$mon,$hour/24+$min/1440+$sec/86400);
+    if($mon<3){
+	$_Y-=1;
+	$_M+=12;
+    }
+    my$jd=int(365.25*($_Y+4716))+int(30.6001*($_M+1))+2-int($_Y/100)+int($_Y/400)+$day+$_day-1524.5;
+    my$unix=((int($jd-$_day-2440587.5)*24+$hour)*60+$min)*60+$sec;
+    return wantarray ? ($jd,$year,$mon,$day,$hour,$min,$sec,$unix) : $unix;
+}
+
+
+#-------------------------------------------------
 #引数の前処理
 sub commonRoutineForView{
     $IN{'_opt'} = parseOption($IN{'opt'});
@@ -1118,7 +1316,7 @@ sub commonRoutineForView{
     
     #-----------------------------
     #書き込み
-    if(length$IN{'body'}){
+    if(length$IN{'body'}&&$IN{'id'}){
 	#ランキング加点
 	my $rank = Rank->getInstance;
 	$IN{'exp'}=$rank->plusExp(\%IN);
@@ -1196,7 +1394,7 @@ file
     }else{
 	$text=undef;
     }
-    return$text;
+    return wantarray ? %DT : $text;
 }
 
 
@@ -1369,8 +1567,6 @@ _HTML_
 	elsif('HEAD'eq$ENV{'REQUEST_METHOD'}){return}
 	elsif('POST'eq$ENV{'REQUEST_METHOD'}){read(STDIN,$params,$ENV{'CONTENT_LENGTH'})}
 	elsif('GET'eq$ENV{'REQUEST_METHOD'}){$params=$ENV{'QUERY_STRING'}}
-	# EUC-JP文字
-	my$eucchar=qr((?:[\x09\x0A\x0D\x20-\x7E]|[\x8E\xA1-\xFE][\xA1-\xFE]|\x8F[\xA1-\xFE]{2}))x;
 
 	#引数をハッシュに
 	if(!$params){
@@ -1391,7 +1587,6 @@ _HTML_
 	    study$j;
 	    $j=~tr/+/\ /;
 	    $j=~s/%([\dA-Fa-f]{2})/pack('H2',$1)/ego;
-	    $j=$j=~/($eucchar*)/o?$1:'';
 	    #メインフレームの改行は\x85らしいけど、対応する必要ないよね？
 	    $j=~s/\x0D\x0A/\n/go;$j=~tr/\r/\n/;
 	    if('body'ne$i&&'opt'ne$i){
@@ -1471,6 +1666,43 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	my%DT=%{shift()};
 	my%IN;
 	
+	# Encoding
+	if($DT{'encoding'}){
+	    $IN{'encoding'} = $DT{'encoding'};
+	    if($IN{'encoding'}=~/utf\-?8/o){
+		for(keys%DT){
+		    $DT{$_} =~ s/\xef\xbd\x9e/\xe3\x80\x9c/go;
+		}
+	    }
+	    {
+		local $SIG{'__DIE__'} = sub{};
+		# Encode
+		eval q{use Encode;for(keys%DT){Encode::from_to( $DT{$_}, $IN{'encoding'}, $::CF{'encoding'} )}};
+		# Jcode
+		my $enc = $IN{'encoding'};
+		$enc = $enc=~/ISO-2022-JP/i	? 'jis' :
+		    $enc=~/Shift_JIS/i		? 'sjis' :
+		    $enc=~/EUC(?:-JP)?/i	? 'euc' :
+		    $enc=~/UTF-?16/i		? 'ucs2' :
+		    $enc=~/UTF-?8/i		? 'utf8' : 'euc';
+		eval q{use Jcode;for(keys%DT){$DT{$_} = Jcode->new( $DT{$_}, $enc )->euc}} if $@;
+	    }
+	}
+	
+	#化けた文字は蹴る
+	for(keys%DT){
+	    $DT{$_}=$DT{$_}=~/($eucchar*)/o?$1:'';
+	}
+	
+	#特殊
+	if('mobile'eq$DT{'type'}){
+	    $IN{'type'}='mobile';
+	}elsif('xml'eq$DT{'type'}){
+	    $IN{'type'}='xml';
+	    $IN{'_lastModified'} = $DT{'lastModified'};
+	    $IN{'lastModified'} = scalar ::parse_date($DT{'lastModified'}) || $DT{'lastModified'};
+	}
+	
 	#コマンド系
 	unless($DT{'body'}){
 	}elsif($::CF{'admipass'}&&$DT{'body'}=~/^\/admin\s*(.*)/o){
@@ -1490,6 +1722,10 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	if(!%DT||($DT{'mode'}&&'frame'eq$DT{'mode'})){
 	    #フレーム
 	    $IN{'mode'}='frame';
+	}elsif(defined$DT{'jump'} or 'jump'eq$IN{'mode'}){
+	    #アイコンカタログ
+	    $IN{'mode'} = 'jump';
+	    $IN{'jump'} = $DT{'jump'};
 	}elsif(defined$DT{'icct'} or 'icct'eq$IN{'mode'}){
 	    #アイコンカタログ
 	    $IN{'page'}=($DT{'page'}&&$DT{'page'}=~/([1-9]\d*)/o)?$1:1;
@@ -1616,7 +1852,18 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		#実稼動部
 		my$href_regex=qr{($http_URL_regex|$ftp_URL_regex|($mail_regex))};
 		my@isMail=('<A class="autolink" href="mailto:','<A class="autolink" href="');
-		$str=~s{((?:\G|>)[^<]*?)$href_regex}{$1$isMail[!$3]$2" target="_blank">$2</A>}go;
+		$str=~s{((?:\G|>)[^<]*?)$href_regex}
+		{
+		    my $start = "$1$isMail[!$3]";
+		    my $end = qq{" target="_blank">$2</A>};
+		    my $uri = $2;
+		    unless($3){
+			$uri=~s{(\W)}{'%'.unpack('H2',$1)}ego;
+			"$start$::CF{'index'}?jump=$uri$end";
+		    }else{
+			"$start$uri$end";
+		    }
+		}ego;
 		if($str=~/<(?:XMP|PLAINTEXT|SCRIPT)(?![0-9A-Za-z])/io){
 		    #XMP/PLAINTEXT/SCRIPTタグがあるとき
 		    $str=~s{(<(XMP|PLAINTEXT|SCRIPT)(?![0-9A-Za-z]).*?(?:<\/$2\s*>|$))}
@@ -1863,6 +2110,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	my@singers;
 	for(keys%{$self}){
 	    my$i=$self->{$_};
+	    $i->{'id'} = $_;
 	    my$limit=$i->{'time'}+(abs($i->{'reload'}-40)<20?$i->{'reload'}*6:360);
 	    $limit<$^T&&(delete$self->{$_},next);#TimeOver
 	    exists$i->{'name'}||next;#ROM
@@ -2027,6 +2275,7 @@ package main;
 BEGIN{
     #エラーが出たらエラー画面を表示するように
     # Marldia Error Screen 1.2.2
+    $CF{'encoding'}='euc-jp'unless$CF{'encoding'};
     unless($CF{'program'}){
 	$CF{'program'}=__FILE__;
 	$SIG{'__DIE__'}=$ENV{'REQUEST_METHOD'}?sub{
@@ -2058,10 +2307,11 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     __FILE__ =~ /^(.*[\\\/:])/o;
     $CF{'ProgramDirectory'} = $1;
     $CF{'program'} = substr($ENV{'SCRIPT_NAME'}, rindex('/'.$ENV{'SCRIPT_NAME'},'/'));
+    $CF{'uri'} = 'http://' . $ENV{'HTTP_HOST'} . $ENV{'SCRIPT_NAME'};
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.27 $;
-    $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"v$1":'unknown';#"Revision: 1.4"->"v1.4"
+    $CF{'correv'}=qq$Revision: 1.28 $;
+    $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
 __END__
