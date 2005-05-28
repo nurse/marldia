@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.18 $
+# $Revision: 1.19 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.18 2005-03-11 19:05:56 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.19 2005-05-28 17:25:12 naruse Exp $;
 require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK %IC);
@@ -77,6 +77,7 @@ $CF{'exicon'}='0';
 # 色リスト
 $CF{'colorList'}=<<'_CONFIG_';
 <OPTION value="#343434" style="color:#343434">■墨</OPTION>
+<OPTION value="#8C8C8C" style="color:#8C8C8C">■灰色</OPTION>
 <OPTION value="#FBDADE" style="color:#FBDADE">■桜色</OPTION>
 <OPTION value="#D53E62" style="color:#D53E62">■薔薇色</OPTION>
 <OPTION value="#FF7F8F" style="color:#FF7F8F">■珊瑚色</OPTION>
@@ -123,6 +124,7 @@ BEGIN{
     #エラーが出たらエラー画面を表示するように
     # Marldia Error Screen 1.2.2
     unless($CF{'program'}){
+	$CF{'encoding'}='euc-jp';
 	$CF{'program'}=__FILE__;
 	$SIG{'__DIE__'}=$ENV{'REQUEST_METHOD'}?sub{
 	    index($_[0],'flock')+1 and index($_[0],'unimplemented')+1 and return;
@@ -151,7 +153,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
 	};
     }
     # Revision Number
-    $CF{'idxrev'}=qq$Revision: 1.18 $;
+    $CF{'idxrev'}=qq$Revision: 1.19 $;
 }
 1;
 __END__
