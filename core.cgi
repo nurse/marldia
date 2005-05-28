@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.28 $
+# $Revision: 1.29 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.28 2005-04-15 15:23:01 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.29 2005-05-28 17:25:21 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -20,9 +20,13 @@ use vars qw(%CF %IN %CK %IC);
 #
 sub main{
     &getParams;
-    #	$IN{'name'}&&index(" $IN{'name'} "," $CF{'denyname'} ")&&&locate($CF{'sitehome'});
-    #	$ENV{'REMOT_ADDR'}&&index(" $IN{'REMOT_ADDR'} "," $CF{'denyra'} ")&&(&locate($CF{'sitehome'}));
-    #	$ENV{'REMOT_HOST'}&&index(" $ENV{'REMOT_HOST'} "," $CF{'denyrh'} ")&&(&locate($CF{'sitehome'}));
+    $IN{'name'}&&index(" $CF{'denyname'} "," $IN{'name'} ") > -1&& exit;
+    $ENV{'REMOT_ADDR'}&&index(" $CF{'deny_ra'} "," $IN{'REMOT_ADDR'} ") > -1&& exit;
+    $ENV{'REMOT_HOST'}&&index(" $CF{'deny_rh'} "," $ENV{'REMOT_HOST'} ") > -1&& exit;
+    $ENV{'HTTP_USER_AGENT'}&&index(" $CF{'deny_ua'} "," $ENV{'HTTP_USER_AGENT'} ") > -1&& exit;
+    
+    &getCookie;
+    $CK{'name'}&&index(" $CF{'denyname'} "," $CK{'name'} ") > -1&& exit;
 
     $CF{'supass'} = [$CF{'admipass'}]unless$CF{'supass'};
     if('jump'eq$IN{'mode'}){
@@ -364,7 +368,6 @@ _HTML_
 # North
 #
 sub modeNorth{
-    &getCookie;
     (%CK)||(%CK=%IN);
     &header;
     &iptico($CK{'icon'},'tabindex="12"');
@@ -449,9 +452,9 @@ title="reset&#10;内容を初期化します" value="キャンセル" tabindex="42"></TD>
 maxlength="300" size="100" style="ime-mode:active;width:400px" tabindex="1">
 <INPUT type="button" id="bodySwitch" class="button" value="↓" tabindex="2"
 onclick="switchBodyFormType(event);return false;"></TD>
-<TD style="text-align:center"><INPUT type="checkbox" name="quit" id="quit" class="check" tabindex="51"
+<TD style="text-align:center"><!--INPUT type="checkbox" name="quit" id="quit" class="check" tabindex="51"
 ><LABEL accesskey="Q" for="quit" title="Quit&#10;チェックを入れると参加者から名前を消します。"
->退室モード(<SPAN class="ak">Q</SPAN>)</LABEL></TD>
+>退室モード(<SPAN class="ak">Q</SPAN>)</LABEL-->&nbsp;</TD>
 </TR>
 
 <TR>
@@ -978,24 +981,39 @@ sub locate{
 		   substr($ENV{'SCRIPT_NAME'},0,rindex($ENV{'SCRIPT_NAME'},'/')));
 	$i.=$_[0];
     }
+    my $location = '';
+    my $href = $i;
+    my $status='Status: 303 See Other';
+    $href=~s/%([0-9A-Fa-f]{2})/pack('H2',$1)/ego;
+    if($href=~/\w+:\/\/[\x00-\x2E\x30-\x7F]*[^\x00-\x7f]/o){
+	$href=~s/&(#?\w+;)?/$1?"&$1":'&#38;'/ego;
+	$href=~s/"/&#34;/go;
+	$href=~s/'/&#39;/go;
+	$href=~s/</&#60;/go;
+	$href=~s/>/&#62;/go;
+	$status='Status: 200 OK';
+    }else{
+	$href = $i;
+	$location = "Location: $i";
+    }
     print<<"_HTML_";
-Status: 303 See Other
+$status
 Content-Language: ja-JP
 Pragma: no-cache
 Cache-Control: no-cache
-Location: $i
 Content-type: text/html; charset=euc-jp
+$location
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"> 
 <HTML>
 <HEAD>
-<META http-equiv="Refresh" content="0;URL=$i">
+<!--META http-equiv="Refresh" content="0;URL=$href"-->
 <TITLE>303 See Ohter</TITLE>
 </HEAD>
 <BODY>
 <H1>: Marldia :</H1>
-<P>And, please go <A href="$i">here</A>.</P>
-<P>Location: $i</P>
+<P>And, please go <A href="$href">here</A>.</P>
+<P>Location: $href</P>
 <P>Marldia <VAR>$CF{'correv'}</VAR>.<BR>
 Copyright &#169;2001,2002 <A href="http://airemix.com/" target="_blank" title="Airemix">Airemix</A>. All rights reserved.</P>
 </BODY>
@@ -1669,15 +1687,15 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	# Encoding
 	if($DT{'encoding'}){
 	    $IN{'encoding'} = $DT{'encoding'};
-	    if($IN{'encoding'}=~/utf\-?8/o){
-		for(keys%DT){
-		    $DT{$_} =~ s/\xef\xbd\x9e/\xe3\x80\x9c/go;
-		}
-	    }
 	    {
 		local $SIG{'__DIE__'} = sub{};
 		# Encode
-		eval q{use Encode;for(keys%DT){Encode::from_to( $DT{$_}, $IN{'encoding'}, $::CF{'encoding'} )}};
+		eval q{
+			use Encode;
+			for(keys%DT){
+				Encode::from_to( $DT{$_}, $IN{'encoding'}, $::CF{'encoding'}, Encode::FB_HTMLCREF )
+			}
+		};
 		# Jcode
 		my $enc = $IN{'encoding'};
 		$enc = $enc=~/ISO-2022-JP/i	? 'jis' :
@@ -1686,6 +1704,17 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		    $enc=~/UTF-?16/i		? 'ucs2' :
 		    $enc=~/UTF-?8/i		? 'utf8' : 'euc';
 		eval q{use Jcode;for(keys%DT){$DT{$_} = Jcode->new( $DT{$_}, $enc )->euc}} if $@;
+	    }
+	    if($::CF{'encoding'}=~/euc-?jp/io){
+		for(keys%DT){
+		    $DT{$_} =~ s/&#8741;/‖/go;
+		    $DT{$_} =~ s/&#65374;/〜/go;
+		    $DT{$_} =~ s/&#65293;/−/go;
+		    $DT{$_} =~ s/&#65504;/¢/go;
+		    $DT{$_} =~ s/&#65505;/£/go;
+		    $DT{$_} =~ s/&#65506;/¬/go;
+		    $DT{$_} =~ s/&#65508;/��/go;
+		}
 	    }
 	}
 	
@@ -1704,7 +1733,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	}
 	
 	#コマンド系
-	unless($DT{'body'}){
+	if(!$DT{'body'}or'xml'eq$DT{'type'}){
 	}elsif($::CF{'admipass'}&&$DT{'body'}=~/^\/admin\s*(.*)/o){
 	    $IN{'mode'}='admicmd';
 	    $IN{'body'}=$1;
@@ -1726,14 +1755,12 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    #アイコンカタログ
 	    $IN{'mode'} = 'jump';
 	    $IN{'jump'} = $DT{'jump'};
-	}elsif(defined$DT{'icct'} or 'icct'eq$IN{'mode'}){
+	}elsif(exists$DT{'icct'} or 'icct'eq$IN{'mode'}){
 	    #アイコンカタログ
 	    $IN{'page'}=($DT{'page'}&&$DT{'page'}=~/([1-9]\d*)/o)?$1:1;
 	    $IN{'mode'}='icct';
-	}elsif($DT{'name'}){
+	}elsif(defined$DT{'id'}&&$DT{'name'}){
 	    #発言
-	    &::getCookie;
-	    
 	    if(defined$DT{'body'}){
 		$IN{'body'}=$DT{'body'}||'';
 		$IN{'cook'}=$DT{'cook'}?1:0;
@@ -2124,11 +2151,12 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
     sub Members::add{
 	my$self=ref($_[0])?$_[0]:getInstance();shift;
 	my%DT=%{shift()};
-	if($DT{'quit'}){
-	    #退室モード
-	    delete$singleton->{$DT{'id'}}if$DT{'id'};
-	    $singleton->{"$DT{'ra'}"}={id=>$DT{'ra'},(map{$_=>$DT{$_}}qw(reload ra time hua))};
-	}elsif($DT{'name'}){
+#	if($DT{'quit'}){
+#	    #退室モード
+#	    delete$singleton->{$DT{'id'}}if$DT{'id'};
+#	    $singleton->{"$DT{'ra'}"}={id=>$DT{'ra'},(map{$_=>$DT{$_}}qw(reload ra time hua))};
+#	}els
+	if($DT{'name'}){
 	    delete$singleton->{"$DT{'ra'}"};
 	    if($DT{'isActive'}||!exists$singleton->{$DT{'id'}}){
 		#能動的リロード
@@ -2310,7 +2338,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     $CF{'uri'} = 'http://' . $ENV{'HTTP_HOST'} . $ENV{'SCRIPT_NAME'};
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.28 $;
+    $CF{'correv'}=qq$Revision: 1.29 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
