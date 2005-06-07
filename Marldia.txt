@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 = Marldia - Web Chat System
 #
-# $Id: Marldia.txt,v 1.29 2005-05-28 17:25:22 naruse Exp $
+# $Id: Marldia.txt,v 1.30 2005-06-07 14:07:22 naruse Exp $
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
@@ -28,6 +28,11 @@ Airemixの掲示板で質問してみてください
 
 #------------------------------------------------------------------------------#
 == Marldia History
+:2005-06-07 Revision: 1.30
+  * SELECTによるアイコン指定時に、表情アイコンが使用できないバグの修正
+  * SELECTによるアイコン指定時に、表情アイコンSELECTが反映されないバグの修正
+  * XML出力の調整
+  * 連続投稿防止機能
 :2005-05-29 Revision: 1.29
   * encoding指定投稿に対応
 :2005-03-12 Revision: 1.28

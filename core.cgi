@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.29 $
+# $Revision: 1.30 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.29 2005-05-28 17:25:21 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.30 2005-06-07 14:07:21 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -299,6 +299,7 @@ _EOM_
 	my $updated = &datef($DT{'time'},'dateTime');
 	my $body = $DT{'body'};
 	$body =~ s/<A class="autolink"[^>]*>([^<]+)<\/A>/$1/go;
+	$body =~ s/<BR>/\n/go;
 	
 	#出力
 	print <<"_EOM_";
@@ -1311,7 +1312,13 @@ sub commonRoutineForView{
     #相対指定アイコン
     $IN{'icon'}=''if$CF{'relativeIcon'}&&$EX{'relativeIcon'};
     #表情アイコン
-    $IN{'icon'}=$IN{'surface'}if!$IN{'icon'}&&$IN{'surface'};
+    if(!$IN{'surface'}){
+    }elsif(!$IN{'icon'}){
+	$IN{'icon'}=$IN{'surface'};
+    }elsif($IN{'icon'}=~/^((?:[^\/#]*\/)*[^\/#.]*(?:\.[^\/#.]*)*)(\.[^\/#]*)(?:#\d+(?:-\d+)?)?$/o
+	   && $IN{'surface'}=~/^$1/){
+	$IN{'icon'}=$IN{'surface'};
+    }
     
     $IN{'body'}=$IN{'body'}?Filter->filteringBody($IN{'body'},%EX):'';
     $IN{'isActive'}=$ENV{'CONTENT_LENGTH'}?1:0;
@@ -1336,11 +1343,15 @@ sub commonRoutineForView{
     #書き込み
     if(length$IN{'body'}&&$IN{'id'}){
 	#ランキング加点
-	my $rank = Rank->getInstance;
-	$IN{'exp'}=$rank->plusExp(\%IN);
-	$rank->dispose;
-	#発言処理
-	$chatlog->add(\%IN);
+	if( 'HASH' ne ref($chatlog->[0]) || #連続投稿防止
+	   $chatlog->[0]->{'id'} ne $IN{'id'} ||
+	   $chatlog->[0]->{'body'} ne $IN{'body'} ){
+	    my $rank = Rank->getInstance;
+	    $IN{'exp'}=$rank->plusExp(\%IN);
+	    $rank->dispose;
+	    #発言処理
+	    $chatlog->add(\%IN);
+	}
     }elsif($IN{'del'}){
 	#発言削除
 	my$id;
@@ -1504,7 +1515,7 @@ $CF{'iconList'}の最初の一文字が' '（半角空白）だった場合複数リストモードになりま
     $_[0]=$CF{'icondir'}.$_[0]unless$isAbsolute;
     $isDisabled&&=' disabled';
     $CF{'-CacheIconList'}=<<"_HTML_";
-<SELECT name="icon" id="icon" onchange="document.images['preview'].src=iconDirectory+this.value;document.images['preview'].title=this.value;"$opt$isDisabled>
+<SELECT name="icon" id="icon" onchange="document.images['preview'].src=iconDirectory+this.value;document.images['preview'].title=this.value;if(changeOption)changeOption()"$opt$isDisabled>
 $iconlist</SELECT>
 _HTML_
     return$CF{'-CacheIconList'};
@@ -1585,6 +1596,11 @@ _HTML_
 	elsif('HEAD'eq$ENV{'REQUEST_METHOD'}){return}
 	elsif('POST'eq$ENV{'REQUEST_METHOD'}){read(STDIN,$params,$ENV{'CONTENT_LENGTH'})}
 	elsif('GET'eq$ENV{'REQUEST_METHOD'}){$params=$ENV{'QUERY_STRING'}}
+	
+	#Gabri Duke対策
+	$ENV{'SERVER_PROTOCOL'} eq 'HTTP/1.0'
+	    and $params =~ /body=(?!.*&\w+=)[-+*.@\w%&=]*(?:[^-+*.@\w%&=][-+*.@\w%&=]*)*$/o
+	    and die 'GabriDuke? :' . $params;
 
 	#引数をハッシュに
 	if(!$params){
@@ -1720,7 +1736,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	
 	#化けた文字は蹴る
 	for(keys%DT){
-	    $DT{$_}=$DT{$_}=~/($eucchar*)/o?$1:'';
+	    $DT{$_}=$DT{$_}=~/^($eucchar*)$/o?$1:'';
 	}
 	
 	#特殊
@@ -1778,7 +1794,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $DT{'home'}=($DT{'home'}=~/(.{1,200})/o)?$1:'';
 	    $IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?$1:'';
 	    $IN{'icon'}=($DT{'icon'}=~/([\w\:\.\~\-\%\/\#]+)/o)?$1:'';
-	    $IN{'surface'}=$1 if$DT{'surface'}=~/(.+)/o;
+	    $IN{'surface'}=$1 if$DT{'surface'}=~/([\w\:\.\~\-\%\/\#]+)/o;
 	    $IN{'quit'}=$DT{'quit'}?1:0;
 	    $IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
 	    $IN{'line'}=($DT{'line'}=~/([1-9]\d*)/o)?$1:$::CF{'defline'};
@@ -1909,6 +1925,8 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	}
 	$str=~s/\t/&nbsp;&nbsp;/go;
 	$str=~s/(\x20{2,})/'&nbsp;' x length$1/ego;
+	$str=~s/^[\n\r]+//go;
+	$str=~s/[\n\r]+$//go;
 	$str=~s/\n/<BR>/go;
 	$str=~s/(&#60;!--.*?--&#62;)/<span style="color:green">$1<\/span>/go;
 	return$str;
@@ -2338,7 +2356,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     $CF{'uri'} = 'http://' . $ENV{'HTTP_HOST'} . $ENV{'SCRIPT_NAME'};
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.29 $;
+    $CF{'correv'}=qq$Revision: 1.30 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
