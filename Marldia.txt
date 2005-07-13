@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 = Marldia - Web Chat System
 #
-# $Id: Marldia.txt,v 1.30 2005-06-07 14:07:22 naruse Exp $
+# $Id: Marldia.txt,v 1.31 2005-07-13 19:11:05 naruse Exp $
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
@@ -28,6 +28,11 @@ Airemixの掲示板で質問してみてください
 
 #------------------------------------------------------------------------------#
 == Marldia History
+:2005-07-14 Revision: 1.31
+  * 一般表情アイコンが使えなかったのを修正
+  * URL自動リンクで、中継CGIでなく、JavaScriptで飛ばすようにした
+  * ChatXMLのarticle/icon@srcが常に絶対パスとなるようにした
+  * ChatXMLでarticle/icon{@width,@height}を追加した
 :2005-06-07 Revision: 1.30
   * SELECTによるアイコン指定時に、表情アイコンが使用できないバグの修正
   * SELECTによるアイコン指定時に、表情アイコンSELECTが反映されないバグの修正

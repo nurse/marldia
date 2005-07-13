@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.30 $
+# $Revision: 1.31 $
 # "This file is written in euc-jp, CRLF." ¶õ
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.30 2005-06-07 14:07:21 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.31 2005-07-13 19:11:05 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -283,7 +283,9 @@ _EOM_
 	my $option = '';
 	#¥¢¥¤¥³¥ó
 	my %icon = &getIconTag(\%DT);
-	$option .= qq(\n        <icon dir="$icon{'dir'}" file="$icon{'file'}" src="$icon{'src'}" />);
+	if($icon{'uri'}){
+	    $option .= qq(\n        <icon dir="$icon{'dir'}" file="$icon{'file'}" src="$icon{'uri'}" width="48" height="48" />);
+	}
 	#¥ì¥Ù¥ë¼èÆÀ
 	$DT{'level'}=&getLevel($DT{'exp'});
 	#ºï½ü¥Ü¥¿¥ó
@@ -304,16 +306,16 @@ _EOM_
 	#½ÐÎÏ
 	print <<"_EOM_";
       <article>
+        <updated>$updated</updated>
         <id><![CDATA[$DT{'id'}]]></id>
         <name><![CDATA[$DT{'name'}]]></name>
         <color><![CDATA[$DT{'color'}]]></color>
-        <updated>$updated</updated>
         <email>$DT{'email'}</email>
         <home><![CDATA[$DT{'home'}]]></home>
-        <bcolo><![CDATA[$DT{'bcolo'}]]></bcolo>
-        <body><![CDATA[$body]]></body>
         <exp>$DT{'exp'}</exp>
-        <level>$DT{'level'}</level>$option
+        <level>$DT{'level'}</level>
+        <bcolo><![CDATA[$DT{'bcolo'}]]></bcolo>
+        <body><![CDATA[$body]]></body>$option
       </article>
 _EOM_
     }
@@ -1397,6 +1399,8 @@ $ ¤É¤Î¤è¤¦¤Ê·Á¤ÇÊÖ¤¹¤«¤ÎÀßÄê
 =item ÊÖ¤êÃÍÀßÄê
 ¡Ö-!keyword!-¡×¤Î¤è¤¦¤Ê·Á¼°¤Ç¤¹
 ¶ñÂÎÅª¤Ë¤Ï°Ê²¼¤Î¤È¤ª¤ê
+:-!uri!-
+absolute uri
 :-!src!-
 dir+file
 :-!dir!-
@@ -1419,6 +1423,14 @@ file
     }
     if($DT{'file'}){
 	$DT{'src'}=$DT{'dir'}.$DT{'file'};
+	if($DT{'src'} =~ /^http:/o){
+	    $DT{'uri'} = $DT{'src'};
+	}elsif($DT{'src'} =~ /^\//o){
+	    $DT{'uri'} = 'http://' . $ENV{'HTTP_HOST'} . $DT{'src'};
+	}else{
+	    $CF{'uri'} =~ /([^#?]+\/)/o;
+	    $DT{'uri'} = $1.$DT{'src'};
+	}
 	$text=~s/(-!(\w+)!-)/defined$DT{$2}?$DT{$2}:$1/ego;
     }else{
 	$text=undef;
@@ -1507,7 +1519,7 @@ $CF{'iconList'}¤ÎºÇ½é¤Î°ìÊ¸»ú¤¬' '¡ÊÈ¾³Ñ¶õÇò¡Ë¤À¤Ã¤¿¾ì¹çÊ£¿ô¥ê¥¹¥È¥â¡¼¥É¤Ë¤Ê¤ê¤Þ
 	$_[0]=$1;
 	$iconlist=qq(<OPTION value="$1" selected>ÁêÂÐ»ØÄê</OPTION>\n)if$isEconomy;
 	$isDisabled=1;
-    }elsif($_[0]and$iconlist=~s/^(.*value=(["'])$_[0]\2)(.*)$/$1 selected$3/imo){
+    }elsif($_[0]and$_[0]=~/([^#]+)/oand$iconlist=~s/^(.*value=(["'])$1(?:#\d+(?:-\d+)?)?\2)(.*)$/$1 selected$3/imo){
 	$iconlist="$1 selected$3"if$isEconomy;
     }elsif($iconlist=~s/value=(["'])(.+?)\1/value=$1$2$1 selected/io){
 	$_[0]=$2;
@@ -1721,16 +1733,30 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		    $enc=~/UTF-?8/i		? 'utf8' : 'euc';
 		eval q{use Jcode;for(keys%DT){$DT{$_} = Jcode->new( $DT{$_}, $enc )->euc}} if $@;
 	    }
+	    for(keys%DT){
+		#¡Â¡Á¡Ý¡ñ¡ò¢Ìüü­µ­¶­·­¸­¹­º­»­¼­½­¾­â­ä­ê
+		$DT{$_} =~ s/&#8741;/¡Â/go;
+		$DT{$_} =~ s/&#65374;/¡Á/go;
+		$DT{$_} =~ s/&#65293;/¡Ý/go;
+		$DT{$_} =~ s/&#65504;/¡ñ/go;
+		$DT{$_} =~ s/&#65505;/¡ò/go;
+		$DT{$_} =~ s/&#65506;/¢Ì/go;
+		$DT{$_} =~ s/&#65508;/üü/go;
+		$DT{$_} =~ s/&#8544;/­µ/go;
+		$DT{$_} =~ s/&#8545;/­¶/go;
+		$DT{$_} =~ s/&#8546;/­·/go;
+		$DT{$_} =~ s/&#8547;/­¸/go;
+		$DT{$_} =~ s/&#8548;/­¹/go;
+		$DT{$_} =~ s/&#8549;/­º/go;
+		$DT{$_} =~ s/&#8550;/­»/go;
+		$DT{$_} =~ s/&#8551;/­¼/go;
+		$DT{$_} =~ s/&#8552;/­½/go;
+		$DT{$_} =~ s/&#8553;/­¾/go;
+		$DT{$_} =~ s/&#8481;/­ä/go;
+		$DT{$_} =~ s/&#12849;/­ê/go;
+	    }
 	    if($::CF{'encoding'}=~/euc-?jp/io){
-		for(keys%DT){
-		    $DT{$_} =~ s/&#8741;/¡Â/go;
-		    $DT{$_} =~ s/&#65374;/¡Á/go;
-		    $DT{$_} =~ s/&#65293;/¡Ý/go;
-		    $DT{$_} =~ s/&#65504;/¡ñ/go;
-		    $DT{$_} =~ s/&#65505;/¡ò/go;
-		    $DT{$_} =~ s/&#65506;/¢Ì/go;
-		    $DT{$_} =~ s/&#65508;/üü/go;
-		}
+		$DT{$_} =~ s/\x8f\xa2\xf1/­â/go;
 	    }
 	}
 	
@@ -1895,18 +1921,8 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		#¼Â²ÔÆ°Éô
 		my$href_regex=qr{($http_URL_regex|$ftp_URL_regex|($mail_regex))};
 		my@isMail=('<A class="autolink" href="mailto:','<A class="autolink" href="');
-		$str=~s{((?:\G|>)[^<]*?)$href_regex}
-		{
-		    my $start = "$1$isMail[!$3]";
-		    my $end = qq{" target="_blank">$2</A>};
-		    my $uri = $2;
-		    unless($3){
-			$uri=~s{(\W)}{'%'.unpack('H2',$1)}ego;
-			"$start$::CF{'index'}?jump=$uri$end";
-		    }else{
-			"$start$uri$end";
-		    }
-		}ego;
+		my $anchorContent = q{" target="_blank" onclick="window.open(this.href);return false;">};
+		$str=~s{((?:\G|>)[^<]*?)$href_regex}{$1$isMail[!$3]$2$anchorContent$2</A>}go;
 		if($str=~/<(?:XMP|PLAINTEXT|SCRIPT)(?![0-9A-Za-z])/io){
 		    #XMP/PLAINTEXT/SCRIPT¥¿¥°¤¬¤¢¤ë¤È¤­
 		    $str=~s{(<(XMP|PLAINTEXT|SCRIPT)(?![0-9A-Za-z]).*?(?:<\/$2\s*>|$))}
@@ -2356,7 +2372,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     $CF{'uri'} = 'http://' . $ENV{'HTTP_HOST'} . $ENV{'SCRIPT_NAME'};
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.30 $;
+    $CF{'correv'}=qq$Revision: 1.31 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
