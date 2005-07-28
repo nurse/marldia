@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.31 $
+# $Revision: 1.32 $
 # "This file is written in euc-jp, CRLF." ¶õ
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.31 2005-07-13 19:11:05 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.32 2005-07-28 02:14:55 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -201,6 +201,7 @@ sub xmlView{
     #½é´ü²½
     $IN{'line'} = 50 unless $IN{'line'};
     $IN{'lastModified'} = 50 unless $IN{'lastModified'};
+    my $version = $IN{'version'} eq '0.2' ? '0.2' : '0.1';
     
     #-----------------------------
     #¥¯¥¨¥ê
@@ -225,6 +226,11 @@ sub xmlView{
     #---------------------------------------
     #¥Ç¡¼¥¿É½¼¨
     my $updated = &datef((stat("$CF{'rank'}"))[9],'dateTime');
+    my $rootElement = vercmp($version, '>=', '0.2') ? 'feed' : 'document';
+    my $doctype = $IN{'doctype'} && vercmp($version, '>=', '0.2') ?
+	'<!DOCTYPE feed PUBLIC "-//Airemix//DTD ChatXML 0.2//EN"'
+	. ' "http://airemix.org/TR/ChatXML/DTD/ChatXML-0.2.dtd">' . "\n" : '';
+    my $xmlns = vercmp($version, '>=', '0.2') ? ' xmlns="http://airemix.org/2005/ChatXML"' : '';
     
     #-----------------------------
     #¥Ø¥Ã¥À½ÐÎÏ
@@ -233,9 +239,10 @@ Status: 200 OK
 Content-type: application/xml; charset=euc-jp
 
 <?xml version="1.0" encoding="euc-jp"?>
-<document>
+$doctype<$rootElement version="$version"$xmlns>
   <updated>$updated</updated>
   <system>
+    <uri>http://airemix.com/Marldia/$CF{'version'}</uri>
     <name>Marldia</name>
     <version>$CF{'version'}</version>
   </system>
@@ -244,20 +251,22 @@ Content-type: application/xml; charset=euc-jp
     <link rel="alternative" type="text/html" href="$CF{'sitehome'}" />
   </site>
   <entry>
-    <link rel="alternative" type="text/html" href="$CF{'uri'}" />
     <title>$CF{'title'}</title>
+    <link rel="alternative" type="text/html" href="$CF{'uri'}" />
     <members count="$intMembers">
 _EOM_
     for(sort{$a->{'blank'}<=>$b->{'blank'}}$members->getSingersInfo){
-	my $updated = &datef($_->{'lastModified'},'dateTime');
-	print<<"_EOM_";
-      <member>
-        <name><![CDATA[$_->{'name'}]]></name>
-        <id><![CDATA[$_->{'id'}]]></id>
-        <color><![CDATA[$_->{'color'}]]></color>
-        <updated>$updated</updated>
-      </member>
-_EOM_
+	my $member = $_;
+	my %person;
+	$person{'updated'} = &datef($member->{'lastModified'},'dateTime');
+	for(qw/id name color/){
+	    $person{$_} = to_cdata($member->{$_}) if exists$member->{$_} && length($member->{$_});
+	}
+	print "      <member>\n";
+        for(qw/updated id color name/){
+	    print "        <$_>$person{$_}</$_>\n";
+        }
+	print "      </member>\n";
     }
     print<<"_EOM_";
     </members>
@@ -280,44 +289,66 @@ _EOM_
 	!$isAdmin&&'del'eq$DT{'Mar1'}&&next;
 	++$i>$IN{'line'}&&last;
 	
-	my $option = '';
+	my %article;
+	my %author;
+	
+	my $article_id = $DT{'id'};
+	$article_id =~ s{(\W)}{'-'.unpack('H2',$1)}ego;
+	$article_id = $DT{'exp'}. '_' .$article_id;
+	$DT{'level'}=&getLevel($DT{'exp'});
+	
+	for(qw/id name color email home exp level/){
+	    $author{$_} = sprintf('<%s>%s</%s>', $_, to_cdata($DT{$_}), $_)
+		if exists$DT{$_} && length($DT{$_});
+	}
+
 	#¥¢¥¤¥³¥ó
 	my %icon = &getIconTag(\%DT);
-	if($icon{'uri'}){
-	    $option .= qq(\n        <icon dir="$icon{'dir'}" file="$icon{'file'}" src="$icon{'uri'}" width="48" height="48" />);
-	}
-	#¥ì¥Ù¥ë¼èÆÀ
-	$DT{'level'}=&getLevel($DT{'exp'});
+	$author{'icon'} =
+	    sprintf('<icon dir="%s" file="%s" src="%s" width="48" height="48" />',
+		    @icon{'dir','file','uri'}) if $icon{'uri'};
+	
 	#ºï½ü¥Ü¥¿¥ó
 	if('del'eq$DT{'Mar1'}){
-	    $option .= qq(\n        <delete />);
+	    $article{'delete'} = qq(<delete />);
 	}elsif($IN{'id'}&&$DT{'id'}eq$IN{'id'}){
-	    $option .= qq(\n        <delete href="$CF{'index'}?del=$DT{'exp'}&#59;$query" />);
+	    $article{'delete'} = qq(<delete href="$CF{'index'}?del=$DT{'exp'}&#59;$query" />);
 	}elsif($isAdmin){
-	    my$id = $DT{'id'};
-	    $id=~s{(\W)}{'%'.unpack('H2',$1)}ego;
-	    $option .= qq(\n        <delete href="$CF{'index'}?del=$DT{'exp'}_$id&#59;$query" />);
+	    $article{'delete'} = qq(<delete href="$CF{'index'}?del=$article_id&#59;$query" />);
 	}
-	my $updated = &datef($DT{'time'},'dateTime');
-	my $body = $DT{'body'};
-	$body =~ s/<A class="autolink"[^>]*>([^<]+)<\/A>/$1/go;
-	$body =~ s/<BR>/\n/go;
+	
+	$article{'updated'} = '<updated>'.&datef($DT{'time'},'dateTime').'</updated>';
+	$article{'body'} = to_cdata($DT{'body'});
+	$article{'body'} =~ s/<A class="autolink"[^>]*>([^<]+)<\/A>/$1/go;
+	$article{'body'} =~ s/<BR>/\n/go;
+	$article{'body'} = '<body>'.$article{'body'}.'</body>';
 	
 	#½ÐÎÏ
-	print <<"_EOM_";
-      <article>
-        <updated>$updated</updated>
-        <id><![CDATA[$DT{'id'}]]></id>
-        <name><![CDATA[$DT{'name'}]]></name>
-        <color><![CDATA[$DT{'color'}]]></color>
-        <email>$DT{'email'}</email>
-        <home><![CDATA[$DT{'home'}]]></home>
-        <exp>$DT{'exp'}</exp>
-        <level>$DT{'level'}</level>
-        <bcolo><![CDATA[$DT{'bcolo'}]]></bcolo>
-        <body><![CDATA[$body]]></body>$option
-      </article>
-_EOM_
+	print "      <article>\n";
+	if(vercmp($version, '>=', '0.2')){
+	    $article{'id'} = '<id>'.$article_id.'</id>';
+	    $article{'color'} = '<color>'.to_cdata($DT{'bcolo'}).'</color>' if $DT{'bcolo'};
+	    delete$author{'home'};
+	    $author{'uri'} = sprintf('<%s>%s</%s>', 'uri', to_cdata($DT{'home'}), 'uri') if $DT{'home'};
+	    
+	    for(qw/updated id body color/){
+		print "        $article{$_}\n" if $article{$_};;
+	    }
+	    print "        <author>\n";
+	    for(qw/id color email exp icon level name uri/){
+		print "          $author{$_}\n" if $author{$_};
+	    }
+	    print "        </author>\n";
+	}else{
+	    $article{'bcolo'} = '<bcolo>'.to_cdata($DT{'bcolo'}).'</bcolo>' if $DT{'bcolo'};
+	    for(keys %article){
+		print "        $article{$_}\n";
+	    }
+	    for(keys %author){
+		print "        $author{$_}\n";
+	    }
+	}
+	print "      </article>\n"
     }
     $members->dispose;
     $chatlog->dispose;
@@ -325,7 +356,7 @@ _EOM_
     print<<"_EOM_";
     </log>
   </entry>
-</document>
+</$rootElement>
 _EOM_
     exit;
 }
@@ -374,14 +405,68 @@ sub modeNorth{
     (%CK)||(%CK=%IN);
     &header;
     &iptico($CK{'icon'},'tabindex="12"');
-    open(JS,$CF{'ProgramDirectory'}.$CF{'marldiajs'}) or die"Can't load JavaScript External JavaScript";
-    print qq(<SCRIPT type="text/javascript" defer>\n<!--\n);
-    print<JS>;
-    print"//-->\n</SCRIPT>";
-    close(JS);
     print<<"_HTML_";
+<SCRIPT type="text/javascript">
+<!--
+/*========================================================*/
+// ½é´ü²½
+MARLDIA_CORE_ID = '\$Id: core.cgi,v 1.32 2005-07-28 02:14:55 naruse Exp $';
+var isInitialized;
+var iconDirectory = '$CF{'iconDir'}';
+var iconSetting = @{[ !!$CF{'absoluteIcon'} * 1 + !!$CF{'relativeIcon'} * 2 ]};
+var myIcon = { value: '$CK{'icon'}', isAbsolute: 0 };
+function init(){}
+
+/*========================================================*/
+// OnSubmit
+function onSubmitHandler(e){
+    if(document.forms && document.forms[0]){
+	var form = document.forms[0];
+	if(form['identity'] && form['name'] &&
+	   !form['identity'].value && form['name'].value){
+	    form['identity'].value = form['name'].value;
+	}
+	if(isInitialized){
+	    if(commentHistory && form['body'].value && maxHistory > 0){
+		commentHistory.last();
+		commentHistory.set( form['body'].value );
+		commentHistory.push('');
+	    }
+	    setCookie();
+	}
+	form.submit();
+	if(form['cook'] && form['cook'].checked) form['cook'].checked = false;
+	if(form['body'] && form['body'].value){
+	    form['body'].value = '';
+	    form['body'].focus();
+	}
+	if(!e){
+	}else if(document.all){ 
+	    e.returnValue = false;
+	}else if(document.getElementById){
+	    e.preventDefault();
+	}else return false;
+	if(e) e.cancelBubble=true;
+	return false;
+    }else{
+	return true;
+    }
+}
+//-->
+</SCRIPT>
+<![if gte IE 5.5000]>
+<SCRIPT type="text/javascript" src="./punycode.js"></SCRIPT>
+<SCRIPT type="text/javascript" src="./$CF{'marldiajs'}"></SCRIPT>
+<![endif]>
+
+<SCRIPT type="text/javascript" defer>
+<!--
+window.onload = init;
+//-->
+</SCRIPT>
+
 <FORM name="north" id="north" method="post" action="$CF{'index'}" target="south"
-onsubmit="setTimeout(autoreset,20)" onreset="setTimeout(autoreset,20)">
+onsubmit="return onSubmitHandler(event);">
 <TABLE cellspacing="0" style="width:770px" summary="È¯¸À¥Õ¥©¡¼¥à">
 <COL style="width:130px">
 <COL style="width: 60px">
@@ -393,27 +478,8 @@ onsubmit="setTimeout(autoreset,20)" onreset="setTimeout(autoreset,20)">
 <COL style="width:120px">
 
 <TR>
-<TD rowspan="5" style="text-align:center;white-space:nowrap" nowrap>
+<TD style="text-align:center;white-space:nowrap" nowrap>
 <H1 contentEditable="true">$CF{'pgtit'}</H1>
-<BUTTON accesskey="x" type="button" id="surfaceButton" onclick="surfaceSample(event);return false"
-onkeypress="surfaceSample(event);return false"><IMG name="preview" id="preview" alt="" title="$CK{'icon'}"
-src="$CF{'iconDir'}$CK{'icon'}" $CF{'imgatt'} style="margin:0"></BUTTON><BR>
-<LABEL accesskey="z" for="surface" title="sUrface&#10;É½¾ð¥¢¥¤¥³¥ó¤òÁªÂò¤·¤Þ¤¹¡Ê»È¤¨¤ì¤Ð¡Ë"
->S<SPAN class="ak">u</SPAN>rface</LABEL><SELECT name="surface" id="surface" tabindex="50"
-onfocus="if(myIcon.value!=getSelectingIcon())changeOption()" onchange="changeSurface(this.selectedIndex)">
-_HTML_
-    if($CK{'icon'}=~/^((?:[^\/#]*\/)*)((?:[^\/#.]*\.)*?[^\/#.]+)(\.[^\/#.]*)?#(\d+)$/o){
-	print qq(<OPTION value="$1$2$3">-</OPTION>\n);
-	for(0..$4){print qq(<OPTION value="$1$2$_$3">$_</OPTION>\n);}
-    }else{
-	print qq(<OPTION value="$CK{'icon'}">-</OPTION>\n);
-    }
-    print<<"_HTML_";
-</SELECT><BR>
-<DIV style="margin:0.3em 0;text-align:center" title="reloadQ&#10;¾å¥Õ¥ì¡¼¥à¤ò¥ê¥í¡¼¥É¤·¤Þ¤¹"
->[<A href="$CF{'index'}?north" accesskey="q" tabindex="52">ºÆÆÉ¹þ(<SPAN class="ak">Q</SPAN>)</A>]
-<INPUT name="south" type="hidden" value="">
-</DIV>
 </TD>
 <TH><LABEL accesskey="n" for="name" title="Name&#10;»²²Ã¼ÔÌ¾¡¢È¯¸À¼ÔÌ¾¤Ê¤É¤Ç»È¤¦Ì¾Á°¤Ç¤¹"
 >Ì¾Á°(<SPAN class="ak">N</SPAN>)</LABEL>:</TH>
@@ -435,6 +501,11 @@ title="Submit&#10;¸½ºß¤ÎÆâÍÆ¤ÇÈ¯¸À¤·¤Þ¤¹" value="OK" tabindex="41"></TD>
 </TR>
 
 <TR>
+<TD rowspan="3" style="text-align:center;white-space:nowrap" nowrap>
+<BUTTON accesskey="x" type="button" id="surfaceButton" onclick="isInitialized&&surfaceSample(event);return false"
+onkeypress="isInitialized&&surfaceSample(event);return false"><IMG name="preview" id="preview" alt="" title="$CK{'icon'}"
+src="$CF{'iconDir'}$CK{'icon'}" $CF{'imgatt'} style="margin:0"></BUTTON>
+</TD>
 <TH><LABEL accesskey="i" for="icon" title="Icon&#10;»ÈÍÑ¤¹¤ë¥¢¥¤¥³¥ó¤òÁªÂò¤·¤Þ¤¹"
 ><A href="$CF{'index'}?icct" target="south">¥¢¥¤¥³¥ó</A>(<SPAN class="ak">I</SPAN>)</LABEL></TH>
 <TD>@{[&iptico($CK{'icon'},'tabindex="13"')]}</TD>
@@ -454,10 +525,10 @@ title="reset&#10;ÆâÍÆ¤ò½é´ü²½¤·¤Þ¤¹" value="¥­¥ã¥ó¥»¥ë" tabindex="42"></TD>
 <TD colspan="5" id="bodyContainer"><INPUT type="text" class="text" name="body" id="body"
 maxlength="300" size="100" style="ime-mode:active;width:400px" tabindex="1">
 <INPUT type="button" id="bodySwitch" class="button" value="¢­" tabindex="2"
-onclick="switchBodyFormType(event);return false;"></TD>
+onclick="isInitialized&&switchBodyFormType(event);return false;"></TD>
 <TD style="text-align:center"><!--INPUT type="checkbox" name="quit" id="quit" class="check" tabindex="51"
 ><LABEL accesskey="Q" for="quit" title="Quit&#10;¥Á¥§¥Ã¥¯¤òÆþ¤ì¤ë¤È»²²Ã¼Ô¤«¤éÌ¾Á°¤ò¾Ã¤·¤Þ¤¹¡£"
->Âà¼¼¥â¡¼¥É(<SPAN class="ak">Q</SPAN>)</LABEL-->&nbsp;</TD>
+>Âà¼¼¥â¡¼¥É(<SPAN class="ak">Q</SPAN>)</LABEL--></TD>
 </TR>
 
 <TR>
@@ -476,10 +547,24 @@ title="$CF{'sitename'}¤Øµ¢¤ê¤Þ¤¹&#10;Âà¼¼¥á¥Ã¥»¡¼¥¸¤Ï½Ð¤Ê¤¤¤Î¤Çµ¢¤ê¤Î°§»¢¤òËº¤ì¤
 </TR>
 
 <TR>
+<TD style="text-align:center;white-space:nowrap" nowrap>
+<LABEL accesskey="z" for="surface" title="sUrface&#10;É½¾ð¥¢¥¤¥³¥ó¤òÁªÂò¤·¤Þ¤¹¡Ê»È¤¨¤ì¤Ð¡Ë"
+>S<SPAN class="ak">u</SPAN>rface</LABEL><SELECT name="surface" id="surface" tabindex="50"
+onfocus="if(isInitialized&&myIcon&&myIcon.value!=getSelectingIcon())changeOption()" onchange="isInitialized&&changeSurface(this.selectedIndex)">
+_HTML_
+    if($CK{'icon'}=~/^((?:[^\/#]*\/)*)((?:[^\/#.]*\.)*?[^\/#.]+)(\.[^\/#.]*)?#(\d+)$/o){
+	print qq(<OPTION value="$1$2$3">-</OPTION>\n);
+	for(0..$4){print qq(<OPTION value="$1$2$_$3">$_</OPTION>\n);}
+    }else{
+	print qq(<OPTION value="$CK{'icon'}">-</OPTION>\n);
+    }
+    print<<"_HTML_";
+</SELECT><INPUT name="south" type="hidden" value="">
+</TD>
 <TH><LABEL accesskey="p" for="opt" title="oPtion&#10;¥ª¥×¥·¥ç¥ó"
 >O<SPAN class="ak">p</SPAN>tion</LABEL>:</TH>
 <TD><INPUT type="text" class="text" name="opt" id="opt" style="ime-mode:inactive;width:150px"
-value="$CK{'opt'}" tabindex="102" onblur="changeOption()"></TD>
+value="$CK{'opt'}" tabindex="102" onblur="isInitialized&&changeOption()"></TD>
 <TH><LABEL accesskey="o" for="home" title="hOme&#10;¥µ¥¤¥È¤ÎURL¤Ç¤¹"
 >H<SPAN class="ak">o</SPAN>me</LABEL>:</TH>
 <TD colspan="3"><INPUT type="text" class="text" name="home" id="home" maxlength="200" size="40"
@@ -489,18 +574,6 @@ target="_top">Marldia v$CF{'version'}</A>-</TH>
 </TR>
 </TABLE>
 </FORM>
-
-<SCRIPT type="text/javascript" defer>
-<!--
-/*========================================================*/
-// ½é´ü²½
-var iconDirectory='$CF{'iconDir'}';
-var iconSetting=@{[$CF{'absoluteIcon'}?1:0]}+@{[$CF{'relativeIcon'}?1:0]}*2;
-var myIcon=new Object({value:'$CK{'icon'}',isAbsolute:0});
-window.onload=init;
-//-->
-</SCRIPT>
-
 </BODY>
 </HTML>
 _HTML_
@@ -612,11 +685,11 @@ qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}"
 	    :$DT{'name'};
 	#¥Û¡¼¥à
 	my$home=$DT{'home'}?qq(<A href="$DT{'home'}" target="_blank" title="$DT{'home'}">¢ä</A>):'¢ä';
-	$DT{'_Icon'}=&getIconTag(\%DT)||'&nbsp;';
+	$DT{'_Icon'}=&getIconTag(\%DT)||'&#160;';
 	#¥ì¥Ù¥ë¼èÆÀ
 	$DT{'level'}=&getLevel($DT{'exp'});
 	#ºï½ü¥Ü¥¿¥ó
-	my$del = '&nbsp;';
+	my$del = '&#160;';
 	if('del'eq$DT{'Mar1'}){
 	    $del = qq([ºï½üºÑ]);
 	}elsif($IN{'id'}&&$DT{'id'}eq$IN{'id'}){
@@ -631,7 +704,7 @@ qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}"
 <TABLE cellspacing="0" class="article" summary="article">
 <TR>
 <TH class="articon" rowspan="2">$DT{'_Icon'}</TH>
-<TH class="artname" nowrap>$name&nbsp;$home</TH>
+<TH class="artname" nowrap>$name&#160;$home</TH>
 <TD class="artbody" style="color:$DT{'bcolo'};">$DT{'body'}</TD>
 </TR>
 <TR>
@@ -677,6 +750,7 @@ sub modeUsercmd{
     #°ú¿ô½èÍý
     my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;$_;}($IN{'body'}=~
 					      /(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
+
 =item ÍøÍÑ¥³¥Þ¥ó¥É
 
 ¡þrank
@@ -814,7 +888,7 @@ sub modeAdmicmd{
     my@arg=grep{s/\\(\\)|\\(")|"/$1$2/go;length$_;}
     ($IN{'body'}=~
      /(?!\s)[^"\\\s]*(?:\\[^\s][^"\\\s]*)*(?:"[^"\\]*(?:\\.[^"\\]*)*(?:"[^"\\\s]*(?:\\[^\s][^"\\\s]*)*)?)*\\?/go);
-    
+
 =item ´ÉÍý¥³¥Þ¥ó¥É
 
 $::CF{'admipass'}='admicmd';¤Ê¤é¡¢
@@ -1568,6 +1642,74 @@ _HTML_
 
 
 #-------------------------------------------------
+# Version Compare
+#
+sub vercmp{
+
+=item °ú¿ô
+
+$_[0]: string A
+$_[1]: cmp
+$_[2]: string B
+
+=cut
+
+    my $a = shift;
+    my @a = ref$a eq 'ARRAY' ? @{$a} : split('\.', $a);
+    my $cmp = shift;
+    my $b = shift;
+    my @b = ref$b eq 'ARRAY' ? @{$b} : split('\.', $b);
+    my $result = 0;
+    for(my$i=0; ; $i++){
+	if($i > $#a){
+	    if($i > $#b){
+		$result = 0;
+	    }else{
+		$result = -1;
+	    }
+	    last;
+	}elsif($i > $#b){
+	    $result = 1;
+	    last;
+	}elsif($a[$i] <=> $b[$i]){
+	    $result = $a[$i] <=> $b[$i];
+	    last;
+	}
+    }
+    if('<' eq $cmp){
+	$result == -1 ;
+    }elsif('<=' eq $cmp){
+	$result < 1;
+    }elsif('==' eq $cmp){
+	$result == 0;
+    }elsif('>' eq $cmp){
+	$result == 1;
+    }elsif('>=' eq $cmp){
+	$result > -1;
+    }else{
+	$result;
+    }
+}
+
+
+#-------------------------------------------------
+
+=head2 Escape CDATA
+
+=item °ú¿ô
+
+$str: string
+
+=cut
+
+sub to_cdata{
+    my $str = shift;
+    $str =~ s/]]>/]]]]><![CDATA[>/go;
+    return '<![CDATA[' . $str . ']]>';
+}
+
+
+#-------------------------------------------------
 # ¥æ¡¼¥¶¡¼¸þ¤±¥¨¥é¡¼
 #
 sub showUserError{
@@ -1642,7 +1784,7 @@ _HTML_
 		$j=~s/'/&#39;/go;
 		$j=~s/</&#60;/go;
 		$j=~s/>/&#62;/go;
-		$j=~s/\t/&nbsp;&nbsp;/go;
+		$j=~s/\t/&#160;&#160;/go;
 		$j=~s/\n+$//o;
 		$j=~s/\n/<BR>/go;
 	    }#ËÜÊ¸¤Ï¸å¤Ç¤Þ¤È¤á¤Æ
@@ -1776,6 +1918,8 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	
 	#¥³¥Þ¥ó¥É·Ï
 	if(!$DT{'body'}or'xml'eq$DT{'type'}){
+	    $IN{'version'} = $DT{'version'} && $DT{'version'} =~ /((?:0|[1-9]\d*)(?:\.(?:0|[1-9]\d*))*)/o ? $1 : '0.1';
+	    $IN{'doctype'} = $DT{'doctype'} && $DT{'doctype'} ne 'no' ? 'yes' : '';
 	}elsif($::CF{'admipass'}&&$DT{'body'}=~/^\/admin\s*(.*)/o){
 	    $IN{'mode'}='admicmd';
 	    $IN{'body'}=$1;
@@ -1812,11 +1956,17 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    }
 	    $IN{'name'}=($DT{'name'}=~/(.{1,100})/o)?$1:'';
 	    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($::CK{'id'}||$IN{'name'});
-	    $IN{'color'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
-	    $IN{'bcolo'}=($DT{'bcolo'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+	    if($DT{'bcolo'}){
+		$IN{'color'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+		$IN{'bcolo'}=($DT{'bcolo'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+	    }else{
+		$IN{'nameColor'}=($DT{'nameColor'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+		$IN{'color'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+	    }
 	    $DT{'email'}=($DT{'email'}=~/(.{1,200})/o)?$1:'';
 	    $IN{'email'}=($DT{'email'}=~/($mail_regex)/o)?$1:'';
 	    $IN{'email'}=~s/\@/&#64;/o;
+	    $DT{'home'} = $DT{'uri'} if $DT{'uri'};
 	    $DT{'home'}=($DT{'home'}=~/(.{1,200})/o)?$1:'';
 	    $IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?$1:'';
 	    $IN{'icon'}=($DT{'icon'}=~/([\w\:\.\~\-\%\/\#]+)/o)?$1:'';
@@ -1939,8 +2089,8 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $str=~s/\04/&#62;/go;
 	    $str=~tr/\05/&/;
 	}
-	$str=~s/\t/&nbsp;&nbsp;/go;
-	$str=~s/(\x20{2,})/'&nbsp;' x length$1/ego;
+	$str=~s/\t/&#160;&#160;/go;
+	$str=~s/(\x20{2,})/'&#160;' x length$1/ego;
 	$str=~s/^[\n\r]+//go;
 	$str=~s/[\n\r]+$//go;
 	$str=~s/\n/<BR>/go;
@@ -2370,9 +2520,12 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     $CF{'ProgramDirectory'} = $1;
     $CF{'program'} = substr($ENV{'SCRIPT_NAME'}, rindex('/'.$ENV{'SCRIPT_NAME'},'/'));
     $CF{'uri'} = 'http://' . $ENV{'HTTP_HOST'} . $ENV{'SCRIPT_NAME'};
+    if($CF{'sitehome'} =~ /^\//o){
+	$CF{'sitehome'} = 'http://' . $ENV{'HTTP_HOST'} . $CF{'sitehome'};
+    }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.31 $;
+    $CF{'correv'}=qq$Revision: 1.32 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;

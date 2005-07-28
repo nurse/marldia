@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.19 $
+# $Revision: 1.20 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.19 2005-05-28 17:25:12 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.20 2005-07-28 02:14:55 naruse Exp $;
 require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK %IC);
@@ -24,7 +24,7 @@ $CF{'pgtit'}=': Marldia :';
 
 
 #管理モードへ移行する際のパスワード
-$CF{'admipass'}='opensesame';
+$CF{'admipass'}='';
 #管理モードの追加パスワード
 $CF{'supass'} = [$CF{'admipass'}]unless$CF{'supass'};
 #push(@{$CF{'supass'}},'hogehoge');
@@ -153,7 +153,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
 	};
     }
     # Revision Number
-    $CF{'idxrev'}=qq$Revision: 1.19 $;
+    $CF{'idxrev'}=qq$Revision: 1.20 $;
 }
 1;
 __END__

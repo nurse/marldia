@@ -1,353 +1,683 @@
-/*========================================================*/
-// Marldia.js
-// encoding="euc-jp"
-/* $Id: Marldia.js,v 1.3 2005-03-11 18:47:23 naruse Exp $ */
-var ckCookie;
+/******************************************************************************
+ * 
+ * Marldia.js
+ * 
+ * -*- coding: euc-jp -*-
+ * $Id: Marldia.js,v 1.4 2005-07-28 02:14:55 naruse Exp $
+ * 
+ ******************************************************************************/
+
+/* ****************************************************** */
+// definitions
 var imgPreview;
-var lbSurface;
-var lbIcon;
-var tbOption;
 var bodyContainer;
 var bodySwitch;
-var nameColor;
-var bodyColor;
 var eForm;
-var chatHistory = new Array;
-var currentHistoryIndex = 0;
+var commentHistory;
 var maxHistory = 100;
-var popup;
-var isLoaded=null;
+var isInitialized;
 
 /*========================================================*/
-// Init
+// Initialize
 function init(){
-	if(document.all){
-		ckCookie=document.all('cook');
-		imgPreview=document.all('preview');
-		lbSurface=document.all('surface');
-		lbIcon=document.all('icon');
-		tbOption =document.all('opt');
-		bodyContainer=document.all('bodyContainer');
-		bodySwitch=document.all('bodySwitch');
-		nameColor = document.all('color');
-		bodyColor = document.all('bcolo');
-		eForm = document.all('north');
-	}else if(document.getElementById){
-		ckCookie=document.getElementById('cook');
-		imgPreview=document.getElementById('preview');
-		lbSurface=document.getElementById('surface');
-		lbIcon=document.getElementById('icon');
-		tbOption =document.getElementById('opt');
-		bodyContainer=document.getElementById('bodyContainer');
-		bodySwitch=document.getElementById('bodySwitch');
-		nameColor = document.getElementById('color');
-		bodyColor = document.getElementById('bcolo');
-		eForm = document.getElementById('north');
-	}else return false;
-	isLoaded=true;
-	autoreset();
-	changeOption();
-	nameColor.style.color = nameColor.value;
-	bodyColor.style.color = bodyColor.value;
-	return true;
-}
-
-
-/*========================================================*/
-// Auto Reset
-function autoreset(){
-	if(!isLoaded)return false;
-	if(ckCookie)ckCookie.checked=document.cookie?false:true;
-	if(eForm&&eForm['identity']&&eForm['name']){
-		if(!eForm['identity'].value&&eForm['name'].value){
-			eForm['identity'].value = eForm['name'].value;
-		}
-	}
-	var newBody = bodyContainer.firstChild;
-	if(newBody){
-		if(maxHistory>0&&newBody.value){
-			while(chatHistory.length>0&&!chatHistory[chatHistory.length-1])
-				chatHistory.pop();
-			chatHistory.push(newBody.value);
-			if(chatHistory.length>=maxHistory)
-				chatHistory.splice(0,1+chatHistory.length-maxHistory);
-			currentHistoryIndex = chatHistory.length;
-			chatHistory[currentHistoryIndex] = '';
-		}
-		newBody.value='';
-		newBody.focus();
-	}else if(newBody = document.all('body')){
-		newBody.value='';
-		newBody.focus();
-	}
+    if(!Array || !(new Array).push){
+	return false;
+    }if(document.all){
+	imgPreview = document.all('preview');
+	bodyContainer=document.all('bodyContainer');
+	bodySwitch=document.all('bodySwitch');
+	eForm = document.all('north');
+    }else if(document.getElementById){
+	imgPreview=document.getElementById('preview');
+	bodyContainer=document.getElementById('bodyContainer');
+	bodySwitch=document.getElementById('bodySwitch');
+	eForm = document.getElementById('north');
+    }else return false;
+    if(!eForm) return false;
+    isInitialized=true;
+    getCookie();
+    if(eForm['cook']){
+	eForm['cook'].parentNode.style.display = 'none';
+    }
+    changeOption();
+    commentHistory = new CommentHistory();
+    return true;
 }
 
 
 /*========================================================*/
 // アイコンプレビュー
 function iconPreview(arg){
-	if(!isLoaded)return false;
-	imgPreview.src=arg;
-	imgPreview.title=arg;
+    if(!isInitialized)return false;
+    imgPreview.src=arg;
+    imgPreview.title=arg;
 }
 
 
 /*========================================================*/
 // Change Option
 function changeOption(){
-	if(!isLoaded)return false;
+    if(!isInitialized)return false;
+    
+    myIcon.value=null;
+    myIcon.isAbsolute=false;
+    myIcon.surface = eForm['surface'].value;
+    myIcon.surfaceIndex = eForm['surface'].selectedIndex;
+    if(!eForm['opt']||!eForm['opt'].value){
+	eForm['icon'].disabled=false;
+    }else if(iconSetting&1&&eForm['opt'].value.match(/(^|;)absoluteIcon=([^;]*)/)){
+	//絶対指定アイコン
+	myIcon.value=RegExp.$2;
+	myIcon.isAbsolute=true;
+	eForm['icon'].disabled=true;
+    }else if(iconSetting&2&&eForm['opt'].value.match(/(^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/)){
+	//相対指定アイコン
+	myIcon.value=RegExp.$2;
+	eForm['icon'].disabled=true;
+    }else{
+	eForm['icon'].disabled=false;
+    }
+    if(!myIcon.value)myIcon.value=eForm['icon'].value;
 	
-	myIcon.value=null;
-	myIcon.isAbsolute=false;
-	if(!tbOption||!tbOption.value){
-		lbIcon.disabled=false;
-	}else if(iconSetting&1&&tbOption.value.match(/(^|;)absoluteIcon=([^;]*)/)){
-		//絶対指定アイコン
-		myIcon.value=RegExp.$2;
-		myIcon.isAbsolute=true;
-		lbIcon.disabled=true;
-	}else if(iconSetting&2&&tbOption.value.match(/(^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/)){
-		//相対指定アイコン
-		myIcon.value=RegExp.$2;
-		lbIcon.disabled=true;
-	}else{
-		lbIcon.disabled=false;
-	}
-	if(!myIcon.value)myIcon.value=lbIcon.value;
-	
-	if(myIcon.isAbsolute){
-		imgPreview.src=myIcon.value;
-		imgPreview.title='+'+myIcon.value;
-	}else{
-		imgPreview.src=iconDirectory+myIcon.value;
-		imgPreview.title=iconDirectory+'+'+myIcon.value;
-	}
-	
-	lbSurface.selectedIndex=0;
-	resetSurface();
-	return true;
+    if(myIcon.isAbsolute){
+	imgPreview.src=myIcon.value;
+	imgPreview.title='+'+myIcon.value;
+    }else{
+	imgPreview.src=iconDirectory+myIcon.value;
+	imgPreview.title=iconDirectory+'+'+myIcon.value;
+    }
+    resetSurface();
+    if(myIcon.surfaceIndex >= 0 && basepath(myIcon.surface) != basepath(myIcon.value) &&
+       eForm['surface'] && eForm['surface'].options.length > myIcon.surfaceIndex)
+	changeSurface(myIcon.surfaceIndex);
+    else
+	changeSurface(0);
+    return true;
+}
+
+
+/*========================================================*/
+// Base Path
+function basepath(fullpath){
+    var temp = fullpath.match(/^([^\/]*\/)*[^\/]*$/);
+    return temp && temp[0] ? temp[0] : null;
 }
 
 
 /*========================================================*/
 // 現在指定しているアイコンを取得
 function getSelectingIcon(){
-	if(!isLoaded)return false;
-	if(!tbOption||!tbOption.value){
-	}else if(iconSetting&1&&tbOption.value.match(/(^|;)absoluteIcon=([^;]*)/)){
-		//絶対指定アイコン
-		return RegExp.$2
-	}else if(iconSetting&2&&tbOption.value.match(/(^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/)){
-		//相対指定アイコン
-		return RegExp.$2
-	}
-	return lbIcon.value
+    if(!isInitialized)return false;
+    if(!eForm['opt']||!eForm['opt'].value){
+    }else if(iconSetting&1&&eForm['opt'].value.match(/(^|;)absoluteIcon=([^;]*)/)){
+	//絶対指定アイコン
+	return RegExp.$2
+    }else if(iconSetting&2&&eForm['opt'].value.match(/(^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/)){
+	//相対指定アイコン
+	return RegExp.$2
+    }
+    return eForm['icon'].value
 }
 
 
 /*========================================================*/
 // 表情アイコンのリセット
 function resetSurface(){
-	if(!myIcon.value.match(/^(([^\/#]*\/)*[^\/#.]+)(\.[^\/#]*)#(\d+)(-\d+)?$/)){
-		lbSurface.length=1;
-		lbSurface.options[0].text='-';
-		lbSurface.options[0].value=myIcon.value;
-		return;
-	}
-	var url=RegExp.$1;
-	var ext=RegExp.$3;
-	var str=RegExp.$5?parseInt(RegExp.$4):0;
-	var end=RegExp.$5?-parseInt(RegExp.$5):parseInt(RegExp.$4);
-	lbSurface.length=end-str+2;
-	lbSurface.options[0].text='-';
-	lbSurface.options[0].value=url+ext;
-	if(RegExp.$5)url=url.replace(/([1-9]\d*)$/,'');
-	for(i=str;i<=end;i++){
-		lbSurface.options[i-str+1].text=i;
-		lbSurface.options[i-str+1].value=url+i+ext;
-	}
+    if(!myIcon.value.match(/^(([^\/#]*\/)*[^\/#.]+)(\.[^\/#]*)#(\d+)(-\d+)?$/)){
+	eForm['surface'].length=1;
+	eForm['surface'].options[0].text='-';
+	eForm['surface'].options[0].value=myIcon.value;
+	return;
+    }
+    var url=RegExp.$1;
+    var ext=RegExp.$3;
+    var str=RegExp.$5?parseInt(RegExp.$4):0;
+    var end=RegExp.$5?-parseInt(RegExp.$5):parseInt(RegExp.$4);
+    eForm['surface'].length=end-str+2;
+    eForm['surface'].options[0].text='-';
+    eForm['surface'].options[0].value=url+ext;
+    if(RegExp.$5)url=url.replace(/([1-9]\d*)$/,'');
+    for(i=str;i<=end;i++){
+	eForm['surface'].options[i-str+1].text=i;
+	eForm['surface'].options[i-str+1].value=url+i+ext;
+    }
 }
 
 
 /*========================================================*/
 // 表情アイコンを変更
 function changeSurface(index){
-	if(!isLoaded)return false;
+    if(!isInitialized)return false;
 	
-	if(myIcon.value!=getSelectingIcon())return changeOption();
-	if(lbSurface.selectedIndex!=index)lbSurface.selectedIndex=index;
-	var value=lbSurface.value;
+    if(myIcon.value!=getSelectingIcon())return changeOption();
+    if(eForm['surface'].selectedIndex!=index)eForm['surface'].selectedIndex=index;
+    var value=eForm['surface'].value;
 	
-	if(myIcon.isAbsolute){
-		imgPreview.src=value;
-		imgPreview.title='+'+value;
-	}else{
-		imgPreview.src=iconDirectory+value;
-		imgPreview.title=iconDirectory+'+'+value;
-	}
-	return true;
+    if(myIcon.isAbsolute){
+	imgPreview.src=value;
+	imgPreview.title='+'+value;
+    }else{
+	imgPreview.src=iconDirectory+value;
+	imgPreview.title=iconDirectory+'+'+value;
+    }
+    return true;
 }
 
 
 /*========================================================*/
 // 表情アイコン見本
 function surfaceSample(e){
-	if(!isLoaded)return false;
-	if(myIcon.value!=getSelectingIcon())changeOption();
+    if(!isInitialized || !document.getElementById || !top.south || !top.south.document)
+	return false;
+    if(!e)e = window.event;
+    if(!e){
+    }else if(document.all){ 
+	e.returnValue = false;
+    }else if(document.getElementById){
+	e.preventDefault();
+    }else return false;
+    if(e) e.cancelBubble=true;
+    
+    if(e && e.type == 'click' && !document.all && !e.detail) return false;
+    if(e.altKey ^ e.ctrlKey ^ e.shiftKey){
+	return showCommandWindow(e);
+    }
+    
+    var myDocument = top.south.document;
+    if(myIcon.value!=getSelectingIcon())changeOption();
+    
+    var surfaceWindow = myDocument.getElementById('surfaceWindow');
+    if(surfaceWindow){
+	surfaceWindow.parentNode.removeChild(surfaceWindow);
+	surfaceWindow = null;
+	eForm['body'].focus();
+	return false;
+    }
+    
+    surfaceWindow = createDivWindow({
+	'id'		: 'surfaceWindow',
+	'height'	: '250px',
+	'width'		: '250px',
+	'top'		: '20px',
+	'left'		: '20px',
+	'title'		: 'Surface Icon',
+	'document'	: myDocument
+    				});
+    
+    var fragment=myDocument.createDocumentFragment();
+    for(i=0;i<eForm['surface'].length;i++){
+	var elButton = myDocument.createElement('button');
+	elButton.id='surface'+i.toString();
+	elButton.style.border	= '0';
+	elButton.style.margin	= '0';
+	elButton.style.padding	= '0';
+	elButton.style.width	= '60px';
+	elButton.title=i.toString();
+	elButton.onclick=function(){changeSurface(this.title)};
+	var elImg = myDocument.createElement('img');
+	elImg.src=myIcon.isAbsolute?eForm['surface'].options[i].value:iconDirectory+eForm['surface'].options[i].value;
+	elImg.title=i?(i-1).toString():'-';
+	elButton.appendChild(elImg);
+	fragment.appendChild(elButton);
+    }
+    
+    var divSurfaceList = myDocument.createElement('div');
+    divSurfaceList.id			= 'surfaceList';
+    divSurfaceList.style.borderWidth	= '1px';
+    divSurfaceList.style.borderStyle	= 'solid';
+    divSurfaceList.style.borderClor	= 'ActiveBorder';
+    divSurfaceList.style.margin		= '2px';
+    divSurfaceList.appendChild(fragment);
+    surfaceWindow.appendChild(divSurfaceList);
+    
+    myDocument.body.appendChild(surfaceWindow);
+    return true;
+}
+
+
+/*========================================================*/
+// コマンドウィンドウ
+function showCommandWindow(e){
+    if(!isInitialized || !document.getElementById || !top.south || !top.south.document)
+    	return false;
+    if(!e){
+    }else if(document.all){ 
+	e.returnValue = false;
+    }else if(document.getElementById){
+	e.preventDefault();
+    }else return false;
+    if(e) e.cancelBubble=true;
+    
+    var myDocument = top.north.document;
+    var eWindow = myDocument.getElementById('commandWindow');
+    if(eWindow){
+	eWindow.parentNode.removeChild(eWindow);
+	eWindow = null;
+	eForm['body'].focus();
+	return false;
+    }
+    
+    eWindow = createDivWindow({
+	'id'		: 'commandWindow',
+	'height'	: '5em',
+	'width'		: '300px',
+	'top'		: '4em',
+	'left'		: '300px',
+	'title'		: 'Command Window',
+	'document'	: myDocument
+    				});
+    
+    var p1= myDocument.createElement('form');
+    p1.style.margin	= '0 2px';
+    eWindow.appendChild(p1);
+    
+    var lbCommand = myDocument.createElement('label');
+    lbCommand.htmlFor = 'commandLine';
+    lbCommand.title	= "Try `help' for information.";
+    lbCommand.appendChild( myDocument.createTextNode('Command:') );
+    p1.appendChild(lbCommand);
+    
+    var eCommandLine = myDocument.createElement('input');
+    eCommandLine.id		= 'commandLine';
+    eCommandLine.style.width	= '150px';
+    eCommandLine.type		= 'text';
+    eCommandLine.onkeypress	= function(e){
+	var keyCode;
+	if(!e)e = window.event;
 	if(document.all){
-		e.returnValue=false;
+	    keyCode = e.keyCode;
 	}else if(document.getElementById){
-		e.preventDefault();
-	}else return false;
-	e.cancelBubble=true;
-	if(!top.south)return false;
-	if(!window.createPopup)return false;
-	event.cancelBubble=true;
-	if(popup&&popup.isOpen){
-		popup.hide();
-		var newBody = bodyContainer.firstChild;
-		newBody.focus();
-		return false;
+	    keyCode = e.which;
+	}else return true;
+	
+	switch(keyCode){
+	case 13:
+	   eCommandSubmit.click();
+	   return false;
+	case 27:
+	   eWindow.close();
+	   break;
 	}
-	popup=window.createPopup();
-	var intWidth =200;
-	var intHeight=250;
-	
-	var fragment=popup.document.createDocumentFragment();
-	for(i=0;i<lbSurface.length;i++){
-		var elButton=popup.document.createElement('BUTTON');
-		elButton.id='surface'+i.toString();
-		elButton.style.margin='0';
-		elButton.style.padding='0';
-		elButton.style.width='50px';
-		elButton.style.border='0';
-		elButton.title=i.toString();
-		elButton.onclick=function(){changeSurface(this.title)};
-		var elImg=popup.document.createElement('IMG');
-		elImg.src=myIcon.isAbsolute?lbSurface.options[i].value:iconDirectory+lbSurface.options[i].value;
-		elImg.title=i?(i-1).toString():'-';
-		elButton.appendChild(elImg);
-		fragment.appendChild(elButton);
+    };
+    lbCommand.appendChild(eCommandLine);
+    
+    var eCommandSubmit = myDocument.createElement('input');
+    eCommandSubmit.id		= 'commandSubmit';
+    eCommandSubmit.type		= 'button';
+    eCommandSubmit.value	= 'OK';
+    eCommandSubmit.onclick = function(){
+	var command = eCommandLine.value;
+	var temp = '';
+	switch(command){
+	case '?':
+	case 'help':
+	case 'usage':
+	   alert(
+		 "help:		show this help\n" +
+		 "status:		show status\n" +
+		 "cookie show:	show cookie\n" +
+		 "cookie set:		set current information for cookie\n" +
+		 "export:		export current information\n" +
+		 "import:		import information from string\n" +
+		 "version:		show current revision",
+		 "quit:			close this window"
+		);
+	   break;
+	case 'status':
+	   status = navigator.userAgent;
+	   break;
+	case 'cookie show':
+	case 'show cookie':
+	   prompt('document.cookie is :', document.cookie);
+	   break;
+	case 'cookie set':
+	case 'set cookie':
+	   setCookie();
+	   break;
+	case 'export':
+	   if(temp = exportInfo()){
+	       prompt('Exported Information:', temp);
+	   }else{
+	       alert("Cookieが未設定です");
+	   }
+	   break;
+	case 'import':
+	   if(temp = prompt('Import Information?',document.cookie)) return false;
+	   if(importInfo(temp)){
+	       alert("インポートされました");
+	   }else{
+	       alert("正しく情報が入力されていません");
+	   }
+	   break;
+	case 'version':
+	   alert(
+		 MARLDIA_CORE_ID + "\n"+
+		 "$Id: Marldia.js,v 1.4 2005-07-28 02:14:55 naruse Exp $");
+	   break;
+	case 'exit':
+	case 'quit':
+	   eWindow.close();
+	   break;
+	default:
+	   alert('Command "' + command + '" is undefined');
+	   break;
 	}
+	eCommandLine.value = '';
+	eCommandLine.focus();
+    };
+    p1.appendChild(eCommandSubmit);
+    
+    myDocument.body.appendChild(eWindow);
+    eCommandLine.focus();
+    return false;
+}
+
+
+/*========================================================*/
+// Create Div Window
+function createDivWindow(option){
+    if(option['id'] && option['width'] && option['height'] &&
+       (option['top'] || option['bottom']) && (option['left'] || option['right']) &&
+       option['document']){
+    }else return null;
+    var w = option['document'].createElement('div');
+    w.id			= option['id'];
+    w.style.backgroundColor	= 'Window';
+    w.style.borderWidth		= '1px';
+    w.style.borderStyle		= 'solid';
+    w.style.borderColor		= 'ActiveBorder';
+    w.style.color		= 'WindowText';
+    w.style.height		= option['height'];
+    w.style.width		= option['width'];
+    if(option['top']){
+	w.style.top		= option['top'];
+    }else{
+	w.style.bottom		= option['bottom'];
+    }
+    if(option['left']){
+	w.style.left		= option['left'];
+    }else{
+	w.style.right		= option['right'];
+    }
+    w.style.position		= document.all ? 'absolute' : 'fixed';
+    w.style.overflow		= 'auto';
+    w.style.textAlign		= 'left';
+    
+    if(option['title']){
+	var dCaption = option['document'].createElement('div');
+	dCaption.style.backgroundColor	= 'ActiveCaption';
+	dCaption.style.color		= 'CaptionText';
+	dCaption.style.fontFamily	= 'Caption';
+	dCaption.style.height		= '1em';
+	dCaption.style.margin		= '0 0 0.5em 0';
+	dCaption.style.padding		= '2px';
+	w.appendChild(dCaption);
 	
-	var div1=popup.document.createElement('DIV');
-	div1.style.border='3px double ActiveBorder';
-	div1.style.height=intHeight.toString()+'px';
-	div1.style.overflow='auto';
-	div1.style.textAlign='left';
-	div1.style.width=intWidth.toString()+'px';
-	popup.document.body.appendChild(div1);
+	dCaption.appendChild( option['document'].createTextNode(option['title']) );
 	
-	var p1=popup.document.createElement('P');
-	p1.appendChild(popup.document.createTextNode('アイコン見本'));
-	p1.style.color	='CaptionText';
-	p1.style.font	='caption';
-	p1.style.height	='15px';
-	p1.style.padding='2px';
-	p1.style.width	='100%';
-	p1.style.filter	="progid:DXImageTransform.Microsoft.Gradient("
-		+"startColorstr='#66aaff',endColorstr='#ffffff',gradientType='1')";
-	div1.appendChild(p1);
+	var dTitleR = option['document'].createElement('div');
+	dTitleR.style.backgroundColor	= 'InactiveCaption';
+	dTitleR.style.color		= 'InactiveCaptionText';
+	dTitleR.style.height		= '1em';
+	dTitleR.style.margin		= '0';
+	dTitleR.style.padding		= '2px';
+	dTitleR.style.position		= 'absolute';
+	dTitleR.style.right		= '0px';
+	dTitleR.style.textAlign		= 'right';
+	dTitleR.style.top		= '0px';
+	dTitleR.style.width		= '20%';
+	dCaption.appendChild(dTitleR);
 	
-	var divSurfaceList=popup.document.createElement('DIV');
-	divSurfaceList.id='surfaceList';
-	divSurfaceList.appendChild(fragment);
-	div1.appendChild(divSurfaceList);
-	
-	var p2=popup.document.createElement('P');
-	div1.appendChild(p2);
-	
-	var bt1=popup.document.createElement('INPUT');
-	bt1.type='button';
-	bt1.value='Close';
-	bt1.onclick=function(){imgPreview.click()};
-	p2.appendChild(bt1);
-	
-	popup.show(20,20,intWidth,intHeight,top.south.document.body);
-	return true;
+	var sClose = option['document'].createElement('span');
+	sClose.style.backgroundColor	= 'InactiveCaption';
+	sClose.style.color		= 'InactiveCaptionText';
+	sClose.style.borderColor	= 'InactiveCaptionText';
+	sClose.style.borderStyle	= 'solid';
+	sClose.style.borderWidth	= '1px';
+	sClose.style.cursor		= 'default';
+	sClose.style.height		= '1em';
+	sClose.style.margin		= '0';
+	sClose.style.padding		= '0';
+	sClose.style.width		= '1em';
+	sClose.onmouseover		= function(e){
+	    sClose.style.borderColor	= 'CaptionText';
+	    sClose.style.color		= 'CaptionText';
+	    return true;
+	};
+	sClose.onmouseout		= function(e){
+	    sClose.style.borderColor	= 'InactiveCaptionText';
+	    sClose.style.color		= 'InactiveCaptionText';
+	    return true;
+	};
+	sClose.onclick		= function(){
+	    w.style.diaplay = 'none';
+	    w.parentNode.removeChild(w);
+	    return false;
+	};
+	w.close = sClose.onclick;
+	dTitleR.appendChild(sClose);
+	sClose.appendChild( option['document'].createTextNode('×') );
+    }
+    
+    return w;
 }
 
 
 /*========================================================*/
 // Switch Body Form Type
 function switchBodyFormType(e){
-	bodyContainer.removeChild(bodyContainer.firstChild);
-	var newBody;
-	if(bodySwitch.value=='↓'){
-		bodySwitch.value='←'
-		newBody = document.createElement('TEXTAREA');
-		newBody.setAttribute('rows','0');
-	}else{
-		bodySwitch.value='↓'
-		newBody = document.createElement('INPUT');
-		newBody.type="text";
-		newBody.setAttribute('maxlength','300');
-		newBody.setAttribute('size','100');
-		newBody.onkeydown = getChatHistoryByKey;
-		newBody.onmousewheel = getChatHistoryByMouseWheel;
-	}
-	newBody.setAttribute('id','body');
-	newBody.setAttribute('name','body');
-	newBody.setAttribute('tabindex','1');
-	newBody.style.imeMode = 'active';
-	newBody.style.width = '400px';
-	newBody.className="text";
-	bodyContainer.insertBefore(newBody,bodyContainer.firstChild);
-	return false;
+    bodyContainer.removeChild(bodyContainer.firstChild);
+    if(bodySwitch.value=='↓'){
+	bodySwitch.value='←';
+	eForm['body'] = document.createElement('TEXTAREA');
+	eForm['body'].setAttribute('rows','0');
+    }else{
+	bodySwitch.value='↓';
+	eForm['body'] = document.createElement('INPUT');
+	eForm['body'].type="text";
+	eForm['body'].setAttribute('maxlength','300');
+	eForm['body'].setAttribute('size','100');
+	eForm['body'].onkeydown = getChatHistoryByKey;
+	eForm['body'].onmousewheel = getChatHistoryByMouseWheel;
+    }
+    eForm['body'].setAttribute('id','body');
+    eForm['body'].setAttribute('name','body');
+    eForm['body'].setAttribute('tabindex','1');
+    eForm['body'].style.imeMode = 'active';
+    eForm['body'].style.width = '400px';
+    eForm['body'].className="text";
+    bodyContainer.insertBefore(eForm['body'],bodyContainer.firstChild);
+    return false;
 }
+
+
+/*========================================================*/
+// Comment History
+function CommentHistory(){
+    this.array = new Array('');
+    this.index = 0;
+    if(!this.array.push)
+	return null;
+}
+if(CommentHistory.prototype){
+    CommentHistory.prototype.index = function(){
+	return this.index;
+    };
+    CommentHistory.prototype.length = function(){
+	return this.array.length;
+    };
+    CommentHistory.prototype.isLast = function(){
+	return this.index == this.array.length-1;
+    };
+    CommentHistory.prototype.before = function(){
+	if(this.index<1){
+	    this.index = 0;
+	    return null;
+	}else{
+	    this.index--;
+	    return this.array[this.index];
+	}
+    };
+    CommentHistory.prototype.next = function(){
+	if( this.index > this.array.length-2 ){
+	    this.index = this.array.length - 1;
+	    return null;
+	}else{
+	    this.index++;
+	    return this.array[this.index];
+	}
+    };
+    CommentHistory.prototype.last = function(){
+	this.index = this.array.length - 1;
+	return this.array[this.index];
+    };
+    CommentHistory.prototype.set = function(str){
+	if(this.index<1||this.array.length==0){
+	    this.index = 0;
+	}else if( this.index > this.array.length-2 ){
+	    this.index = this.array.length - 1;
+	}
+	this.array[this.index] = str;
+	return;
+    };
+    CommentHistory.prototype.push = function(str){
+	if( this.array.length >= maxHistory  ){
+	    this.array.shift();
+	    this.before();
+	}
+	this.array.push(str);
+	this.index = this.array.length - 1;
+	return this.array[this.index];
+    };
+}
+
 
 /*========================================================*/
 // Get Chat History By Key
 function getChatHistoryByKey(e){
-	var keyCode;
-	if(document.all){
-		e = event;
-		keyCode = e.keyCode;
-	}else if(document.getElementById){
-		keyCode = e.which;
-	}else return true;
+    var keyCode;
+    if(!e)e = window.event;
+    if(document.all){
+	keyCode = e.keyCode;
+    }else if(document.getElementById){
+	keyCode = e.which;
+    }else return true;
+    
+    if(keyCode==38||keyCode==40){
 	if(e.altKey||e.ctrlKey||e.shiftKey||e.modifiers){
-		return true;
-	}else if(keyCode==38||keyCode==40){
-		getChatHistory(keyCode-39);
-		return false;
+	    return false;
+	}else{
+	    getChatHistory(keyCode-39);
 	}
-	return true;
+    }else if(keyCode==13){
+	if(e.altKey||e.ctrlKey||e.shiftKey||e.modifiers){
+	    if(document.all){
+		e.returnValue=false;
+	    }else if(document.getElementById){
+		e.preventDefault();
+	    }else return false;
+	    eForm['body'].value += "\n";
+	    return false;
+	}
+    }
+    return true;
 }
 
 
 /*========================================================*/
 // Get Chat History By Mouse Wheel
 function getChatHistoryByMouseWheel(e){
-	var keyCode;
-	if(document.all){
-		e = event;
-	}else if(document.getElementById){
-	}else return true;
+    var keyCode;
+    if(!e)e = window.event;
+    if(commentHistory && (document.all || document.getElementById)){
+    }else return true;
 	
-	if(!e.wheelDelta)return true;
+    if(!e.wheelDelta)return true;
 	
-	getChatHistory( e.wheelDelta >= 120 ? -1 : 1);
-	return;
+    getChatHistory( e.wheelDelta >= 120 ? -1 : 1);
+    return;
 }
 
 
 /*========================================================*/
 // Get Chat History
 function getChatHistory(count){
-	if(!chatHistory.length)return true;
-	var newBody = bodyContainer.firstChild;
-	if(!newBody)return true;
-	status = 'currentHistoryIndex:' + currentHistoryIndex + ' ';
-	status += 'chatHistory.length:' + chatHistory.length + ' ';
-	if(newBody.value||newBody.value=="")
-		chatHistory[currentHistoryIndex] = newBody.value;
-	currentHistoryIndex += count;
-	if(currentHistoryIndex < 0){
-		currentHistoryIndex = 0;
-	}else if(currentHistoryIndex >= chatHistory.length){
-		currentHistoryIndex = chatHistory.length-1;
+    if(!commentHistory || !eForm['body']) return true;
+    if( commentHistory.isLast() ){
+	commentHistory.set(eForm['body'].value)
+    }
+    var str = count > 0 ? commentHistory.next() : commentHistory.before();
+    if( str != null ){
+	eForm['body'].value = str;
+    }
+    return;
+}
+
+
+/*========================================================*/
+// Import Cookie
+function importInfo(str){
+    if(str && str.match); else return false;
+    var matched = str.match(/(^|; )Marldia1=([^;]+)/);
+    if(matched && matched[2]); else return false;
+    var hash = IrDr.load(matched[2]);
+    if(typeof(hash) != 'object') return false;
+    return hash;
+}
+
+
+/*========================================================*/
+// Get Cookie
+function getCookie(){
+    var hash = importInfo(document.cookie);
+    if(hash){
+	for(var key in hash){
+	    if(eForm[key]){
+		eForm[key].value = hash[key];
+	    }
 	}
-	newBody.value = chatHistory[currentHistoryIndex];
-	return;
+    }
+    if(eForm['color'] && eForm['color'].value)
+	eForm['color'].style.color = eForm['color'].value;
+    if(eForm['bcolo'] && eForm['bcolo'].value)
+	eForm['bcolo'].style.color = eForm['bcolo'].value;
+}
+
+
+/*========================================================*/
+// Export Cookie
+function exportInfo(){
+    var hash = {
+	'name'		: eForm['name'].value,
+	'id'		: eForm['id'].value,
+	'email'		: eForm['email'].value,
+	'home'		: eForm['home'].value,
+	'icon'		: eForm['icon'].value,
+	'color'		: eForm['color'].value,
+	'bcolo'		: eForm['bcolo'].value,
+	'line'		: eForm['line'].value,
+	'reload'	: eForm['reload'].value,
+	'surface'	: eForm['surface'].value,
+	'surfaceIndex'	: eForm['surface'].selectedIndex,
+	'opt'		: eForm['opt'].value
+    };
+    var expires = new Date((new Date()).getTime()+2*365*24*60*60*1000);
+    var cookiePath = '';
+    var cookieDomain = '';
+    var cookieSecure = false;
+    var cookie = "Marldia1=" + IrDr.save(hash) +
+        ((expires) ? "; expires=" + expires.toGMTString() : "") +
+        ((cookiePath) ? "; path=" + cookiePath : "") +
+        ((cookieDomain) ? "; domain=" + cookieDomain : "") +
+        ((cookieSecure) ? "; secure" : "");
+    return cookie;
+}
+
+
+/*========================================================*/
+// Set Cookie
+function setCookie(){
+    var cookie = exportInfo();
+    if(cookie) document.cookie = cookie;
+    return;
 }
