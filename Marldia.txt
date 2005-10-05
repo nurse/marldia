@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 = Marldia - Web Chat System
 #
-# $Id: Marldia.txt,v 1.32 2005-07-28 02:14:56 naruse Exp $
+# $Id: Marldia.txt,v 1.33 2005-10-05 09:42:11 naruse Exp $
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
@@ -28,6 +28,9 @@ Airemixの掲示板で質問してみてください
 
 #------------------------------------------------------------------------------#
 == Marldia History
+:2005-10-05 Revision: 1.33
+  * ケータイモードでのaccesskeyを設定
+  * Encode 2.10 で FB_HTMLCREF の扱いが変わった件に対応
 :2005-07-28 Revision: 1.32
   * 表情アイコンの一覧をcreatePopupでなくdivで行うようにした
   * クッキーをIrDrでエクスポート・インポートする機能をつけた

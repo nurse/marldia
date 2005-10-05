@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.32 $
+# $Revision: 1.33 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.32 2005-07-28 02:14:55 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.33 2005-10-05 09:42:11 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -97,7 +97,7 @@ Identity: <INPUT type="text" name="id" value="$IN{'id'}">
 E-mail: <INPUT type="text" name="email" value="$IN{'email'}" istyle="3">
 Option: <INPUT type="text" name="opt" value="$IN{'opt'}" istyle="3">
 Home: <INPUT type="text" name="home" value="$IN{'home'}" istyle="3">
-<INPUT type="submit" value="OK">
+<INPUT type="submit" value="OK" accesskey="1">
 </FORM>
 -<A href="http://www.airemix.com/" title="Airemixへいってみる">Marldia v$CF{'version'}</A>-
 </BODY>
@@ -153,8 +153,8 @@ Content-type: text/html; charset=euc-jp
 <INPUT type="hidden" name="email" value="$IN{'email'}">
 <INPUT type="hidden" name="opt"   value="$IN{'opt'}">
 <INPUT type="hidden" name="home"  value="$IN{'home'}">
-内容:<INPUT type="text" name="body" value="" size="4">
-<INPUT type="submit" value="OK" size="2">
+内容:<INPUT type="text" name="body" value="" size="4" accesskey="2">
+<INPUT type="submit" value="OK" size="2" accesskey="1">
 行:<INPUT type="text" name="line" value="$IN{'line'}" size="1" istyle="4">
 <INPUT name="mode" type="checkbox" value="entrance">
 </FORM>
@@ -410,11 +410,11 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '\$Id: core.cgi,v 1.32 2005-07-28 02:14:55 naruse Exp $';
+MARLDIA_CORE_ID = '\$Id: core.cgi,v 1.33 2005-10-05 09:42:11 naruse Exp $';
 var isInitialized;
 var iconDirectory = '$CF{'iconDir'}';
 var iconSetting = @{[ !!$CF{'absoluteIcon'} * 1 + !!$CF{'relativeIcon'} * 2 ]};
-var myIcon = { value: '$CK{'icon'}', isAbsolute: 0 };
+var myIcon = { 'value': '$CK{'icon'}', 'isAbsolute': 0 };
 function init(){}
 
 /*========================================================*/
@@ -1853,7 +1853,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	shift;
 	my%DT=%{shift()};
 	my%IN;
-	
+
 	# Encoding
 	if($DT{'encoding'}){
 	    $IN{'encoding'} = $DT{'encoding'};
@@ -1863,7 +1863,9 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		eval q{
 			use Encode;
 			for(keys%DT){
-				Encode::from_to( $DT{$_}, $IN{'encoding'}, $::CF{'encoding'}, Encode::FB_HTMLCREF )
+				$DT{$_} = Encode::encode($::CF{'encoding'},
+				    Encode::decode($IN{'encoding'}, $DT{$_}),
+				    Encode::FB_HTMLCREF);
 			}
 		};
 		# Jcode
@@ -1904,7 +1906,11 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	
 	#化けた文字は蹴る
 	for(keys%DT){
-	    $DT{$_}=$DT{$_}=~/^($eucchar*)$/o?$1:'';
+	    if($DT{$_}=~/^($eucchar*)$/o){
+		$DT{$_} = $1;
+	    }else{
+		$DT{$_} =~ s{(\W)}{'%'.unpack('H2',$1)}ego;
+	    }
 	}
 	
 	#特殊
@@ -2525,7 +2531,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.32 $;
+    $CF{'correv'}=qq$Revision: 1.33 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
