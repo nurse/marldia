@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.33 $
+# $Revision: 1.34 $
 # "This file is written in euc-jp, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.33 2005-10-05 09:42:11 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.34 2005-11-04 14:48:10 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -85,7 +85,7 @@ Content-type: text/html; charset=euc-jp
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
 <BODY>
-<FORM name="north" method="post" action="$CF{'index'}">
+<FORM name="north" method="get" action="$CF{'index'}">
 <INPUT name="mode" type="hidden" value="south">
 <INPUT name="type" type="hidden" value="mobile">
 名: <INPUT type="text" name="name" value="$IN{'name'}">
@@ -410,7 +410,7 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '\$Id: core.cgi,v 1.33 2005-10-05 09:42:11 naruse Exp $';
+MARLDIA_CORE_ID = '\$Id: core.cgi,v 1.34 2005-11-04 14:48:10 naruse Exp $';
 var isInitialized;
 var iconDirectory = '$CF{'iconDir'}';
 var iconSetting = @{[ !!$CF{'absoluteIcon'} * 1 + !!$CF{'relativeIcon'} * 2 ]};
@@ -2531,7 +2531,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.33 $;
+    $CF{'correv'}=qq$Revision: 1.34 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
