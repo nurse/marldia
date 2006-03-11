@@ -2,8 +2,8 @@
  * 
  * Marldia.js
  * 
- * -*- coding: euc-jp -*-
- * $Id: Marldia.js,v 1.4 2005-07-28 02:14:55 naruse Exp $
+ * -*- coding: utf-8 -*-
+ * $Id: Marldia.js,v 1.5 2006-03-11 09:33:00 naruse Exp $
  * 
  ******************************************************************************/
 
@@ -46,7 +46,7 @@ function init(){
 
 
 /*========================================================*/
-// ¥¢¥¤¥³¥ó¥×¥ì¥Ó¥å¡¼
+// ã‚¢ã‚¤ã‚³ãƒ³ãƒ—ãƒ¬ãƒ“ãƒ¥ãƒ¼
 function iconPreview(arg){
     if(!isInitialized)return false;
     imgPreview.src=arg;
@@ -66,12 +66,12 @@ function changeOption(){
     if(!eForm['opt']||!eForm['opt'].value){
 	eForm['icon'].disabled=false;
     }else if(iconSetting&1&&eForm['opt'].value.match(/(^|;)absoluteIcon=([^;]*)/)){
-	//ÀäÂĞ»ØÄê¥¢¥¤¥³¥ó
+	//çµ¶å¯¾æŒ‡å®šã‚¢ã‚¤ã‚³ãƒ³
 	myIcon.value=RegExp.$2;
 	myIcon.isAbsolute=true;
 	eForm['icon'].disabled=true;
     }else if(iconSetting&2&&eForm['opt'].value.match(/(^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/)){
-	//ÁêÂĞ»ØÄê¥¢¥¤¥³¥ó
+	//ç›¸å¯¾æŒ‡å®šã‚¢ã‚¤ã‚³ãƒ³
 	myIcon.value=RegExp.$2;
 	eForm['icon'].disabled=true;
     }else{
@@ -105,15 +105,15 @@ function basepath(fullpath){
 
 
 /*========================================================*/
-// ¸½ºß»ØÄê¤·¤Æ¤¤¤ë¥¢¥¤¥³¥ó¤ò¼èÆÀ
+// ç¾åœ¨æŒ‡å®šã—ã¦ã„ã‚‹ã‚¢ã‚¤ã‚³ãƒ³ã‚’å–å¾—
 function getSelectingIcon(){
     if(!isInitialized)return false;
     if(!eForm['opt']||!eForm['opt'].value){
     }else if(iconSetting&1&&eForm['opt'].value.match(/(^|;)absoluteIcon=([^;]*)/)){
-	//ÀäÂĞ»ØÄê¥¢¥¤¥³¥ó
+	//çµ¶å¯¾æŒ‡å®šã‚¢ã‚¤ã‚³ãƒ³
 	return RegExp.$2
     }else if(iconSetting&2&&eForm['opt'].value.match(/(^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/)){
-	//ÁêÂĞ»ØÄê¥¢¥¤¥³¥ó
+	//ç›¸å¯¾æŒ‡å®šã‚¢ã‚¤ã‚³ãƒ³
 	return RegExp.$2
     }
     return eForm['icon'].value
@@ -121,7 +121,7 @@ function getSelectingIcon(){
 
 
 /*========================================================*/
-// É½¾ğ¥¢¥¤¥³¥ó¤Î¥ê¥»¥Ã¥È
+// è¡¨æƒ…ã‚¢ã‚¤ã‚³ãƒ³ã®ãƒªã‚»ãƒƒãƒˆ
 function resetSurface(){
     if(!myIcon.value.match(/^(([^\/#]*\/)*[^\/#.]+)(\.[^\/#]*)#(\d+)(-\d+)?$/)){
 	eForm['surface'].length=1;
@@ -145,7 +145,7 @@ function resetSurface(){
 
 
 /*========================================================*/
-// É½¾ğ¥¢¥¤¥³¥ó¤òÊÑ¹¹
+// è¡¨æƒ…ã‚¢ã‚¤ã‚³ãƒ³ã‚’å¤‰æ›´
 function changeSurface(index){
     if(!isInitialized)return false;
 	
@@ -165,7 +165,7 @@ function changeSurface(index){
 
 
 /*========================================================*/
-// É½¾ğ¥¢¥¤¥³¥ó¸«ËÜ
+// è¡¨æƒ…ã‚¢ã‚¤ã‚³ãƒ³è¦‹æœ¬
 function surfaceSample(e){
     if(!isInitialized || !document.getElementById || !top.south || !top.south.document)
 	return false;
@@ -236,7 +236,7 @@ function surfaceSample(e){
 
 
 /*========================================================*/
-// ¥³¥Ş¥ó¥É¥¦¥£¥ó¥É¥¦
+// ã‚³ãƒãƒ³ãƒ‰ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦
 function showCommandWindow(e){
     if(!isInitialized || !document.getElementById || !top.south || !top.south.document)
     	return false;
@@ -338,21 +338,21 @@ function showCommandWindow(e){
 	   if(temp = exportInfo()){
 	       prompt('Exported Information:', temp);
 	   }else{
-	       alert("Cookie¤¬Ì¤ÀßÄê¤Ç¤¹");
+	       alert("CookieãŒæœªè¨­å®šã§ã™");
 	   }
 	   break;
 	case 'import':
 	   if(temp = prompt('Import Information?',document.cookie)) return false;
 	   if(importInfo(temp)){
-	       alert("¥¤¥ó¥İ¡¼¥È¤µ¤ì¤Ş¤·¤¿");
+	       alert("ã‚¤ãƒ³ãƒãƒ¼ãƒˆã•ã‚Œã¾ã—ãŸ");
 	   }else{
-	       alert("Àµ¤·¤¯¾ğÊó¤¬ÆşÎÏ¤µ¤ì¤Æ¤¤¤Ş¤»¤ó");
+	       alert("æ­£ã—ãæƒ…å ±ãŒå…¥åŠ›ã•ã‚Œã¦ã„ã¾ã›ã‚“");
 	   }
 	   break;
 	case 'version':
 	   alert(
 		 MARLDIA_CORE_ID + "\n"+
-		 "$Id: Marldia.js,v 1.4 2005-07-28 02:14:55 naruse Exp $");
+		 "$Id: Marldia.js,v 1.5 2006-03-11 09:33:00 naruse Exp $");
 	   break;
 	case 'exit':
 	case 'quit':
@@ -456,7 +456,7 @@ function createDivWindow(option){
 	};
 	w.close = sClose.onclick;
 	dTitleR.appendChild(sClose);
-	sClose.appendChild( option['document'].createTextNode('¡ß') );
+	sClose.appendChild( option['document'].createTextNode('Ã—') );
     }
     
     return w;
@@ -467,12 +467,12 @@ function createDivWindow(option){
 // Switch Body Form Type
 function switchBodyFormType(e){
     bodyContainer.removeChild(bodyContainer.firstChild);
-    if(bodySwitch.value=='¢­'){
-	bodySwitch.value='¢«';
+    if(bodySwitch.value=='â†“'){
+	bodySwitch.value='â†';
 	eForm['body'] = document.createElement('TEXTAREA');
 	eForm['body'].setAttribute('rows','0');
     }else{
-	bodySwitch.value='¢­';
+	bodySwitch.value='â†“';
 	eForm['body'] = document.createElement('INPUT');
 	eForm['body'].type="text";
 	eForm['body'].setAttribute('maxlength','300');

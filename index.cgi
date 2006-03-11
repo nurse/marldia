@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.20 $
-# "This file is written in euc-jp, CRLF." ��
+# $Revision: 1.21 $
+# "This file is written in utf-8, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.20 2005-07-28 02:14:55 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.21 2006-03-11 09:33:00 naruse Exp $;
 require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK %IC);
@@ -17,26 +17,26 @@ require 5.005;
 $CF{'sitename'}='Airemix';
 #YOUR SITE TOP
 $CF{'sitehome'} = '/';
-#title�����ǤΥ���åȥ����ȥ�
+#titleタグでのチャットタイトル
 $CF{'title'}=': Marldia :';
-#�ڡ�����Υ���åȥ����ȥ�
+#ページ上のチャットタイトル
 $CF{'pgtit'}=': Marldia :';
 
 
-#�����⡼�ɤذܹԤ���ݤΥѥ����
+#管理モードへ移行する際のパスワード
 $CF{'admipass'}='';
-#�����⡼�ɤ��ɲåѥ����
+#管理モードの追加パスワード
 $CF{'supass'} = [$CF{'admipass'}]unless$CF{'supass'};
 #push(@{$CF{'supass'}},'hogehoge');
-#��������Կ�
+#最大ログ行数
 $CF{'max'}=200;
-#���������ػߤ�̾��
-$CF{'denyname'}='������';
-#���Ѥ���Ĥ��륿����Ⱦ�ѥ��ڡ������ڤ��
+#アクセス禁止な名前
+$CF{'denyname'}='管理人';
+#使用を許可するタグ（半角スペース区切り）
 $CF{'tags'}='ACRONYM CODE DEL DFN EM Q SMALL STRONG RUBY RB RB RT RP';
-#����������ˡ(select input)
+#色の選択方法(select input)
 $CF{'colway'}='select';
-#���������IMG�������ɲä���°��
+#アイコンのIMGタグに追加する属性
 $CF{'imgatt'}=' width="48" height="48"';
 
 $CF{'romline'}=20;
@@ -57,74 +57,74 @@ $CF{'iconCtlg'} = 'iconctlg.cgi'; #ICON CATALOG PATH
 $ENV{'TZ'}  = 'JST-9'; #TimeZone
 $CF{'gzip'} = 'gzip'; #GZIP PATH
 
-#���л��ꥢ������ (0 �Ȥ�ʤ� 1 �Ȥ�)
+#絶対指定アイコン (0 使わない 1 使う)
 $CF{'absoluteIcon'}='1';
-#���л��ꥢ������ (0 �Ȥ�ʤ� 1 �Ȥ�)
+#相対指定アイコン (0 使わない 1 使う)
 $CF{'relativeIcon'}='1';
-#���ѥ�������ǽ (ON 1 OFF 0)
+#専用アイコン機能 (ON 1 OFF 0)
 $CF{'exicon'}='0';
-#���ѥ����������
+#専用アイコン列挙
 #$IC{'PASSWORD'}='FILENAME'; #NAME
-#$IC{'hae'}='mae.png'; #��
-#$IC{'hie'}='mie.png'; #��
-#$IC{'hue'}='mue.png'; #�
-#$IC{'hee'}='mee.png'; #��
-#$IC{'hoe'}='moe.png'; #ǵ��
-#�㡧���ޥ�ɤ�"icon=hoe"��������ǵ���������Ѥ�'moe.png'���Ȥ��ޤ�
-#�����Ϥ���Ȥ��ϡ�$IC{'hoe'}='moe.png'; #ǵ���פΤ褦�ˡ��ǽ�Ρ�#�פ���Τ�˺�줺��
+#$IC{'hae'}='mae.png'; #苗
+#$IC{'hie'}='mie.png'; #贄
+#$IC{'hue'}='mue.png'; #鵺
+#$IC{'hee'}='mee.png'; #姐
+#$IC{'hoe'}='moe.png'; #乃絵
+#例：コマンドに"icon=hoe"と入れると乃絵さん専用の'moe.png'が使えます
+#手入力するときは「$IC{'hoe'}='moe.png'; #乃絵」のように、最初の「#」を取るのを忘れずに
 
 #-----------------------------
-# ���ꥹ��
+# 色リスト
 $CF{'colorList'}=<<'_CONFIG_';
-<OPTION value="#343434" style="color:#343434">����</OPTION>
-<OPTION value="#8C8C8C" style="color:#8C8C8C">������</OPTION>
-<OPTION value="#FBDADE" style="color:#FBDADE">������</OPTION>
-<OPTION value="#D53E62" style="color:#D53E62">���鯿�</OPTION>
-<OPTION value="#FF7F8F" style="color:#FF7F8F">�����꿧</OPTION>
-<OPTION value="#AD3140" style="color:#AD3140">���û鿧</OPTION>
-<OPTION value="#9E2236" style="color:#9E2236">������</OPTION>
-<OPTION value="#905D54" style="color:#905D54">����Ʀ��</OPTION>
-<OPTION value="#EF454A" style="color:#EF454A">���뿧</OPTION>
-<OPTION value="#F1BB93" style="color:#F1BB93">��ȩ��</OPTION>
-<OPTION value="#564539" style="color:#564539">�����㿧</OPTION>
-<OPTION value="#6B3E08" style="color:#6B3E08">���쿧</OPTION>
-<OPTION value="#AA7A40" style="color:#AA7A40">�����ῧ</OPTION>
-<OPTION value="#F8A900" style="color:#F8A900">�����ῧ</OPTION>
-<OPTION value="#EDAE00" style="color:#EDAE00">��ݵ�⿧</OPTION>
-<OPTION value="#C8A65D" style="color:#C8A65D">�����ҿ�</OPTION>
-<OPTION value="#C2BD3D" style="color:#C2BD3D">��󴿧</OPTION>
-<OPTION value="#AAB300" style="color:#AAB300">������</OPTION>
-<OPTION value="#97A61E" style="color:#97A61E">��˨����</OPTION>
-<OPTION value="#6DA895" style="color:#6DA895">���ļ���</OPTION>
-<OPTION value="#89BDDE" style="color:#89BDDE">������</OPTION>
-<OPTION value="#007BC3" style="color:#007BC3">��Ϫ��</OPTION>
-<OPTION value="#00519A" style="color:#00519A">��������</OPTION>
-<OPTION value="#384D98" style="color:#384D98">�����Ŀ�</OPTION>
-<OPTION value="#4347A2" style="color:#4347A2">���˹���</OPTION>
-<OPTION value="#A294C8" style="color:#A294C8">��ƣ��</OPTION>
-<OPTION value="#714C99" style="color:#714C99">������</OPTION>
-<OPTION value="#744B98" style="color:#744B98">���Գ���</OPTION>
-<OPTION value="#C573B2" style="color:#C573B2">���Գ���</OPTION>
-<OPTION value="#EAE0D5" style="color:#EAE0D5">���ῧ</OPTION>
-<OPTION value="#DED2BF" style="color:#DED2BF">���ݲ翧</OPTION>
+<OPTION value="#343434" style="color:#343434">■墨</OPTION>
+<OPTION value="#8C8C8C" style="color:#8C8C8C">■灰色</OPTION>
+<OPTION value="#FBDADE" style="color:#FBDADE">■桜色</OPTION>
+<OPTION value="#D53E62" style="color:#D53E62">■薔薇色</OPTION>
+<OPTION value="#FF7F8F" style="color:#FF7F8F">■珊瑚色</OPTION>
+<OPTION value="#AD3140" style="color:#AD3140">■臙脂色</OPTION>
+<OPTION value="#9E2236" style="color:#9E2236">■茜色</OPTION>
+<OPTION value="#905D54" style="color:#905D54">■小豆色</OPTION>
+<OPTION value="#EF454A" style="color:#EF454A">■朱色</OPTION>
+<OPTION value="#F1BB93" style="color:#F1BB93">■肌色</OPTION>
+<OPTION value="#564539" style="color:#564539">■焦茶色</OPTION>
+<OPTION value="#6B3E08" style="color:#6B3E08">■褐色</OPTION>
+<OPTION value="#AA7A40" style="color:#AA7A40">■琥珀色</OPTION>
+<OPTION value="#F8A900" style="color:#F8A900">■山吹色</OPTION>
+<OPTION value="#EDAE00" style="color:#EDAE00">■鬱金色</OPTION>
+<OPTION value="#C8A65D" style="color:#C8A65D">■芥子色</OPTION>
+<OPTION value="#C2BD3D" style="color:#C2BD3D">■鶸色</OPTION>
+<OPTION value="#AAB300" style="color:#AAB300">■若草色</OPTION>
+<OPTION value="#97A61E" style="color:#97A61E">■萌黄色</OPTION>
+<OPTION value="#6DA895" style="color:#6DA895">■青磁色</OPTION>
+<OPTION value="#89BDDE" style="color:#89BDDE">■空色</OPTION>
+<OPTION value="#007BC3" style="color:#007BC3">■露草色</OPTION>
+<OPTION value="#00519A" style="color:#00519A">■瑠璃色</OPTION>
+<OPTION value="#384D98" style="color:#384D98">■群青色</OPTION>
+<OPTION value="#4347A2" style="color:#4347A2">■桔梗色</OPTION>
+<OPTION value="#A294C8" style="color:#A294C8">■藤色</OPTION>
+<OPTION value="#714C99" style="color:#714C99">■菫色</OPTION>
+<OPTION value="#744B98" style="color:#744B98">■菖蒲色</OPTION>
+<OPTION value="#C573B2" style="color:#C573B2">■菖蒲色</OPTION>
+<OPTION value="#EAE0D5" style="color:#EAE0D5">■香色</OPTION>
+<OPTION value="#DED2BF" style="color:#DED2BF">■象牙色</OPTION>
 _CONFIG_
 
 #-------------------------------------------------
-# �¹� or �ɤ߹��ߡ�
+# 実行 or 読み込み？
 
 if($CF{'program'}eq __FILE__){
-	#ľ�ܼ¹Ԥ��ä���ư���Ф�
+	#直接実行だったら動き出す
 	require './core.cgi';
 	&main;
 }
 
 #-------------------------------------------------
-# �������
+# 初期設定
 BEGIN{
-    #���顼���Ф��饨�顼���̤�ɽ������褦��
+    #エラーが出たらエラー画面を表示するように
     # Marldia Error Screen 1.2.2
     unless($CF{'program'}){
-	$CF{'encoding'}='euc-jp';
+	$CF{'encoding'}='utf-8';
 	$CF{'program'}=__FILE__;
 	$SIG{'__DIE__'}=$ENV{'REQUEST_METHOD'}?sub{
 	    index($_[0],'flock')+1 and index($_[0],'unimplemented')+1 and return;
@@ -153,7 +153,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
 	};
     }
     # Revision Number
-    $CF{'idxrev'}=qq$Revision: 1.20 $;
+    $CF{'idxrev'}=qq$Revision: 1.21 $;
 }
 1;
 __END__

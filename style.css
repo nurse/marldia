@@ -1,12 +1,12 @@
-@charset"EUC-JP";
+@charset"UTF-8";
 /* Marldia Style Sheet */
-/* "This file is written in euc-jp, CRLF." ¶õ */
-/* $Id: style.css,v 1.17 2005-07-28 02:14:56 naruse Exp $ */
+/* "This file is written in utf-8, CRLF." ç©º */
+/* $Id: style.css,v 1.18 2006-03-11 09:33:01 naruse Exp $ */
 
-/* ==================== Í×ÁÇ¤ÎÉ¸½à¥¹¥¿¥¤¥ë ==================== */
+/* ==================== è¦ç´ ã®æ¨™æº–ã‚¹ã‚¿ã‚¤ãƒ« ==================== */
 /* ========== Structure Module ==========*/
 HTML{
-	overflow-y: scroll;/*WinIE6¤ÎÉ¸½à¥â¡¼¥ÉÂĞºö*/
+	overflow-y: scroll;/*WinIE6ã®æ¨™æº–ãƒ¢ãƒ¼ãƒ‰å¯¾ç­–*/
 }
 BODY{
 /*	background-attachment: scroll;*/
@@ -120,13 +120,13 @@ IMG{
 }
 
 
-/* ==================== ÈÆÍÑ¥¯¥é¥¹¥¹¥¿¥¤¥ë ==================== */
-/* ========== ¥¢¥¯¥»¥¹¥­¡¼ ========== */
+/* ==================== æ±ç”¨ã‚¯ãƒ©ã‚¹ã‚¹ã‚¿ã‚¤ãƒ« ==================== */
+/* ========== ã‚¢ã‚¯ã‚»ã‚¹ã‚­ãƒ¼ ========== */
 .ak{
 	text-decoration: underline;
 }
 
-/* ========== ¼«Æ°¥ê¥ó¥¯ ========== */
+/* ========== è‡ªå‹•ãƒªãƒ³ã‚¯ ========== */
 A.autolink:link{
 	border-bottom: dashed 1px #88f;
 	color: #44f;
@@ -152,7 +152,7 @@ A.autolink:active{
 /* Checkbox */
 INPUT.check{
 }
-/* OK/Submit¥Ü¥¿¥ó */
+/* OK/Submitãƒœã‚¿ãƒ³ */
 INPUT.submit{
 	background-color: #55A;
 	border-color: #fd0;
@@ -163,7 +163,7 @@ INPUT.submit{
 	letter-spacing: 0.15em;
 	width: 7em;
 }
-/* Cancel/Reset¥Ü¥¿¥ó */
+/* Cancel/Resetãƒœã‚¿ãƒ³ */
 INPUT.reset{
 	background-color: #A55;
 	border-color: #fd0;
@@ -174,7 +174,7 @@ INPUT.reset{
 	letter-spacing: 0.15em;
 	width: 7em;
 }
-/* ÈÆÍÑ¥Ü¥¿¥ó */
+/* æ±ç”¨ãƒœã‚¿ãƒ³ */
 INPUT.button{
 	background-color: #ffa;
 	border-color: #fd0;
@@ -185,7 +185,7 @@ INPUT.button{
 	letter-spacing: 0.15em;
 	width: 7em;
 }
-/* ¥Æ¥­¥¹¥È¥Õ¥©¡¼¥à */
+/* ãƒ†ã‚­ã‚¹ãƒˆãƒ•ã‚©ãƒ¼ãƒ  */
 INPUT.text,TEXTAREA{
 	background-color: #eee;
 	border: #ccc solid 1px;
@@ -217,7 +217,7 @@ INPUT.text,TEXTAREA{
 }
 
 
-/* ===================== »²²Ã¼Ô°ìÍ÷¤Ê¤É ===================== */
+/* ===================== å‚åŠ è€…ä¸€è¦§ãªã© ===================== */
 TABLE.meminfo{
 	margin:0;
 	text-align: left;
@@ -234,7 +234,7 @@ TABLE.meminfo{
 }
 
 
-/* ==================== µ­»ö¤Î¥¹¥¿¥¤¥ë ==================== */
+/* ==================== è¨˜äº‹ã®ã‚¹ã‚¿ã‚¤ãƒ« ==================== */
 TABLE.article{
 	margin: 1px auto 1px 3px;
 	text-align: left;
@@ -283,7 +283,7 @@ TABLE.article TH,TABLE.article TD{
 .artlev{}
 .artdate{}
 
-/* ========== ÈÆÍÑ¥Æ¡¼¥Ö¥ë ========== */
+/* ========== æ±ç”¨ãƒ†ãƒ¼ãƒ–ãƒ« ========== */
 TABLE.table{
 	border: solid 1px #333;
 }
@@ -304,7 +304,7 @@ TABLE.table TD{
 	padding: 2px;
 }
 
-/* ========== Ãøºî¸¢É½¼¨ ========== */
+/* ========== è‘—ä½œæ¨©è¡¨ç¤º ========== */
 .AiremixCopy{
 	font: normal 100% sans-serif;
 	line-height: 2.0em;
@@ -313,15 +313,15 @@ TABLE.table TD{
 }
 
 
-/* ===================== ¥¢¥¤¥³¥ó¥ê¥¹¥È ===================== */
-/* ¥¢¥¤¥³¥ó¥°¥ë¡¼¥×¤Î¥Æ¡¼¥Ö¥ë */
+/* ===================== ã‚¢ã‚¤ã‚³ãƒ³ãƒªã‚¹ãƒˆ ===================== */
+/* ã‚¢ã‚¤ã‚³ãƒ³ã‚°ãƒ«ãƒ¼ãƒ—ã®ãƒ†ãƒ¼ãƒ–ãƒ« */
 TABLE.icon{
 	border: #6ac solid 2px;
 	font-size: 14px;
 	padding: 3px;
 	text-align: center;
 }
-/* ¥¢¥¤¥³¥ó¥°¥ë¡¼¥×¤ÎÌ¾Á° */
+/* ã‚¢ã‚¤ã‚³ãƒ³ã‚°ãƒ«ãƒ¼ãƒ—ã®åå‰ */
 TABLE.icon CAPTION{
 	background-color: #6ac;
 	color: #fff;
@@ -336,7 +336,7 @@ TABLE.icon CAPTION{
 TABLE.icon TD{
 	text-align: center;
 }
-/* ¥¢¥¤¥³¥ó¥°¥ë¡¼¥×¤Î¥Õ¥Ã¥¿ */
+/* ã‚¢ã‚¤ã‚³ãƒ³ã‚°ãƒ«ãƒ¼ãƒ—ã®ãƒ•ãƒƒã‚¿ */
 TABLE.icon TH.foot{
 	background-color: #cdf;
 	color: #05a;
