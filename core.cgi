@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.35 $
+# $Revision: 1.36 $
 # "This file is written in utf-8, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.35 2006-03-11 09:33:00 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.36 2006-03-17 03:55:40 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -86,7 +86,6 @@ Content-type: text/html; charset=$IN{'encoding'}
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
 <BODY><font size=2>
-@{[sprintf("%s",(split(/\s+/o,localtime))[3])]} : $IN{'encoding'}<br>
 <FORM name="north" method="get" action="$CF{'index'}">
 <INPUT name="type" type="hidden" value="mobile">
 <INPUT name="encoding" type="hidden" value="$IN{'encoding'}">
@@ -149,7 +148,6 @@ Content-type: text/html; charset=$IN{'encoding'}
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
 <BODY><font size=2>
-@{[sprintf("%s",(split(/\s+/o,localtime))[3])]} : $IN{'encoding'}<br>
 <FORM name="north" method="$method" action="$CF{'index'}">
 <INPUT name="encoding" type="hidden" value="$IN{'encoding'}">
 <INPUT type="hidden" name="type"  value="mobile">
@@ -180,13 +178,17 @@ _HTML_
 	my%DT=%{$_};
 	'del'eq$DT{'Mar1'}&&next;
 	++$i>$IN{'line'}&&last;
+	my $acl = can_access($DT{'body'});
+	$acl or next;
 	
 	#日付
 	my$date=sprintf("%s",(split(/\s+/o,localtime$DT{'time'}))[3]);;
 	#名前・メールアドレス・名前色
 	#出力
+	my $status = '';
+	$status .= '[制限]' if $acl == 2;
 	$output .= <<"_HTML_";
-<FONT color="$DT{'color'}">$DT{'name'}</FONT> &gt; <FONT color="$DT{'bcolo'}">$DT{'body'}</FONT> $date
+$status <FONT color="$DT{'color'}">$DT{'name'}</FONT> &gt; <FONT color="$DT{'bcolo'}">$DT{'body'}</FONT> $date
 _HTML_
     }
     $chatlog->dispose;
@@ -300,6 +302,7 @@ _EOM_
 	!$isAdmin&&'del'eq$DT{'Mar1'}&&next;
 	++$i>$IN{'line'}&&last;
 	Filter->is_utf8(join('',values%DT)) or next;
+	$isAdmin or can_access($DT{'body'}) or next;
 	
 	my %article;
 	my %author;
@@ -417,13 +420,15 @@ sub modeNorth{
     (%CK)||(%CK=%IN);
     &header;
     &iptico($CK{'icon'},'tabindex="12"');
-    print<<"_HTML_";
+    print<<'_HTML_';
 <SCRIPT type="text/javascript">
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '\$Id: core.cgi,v 1.35 2006-03-11 09:33:00 naruse Exp $';
+MARLDIA_CORE_ID = '$Id: core.cgi,v 1.36 2006-03-17 03:55:40 naruse Exp $';
 var isInitialized;
+_HTML_
+    print<<"_HTML_";
 var iconDirectory = '$CF{'iconDir'}';
 var iconSetting = @{[ !!$CF{'absoluteIcon'} * 1 + !!$CF{'relativeIcon'} * 2 ]};
 var myIcon = { 'value': '$CK{'icon'}', 'isAbsolute': 0 };
@@ -685,6 +690,8 @@ _HTML_
     for(@{$chatlog}){
 	my%DT=%{$_};
 	!$isAdmin&&'del'eq$DT{'Mar1'}&&next;
+	my $acl = can_access($DT{'body'});
+	$isAdmin or $acl or next;
 	++$i>$IN{'line'}&&last;
 
 	#日付
@@ -710,6 +717,9 @@ qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}"
 	    my$id = $DT{'id'};
 	    $id=~s{(\W)}{'%'.unpack('H2',$1)}ego;
 	    $del = qq([<A href="$CF{'index'}?del=$DT{'exp'}_$id&#59;$query">削除</A>]);
+	}
+	if($acl == 2){
+	    $del .= "[制限]"
 	}
 	#出力
 	print<<"_HTML_";
@@ -1653,6 +1663,29 @@ _HTML_
 
 
 #-------------------------------------------------
+# Access Control
+#
+sub can_access{
+    ref$CF{'taboo_alist'} eq 'ARRAY' or return 1;
+    my $body = shift;
+    my $allow = 1;
+    for(@{$CF{'taboo_alist'}}){
+	if(index($body, $_->{'keyword'}) > -1){
+	    $allow = 0;
+	    for(@{$_->{'allow'}}){
+		if($_ eq $IN{'id'}){
+		    $allow = 2;
+		    last;
+		}
+	    }
+	    last unless $allow;
+	}
+    }
+    return $allow;
+}
+
+
+#-------------------------------------------------
 # Version Compare
 #
 sub vercmp{
@@ -2059,8 +2092,9 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		#実稼動部
 		my$href_regex=qr{($http_URL_regex|$ftp_URL_regex|($mail_regex))};
 		my@isMail=('<A class="autolink" href="mailto:','<A class="autolink" href="');
-		my $anchorContent = q{" target="_blank" onclick="window.open(this.href);return false;">};
-		$str=~s{((?:\G|>)[^<]*?)$href_regex}{$1$isMail[!$3]$2$anchorContent$2</A>}go;
+		my $anchorContentA = q{" target="_blank" onclick="window.open('};
+		my $anchorContentB = q{');return false;">};
+		$str=~s{((?:\G|>)[^<]*?)$href_regex}{$1$isMail[!$3]$2$anchorContentA$2$anchorContentB$2</A>}go;
 		if($str=~/<(?:XMP|PLAINTEXT|SCRIPT)(?![0-9A-Za-z])/io){
 		    #XMP/PLAINTEXT/SCRIPTタグがあるとき
 		    $str=~s{(<(XMP|PLAINTEXT|SCRIPT)(?![0-9A-Za-z]).*?(?:<\/$2\s*>|$))}
@@ -2612,7 +2646,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.35 $;
+    $CF{'correv'}=qq$Revision: 1.36 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
