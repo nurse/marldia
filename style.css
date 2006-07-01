@@ -1,7 +1,7 @@
 @charset"UTF-8";
 /* Marldia Style Sheet */
 /* "This file is written in utf-8, CRLF." 空 */
-/* $Id: style.css,v 1.18 2006-03-11 09:33:01 naruse Exp $ */
+/* $Id: style.css,v 1.19 2006-07-01 22:12:14 naruse Exp $ */
 
 /* ==================== 要素の標準スタイル ==================== */
 /* ========== Structure Module ==========*/
@@ -190,6 +190,7 @@ INPUT.text,TEXTAREA{
 	background-color: #eee;
 	border: #ccc solid 1px;
 	color: #355;
+	font-family: 'MS UI Gothic',sans-serif;
 	font-size: 13px;
 	padding: 2px;
 	margin: 0;

@@ -1,29 +1,31 @@
 #!/usr/local/bin/perl
-
+# -*- coding: utf-8 -*- 　
 #------------------------------------------------------------------------------#
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.36 $
-# "This file is written in utf-8, CRLF." 空
-# Scripted by NARUSE,Yui.
+# $Revision: 1.37 $
+# Scripted by NARUSE, Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.36 2006-03-17 03:55:40 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.37 2006-07-01 22:12:14 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
 #use Data::Dumper;
-
+$CF{'default_icon'} = 'alicesoft/chr_11.png';
 
 #-------------------------------------------------
 # MAIN SWITCH
 #
 sub main{
-    &getParams;
-    $IN{'name'}&&index(" $CF{'denyname'} "," $IN{'name'} ") > -1&& exit;
     $ENV{'REMOT_ADDR'}&&index(" $CF{'deny_ra'} "," $IN{'REMOT_ADDR'} ") > -1&& exit;
     $ENV{'REMOT_HOST'}&&index(" $CF{'deny_rh'} "," $ENV{'REMOT_HOST'} ") > -1&& exit;
-    $ENV{'HTTP_USER_AGENT'}&&index(" $CF{'deny_ua'} "," $ENV{'HTTP_USER_AGENT'} ") > -1&& exit;
+    $ENV{'HTTP_USER_AGENT'} and
+	index($ENV{'HTTP_USER_AGENT'},'http://') > -1 ||
+	index(" $CF{'deny_ua'} "," $ENV{'HTTP_USER_AGENT'} ") > -1
+	and exit;
+    &getParams;
+    $IN{'name'}&&index(" $CF{'denyname'} "," $IN{'name'} ") > -1&& exit;
     
     &getCookie;
     $CK{'name'}&&index(" $CF{'denyname'} "," $CK{'name'} ") > -1&& exit;
@@ -31,6 +33,8 @@ sub main{
     $CF{'supass'} = [$CF{'admipass'}]unless$CF{'supass'};
     if('jump'eq$IN{'mode'}){
 	&locate($IN{'jump'});
+    }elsif('iconlist'eq$IN{'mode'}){
+	&xmlIconlist();
     }elsif('xml'eq$IN{'type'}){
 	&xmlView();
     }elsif('mobile'eq$IN{'type'} || $IN{'hua'} =~ /(?:^Mozilla\/[1-3].0|DoCoMo|UP\.Browser|^J-PHONE|^Vodafone|^ASTEL)/o){
@@ -83,6 +87,7 @@ Content-type: text/html; charset=$IN{'encoding'}
 <HEAD>
 <META http-equiv="Content-type" content="text/html; charset=$IN{'encoding'}">
 <META http-equiv="Content-Style-Type" content="text/css">
+<META name="ROBOTS" content="NOINDEX,NOFOLLOW,NOARCHIVE">
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
 <BODY><font size=2>
@@ -172,14 +177,22 @@ _HTML_
 <pre>計:$intMembers [ $strMembers ]
 _HTML_
     my$i=0;
+    my $isAdmin = 0;
+    if($IN{'_opt'}{'su'}&&$CF{'supass'}){
+	for(@{$CF{'supass'}}){
+	    $IN{'_opt'}{'su'}eq$_ or next;
+	    $isAdmin = 1;
+	    last;
+    	}
+    }
     #-----------------------------
     #ログ表示
     for(@{$chatlog}){
 	my%DT=%{$_};
-	'del'eq$DT{'Mar1'}&&next;
+	!$isAdmin && 'del'eq$DT{'Mar1'}&&next;
 	++$i>$IN{'line'}&&last;
 	my $acl = can_access($DT{'body'});
-	$acl or next;
+	$IN{'id'} eq $DT{'id'} or $isAdmin or $acl or next;
 	
 	#日付
 	my$date=sprintf("%s",(split(/\s+/o,localtime$DT{'time'}))[3]);;
@@ -213,7 +226,7 @@ sub xmlView{
     #初期化
     $IN{'line'} = 50 unless $IN{'line'};
     $IN{'lastModified'} = 50 unless $IN{'lastModified'};
-    my $version = $IN{'version'} eq '0.2' ? '0.2' : '0.1';
+    my $version = 0.4; # $IN{'version'} eq '0.2' ? '0.2' : '0.1';
     
     #-----------------------------
     #クエリ
@@ -240,9 +253,9 @@ sub xmlView{
     my $updated = &datef((stat("$CF{'rank'}"))[9],'dateTime');
     my $rootElement = vercmp($version, '>=', '0.2') ? 'feed' : 'document';
     my $doctype = $IN{'doctype'} && vercmp($version, '>=', '0.2') ?
-	'<!DOCTYPE feed PUBLIC "-//Airemix//DTD ChatXML 0.2//EN"'
-	. ' "http://airemix.org/TR/ChatXML/DTD/ChatXML-0.2.dtd">' . "\n" : '';
-    my $xmlns = vercmp($version, '>=', '0.2') ? ' xmlns="http://airemix.org/2005/ChatXML"' : '';
+	'<!DOCTYPE feed PUBLIC "-//Airemix//DTD Cast 0.4//EN"'
+	. ' "http://airemix.org/TR/Cast/DTD/Cast-0.4.dtd">' . "\n" : '';
+    my $xmlns = vercmp($version, '>=', '0.2') ? ' xmlns="http://airemix.org/2005/Cast"' : '';
     
     #-----------------------------
     #ヘッダ出力
@@ -272,7 +285,7 @@ _EOM_
 	my %person;
 	$person{'updated'} = &datef($member->{'lastModified'},'dateTime');
 	for(qw/id name color/){
-	    $person{$_} = to_cdata($member->{$_}) if exists$member->{$_} && length($member->{$_});
+	    $person{$_} = escape_xml($member->{$_}) if exists$member->{$_} && length($member->{$_});
 	}
 	Filter->is_utf8(join('',values%person)) or next;
 	print "      <member>\n";
@@ -302,7 +315,8 @@ _EOM_
 	!$isAdmin&&'del'eq$DT{'Mar1'}&&next;
 	++$i>$IN{'line'}&&last;
 	Filter->is_utf8(join('',values%DT)) or next;
-	$isAdmin or can_access($DT{'body'}) or next;
+	my $acl = can_access($DT{'body'});
+	$IN{'id'} eq $DT{'id'} or $isAdmin or $acl or next;
 	
 	my %article;
 	my %author;
@@ -313,7 +327,7 @@ _EOM_
 	$DT{'level'}=&getLevel($DT{'exp'});
 	
 	for(qw/id name color email home exp level/){
-	    $author{$_} = sprintf('<%s>%s</%s>', $_, to_cdata($DT{$_}), $_)
+	    $author{$_} = sprintf('<%s>%s</%s>', $_, escape_xml($DT{$_}), $_)
 		if exists$DT{$_} && length($DT{$_});
 	}
 
@@ -333,21 +347,23 @@ _EOM_
 	}
 	
 	$article{'updated'} = '<updated>'.&datef($DT{'time'},'dateTime').'</updated>';
-	$article{'body'} = to_cdata($DT{'body'});
+	$article{'body'} = $DT{'body'};
+	$article{'body'} = '[制限]' . $article{'body'} if $acl == 2;
 	$article{'body'} =~ s/<A class="autolink"[^>]*>([^<]+)<\/A>/$1/go;
 	$article{'body'} =~ s/<BR>/\n/go;
-	$article{'body'} = '<body>'.$article{'body'}.'</body>';
+	$article{'body'} = escape_xml($article{'body'});
+	$article{'body'} = '<body type="html">'.$article{'body'}.'</body>';
 	
 	#出力
 	print "      <article>\n";
 	if(vercmp($version, '>=', '0.2')){
 	    $article{'id'} = '<id>'.$article_id.'</id>';
-	    $article{'color'} = '<color>'.to_cdata($DT{'bcolo'}).'</color>' if $DT{'bcolo'};
+	    $article{'color'} = '<color>'.escape_xml($DT{'bcolo'}).'</color>' if $DT{'bcolo'};
 	    delete$author{'home'};
-	    $author{'uri'} = sprintf('<%s>%s</%s>', 'uri', to_cdata($DT{'home'}), 'uri') if $DT{'home'};
+	    $author{'uri'} = sprintf('<%s>%s</%s>', 'uri', escape_xml($DT{'home'}), 'uri') if $DT{'home'};
 	    
-	    for(qw/updated id body color/){
-		print "        $article{$_}\n" if $article{$_};;
+		      for(qw/updated id body color delete/){
+		print "        $article{$_}\n" if $article{$_};
 	    }
 	    print "        <author>\n";
 	    for(qw/id color email exp icon level name uri/){
@@ -355,7 +371,7 @@ _EOM_
 	    }
 	    print "        </author>\n";
 	}else{
-	    $article{'bcolo'} = '<bcolo>'.to_cdata($DT{'bcolo'}).'</bcolo>' if $DT{'bcolo'};
+	    $article{'bcolo'} = '<bcolo>'.escape_xml($DT{'bcolo'}).'</bcolo>' if $DT{'bcolo'};
 	    for(keys %article){
 		print "        $article{$_}\n";
 	    }
@@ -378,6 +394,90 @@ _EOM_
 
 
 #-------------------------------------------------
+# XML Iconlist
+#
+sub xmlIconlist{
+    my $icon_dir = to_absolute($CF{'iconDir'});
+    print<<"_HTML_";
+Status: 200 OK
+Content-type: application/xml; charset=$::CF{'encoding'}
+
+<?xml version="1.0" encoding="$::CF{'encoding'}"?>
+<iconlist dir="$icon_dir">
+_HTML_
+    #アイコンリスト読み込み
+    my $iconlist = '';
+    if($CF{'iconList'}=~/^ /o){
+	#複数アイコンリスト読み込み
+	for($CF{'iconList'}=~/("[^"\\]*(?:\\.[^"\\]*)*"|\S+)/go){
+	    $_||next;
+	    my$tmp;
+	    open(RD,'<'.$_)||die"Can't open multi-iconlist($_).";
+	    eval{flock(RD,1)};
+	    my $is_optgroup = 0;
+	    while(<RD>){
+		if(/^\s*<!--[^\-]*(?:\-[^\-]+)*-->\s*$/o){
+		    print;
+		}elsif(/^\s*<optgroup\s+(?:\w+=(?:"[^"]*"|'[^']*')\s*)*>\s*$/io){
+		    /label=("[^"]*"|'[^']*')/io or next;
+		    print "</optgroup>" if $is_optgroup;
+		    my $attr = $1;
+		    $attr = escape_xml($attr);
+		    print "<optgroup label=$attr>";
+		    $is_optgroup = 1;
+		}elsif(/^\s*<\/optgroup>\s*$/io){
+		    $is_optgroup or next;
+		    print "</optgroup>";
+		    $is_optgroup = 0;
+		}elsif(/^\s*<option\s+(?:\w+=(?:"[^"]*"|'[^']*')\s*)*>([^<]*)<\/option>\s*$/io){
+		    /value=("[^"]*"|'[^']*').*>([^<]*)<\/option>\s*$/io or next;
+		    my $attr = $1;
+		    $attr = escape_xml($attr);
+		    my $content = $2;
+		    $content = escape_xml($content);
+		    print "\t<option value=$attr>$content</option>";
+		}
+	    }
+	    close(RD);
+	    print "</optgroup>" if $is_optgroup;
+	}
+    }else{
+	#単一アイコンリスト読み込み
+	open(RD,'<'.$CF{'iconList'})||die"Can't open single-iconlist.";
+	eval{flock(RD,1)};
+	my $is_optgroup = 0;
+	while(<RD>){
+	    if(/^\s*<!--[^\-]*(?:\-[^\-]+)*-->\s*$/o){
+		print;
+	    }elsif(/^\s*<optgroup\s+(?:\w+=(?:"[^"]*"|'[^']*')\s*)*>\s*$/io){
+		/label=("[^"]*"|'[^']*')/io or next;
+		print "</optgroup>" if $is_optgroup;
+		my $attr = $1;
+		$attr = escape_xml($attr);
+		print "<optgroup label=$attr>";
+		$is_optgroup = 1;
+	    }elsif(/^\s*<\/optgroup>\s*$/io){
+		$is_optgroup or next;
+		print "</optgroup>";
+		$is_optgroup = 0;
+	    }elsif(/^\s*<option\s+(?:\w+=(?:"[^"]*"|'[^']*')\s*)*>([^<]*)<\/option>\s*$/io){
+		/value=("[^"]*"|'[^']*').*>([^<]*)<\/option>\s*$/io or next;
+		my $attr = $1;
+		$attr = escape_xml($attr);
+		my $content = $2;
+		$content = escape_xml($content);
+		print "\t<option value=$attr>$content</option>";
+	    }
+	}
+	close(RD);
+	print "</optgroup>" if $is_optgroup;
+    }
+    print "</iconlist>";
+    exit;
+}
+
+
+#-------------------------------------------------
 # Frame
 #
 sub modeFrame{
@@ -392,6 +492,7 @@ Content-type: text/html; charset=$::CF{'encoding'}
 <META http-equiv="Content-type" content="text/html; charset=$::CF{'encoding'}">
 <META http-equiv="Content-Script-Type" content="text/javascript">
 <META http-equiv="Content-Style-Type" content="text/css">
+<META name="ROBOTS" content="NOINDEX,NOFOLLOW,NOARCHIVE">
 <LINK rel="start" href="$CF{'sitehome'}">
 <LINK rel="index" href="$CF{'index'}">
 <TITLE>$CF{'title'}</TITLE>
@@ -425,13 +526,14 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '$Id: core.cgi,v 1.36 2006-03-17 03:55:40 naruse Exp $';
+MARLDIA_CORE_ID = '$Id: core.cgi,v 1.37 2006-07-01 22:12:14 naruse Exp $';
 var isInitialized;
 _HTML_
     print<<"_HTML_";
 var iconDirectory = '$CF{'iconDir'}';
 var iconSetting = @{[ !!$CF{'absoluteIcon'} * 1 + !!$CF{'relativeIcon'} * 2 ]};
 var myIcon = { 'value': '$CK{'icon'}', 'isAbsolute': 0 };
+var myIconHistory = null;
 function init(){}
 
 /*========================================================*/
@@ -439,9 +541,9 @@ function init(){}
 function onSubmitHandler(e){
     if(document.forms && document.forms[0]){
 	var form = document.forms[0];
-	if(form['identity'] && form['name'] &&
-	   !form['identity'].value && form['name'].value){
-	    form['identity'].value = form['name'].value;
+	if(form['id'] && form['name'] &&
+	   !form['id'].value && form['name'].value){
+	    form['id'].value = form['name'].value;
 	}
 	if(isInitialized){
 	    if(commentHistory && form['body'].value && maxHistory > 0){
@@ -453,9 +555,23 @@ function onSubmitHandler(e){
 	}
 	form.submit();
 	if(form['cook'] && form['cook'].checked) form['cook'].checked = false;
-	if(form['body'] && form['body'].value){
+	if(form['body']){
 	    form['body'].value = '';
 	    form['body'].focus();
+	}
+	if(myIconHistory == null){
+	    var optgroup = document.createElement('OPTGROUP');
+	    optgroup.label = '履歴';
+	    eForm['icon'].appendChild(optgroup);
+	    myIconHistory = {'_optgroup' : optgroup};
+	}
+	if(getSelectingIcon() && !myIconHistory[myIcon.value] &&
+		myIcon.text != '絶対指定' && myIcon.text != '相対指定'){
+	    myIconHistory[myIcon['value']] = myIcon.text;
+	    var option = document.createElement('OPTION');
+	    myIconHistory['_optgroup'].appendChild(option);
+	    option.text = myIcon['text'];
+	    option.value = myIcon['value'];
 	}
 	if(!e){
 	}else if(document.all){ 
@@ -540,6 +656,8 @@ title="reset&#10;内容を初期化します" value="キャンセル" tabindex="
 <TR>
 <TH><LABEL accesskey="b" for="body" title="Body&#10;発言する本文の内容です&#10;/rankで発言ランキング、/memberで参加者一覧を見れます">内容(<SPAN class="ak">B</SPAN>)</LABEL>:</TH>
 <TD colspan="5" id="bodyContainer"><INPUT type="text" class="text" name="body" id="body"
+onkeydown="isInitialized&&getChatHistoryByKey(event);return false;"
+onmousewheel="isInitialized&&getChatHistoryByMouseWheel(event);return false;"
 maxlength="300" size="100" style="ime-mode:active;width:400px" tabindex="1">
 <INPUT type="button" id="bodySwitch" class="button" value="↓" tabindex="2"
 onclick="isInitialized&&switchBodyFormType(event);return false;"></TD>
@@ -622,7 +740,7 @@ sub modeSouth{
     #携帯電話用クエリ
     my $mobileQuery = 'type=mobile&amp;' .
     	join('&amp;',map{my$val=$IN{$_};$val=~s/&#64;/\@/;$val=~s{([^!"\$'-:<>-~])}{'%'.unpack('H2',$1)}ego;"$_=$val"}
-	     grep{defined$IN{$_}&&length$IN{$_}}qw(id name color bcolo icon opt email home line))
+	     grep{defined$IN{$_}&&length$IN{$_}}qw(id name color bcolo icon opt email home))
 	if $IN{'icon'};
     
     #-----------------------------
@@ -691,7 +809,7 @@ _HTML_
 	my%DT=%{$_};
 	!$isAdmin&&'del'eq$DT{'Mar1'}&&next;
 	my $acl = can_access($DT{'body'});
-	$isAdmin or $acl or next;
+	$IN{'id'} eq $DT{'id'} or $isAdmin or $acl or next;
 	++$i>$IN{'line'}&&last;
 
 	#日付
@@ -915,10 +1033,10 @@ sub modeAdmicmd{
 
 $::CF{'admipass'}='admicmd';なら、
 オプションにsu=admincmdと指定した上で、
-#admin ...
+/admin ...
 で...というコマンドが発動
 
-◇rank (del|merge|conv) <...>
+◇rank (del|delByExp|merge) <...>
 ランキングを表示
 ・del <id>
 引数として指定されたIDの情報を削除
@@ -926,10 +1044,8 @@ $::CF{'admipass'}='admicmd';なら、
 引数として指定された経験値より少ない人を削除
 ・merge <mainid> [<subid>]..
 第一引数のIDに、それ以降のIDを統合する
-・conv
-1.5以前のランキングデータを1.6形式に変換する
 
-◇mem
+◇member
 参加者情報を表示
 
 ◇del <id> [<exp>]
@@ -1198,6 +1314,7 @@ q|6DNKU>DJ-N)1F&5($?`$-3&-TWP$`````|);
 <META http-equiv="Content-type" content="text/html; charset=$::CF{'encoding'}">
 <META http-equiv="Content-Script-Type" content="text/javascript">
 <META http-equiv="Content-Style-Type" content="text/css">
+<META name="ROBOTS" content="NOINDEX,NOFOLLOW,NOARCHIVE">
 @{[$_[0]||'']}
 <LINK rel="stylesheet" type="text/css" href="$CF{'style'}">
 <LINK rel="start" href="$CF{'sitehome'}">
@@ -1420,6 +1537,11 @@ sub commonRoutineForView{
     $IN{'body'}=$IN{'body'}?Filter->filteringBody($IN{'body'},%EX):'';
     $IN{'isActive'}=$ENV{'CONTENT_LENGTH'}?1:0;
     $IN{'time'}=$^T;
+    if(!$IN{'icon'}&&!$EX{'absoluteIcon'}&&!$EX{'relativeIcon'}&&$IN{'isActive'}){
+        $IN{'icon'} = $CF{'default_icon'};
+    }elsif($IN{'icon'} eq 'licesoft/char_11.png'){
+	$IN{'icon'} = 'kero/jmio.png';
+    }
     
     #-----------------------------
     #クッキー書き込み
@@ -1448,6 +1570,8 @@ sub commonRoutineForView{
 	    $rank->dispose;
 	    #発言処理
 	    $chatlog->add(\%IN);
+	}else{
+	    showUserError('連続投稿とみなされた');
 	}
     }elsif($IN{'del'}){
 	#発言削除
@@ -1669,6 +1793,9 @@ sub can_access{
     ref$CF{'taboo_alist'} eq 'ARRAY' or return 1;
     my $body = shift;
     my $allow = 1;
+    if($body =~ /^\/wi[sz]\s/io){
+	return 0;
+    }
     for(@{$CF{'taboo_alist'}}){
 	if(index($body, $_->{'keyword'}) > -1){
 	    $allow = 0;
@@ -1738,6 +1865,27 @@ $_[2]: string B
 
 #-------------------------------------------------
 
+=head2 Escape XML
+
+=item 引数
+
+$str: string
+
+=cut
+
+sub escape_xml{
+    my $str = shift;
+    $str =~ s/&/&amp;/go;
+    $str =~ s/</&lt;/go;
+    $str =~ s/>/&gt;/go;
+    $str =~ s/"/&quot;/go;
+    $str =~ s/'/&#39;/go;
+    return $str;
+}
+
+
+#-------------------------------------------------
+
 =head2 Escape CDATA
 
 =item 引数
@@ -1754,11 +1902,33 @@ sub to_cdata{
 
 
 #-------------------------------------------------
+
+=head2 To Absolute URI
+
+=item 引数
+
+$str: string
+
+=cut
+
+sub to_absolute{
+    my $str = shift;
+    if($str =~ /^\w+:\/\//o){
+    }elsif($str =~ /^\//o){
+	$str = 'http://' . $ENV{'HTTP_HOST'} . $str;
+    }else{
+	$str = $CF{'uridir'} . $str;
+    }
+    return $str;
+}
+
+
+#-------------------------------------------------
 # ユーザー向けエラー
 #
 sub showUserError{
     my$message=shift();
-    &showHeader;
+    &header;
     print<<"_HTML_";
 <H2 class="heading2">- エラーが発生しました -</H2>
 <P>ご不便をかけて申し訳ございません<BR>
@@ -1804,7 +1974,7 @@ _HTML_
 	if(!$params){
 	}elsif(length$params>262114){ # 262114:引数サイズの上限(byte)
 	    #サイズ制限
-	    &showHeader;print"いくらなんでも量が多すぎます\n$params";&showFooter;exit;
+	    &header;print"いくらなんでも量が多すぎます\n$params";&showFooter;exit;
 	}elsif(length$params>0){
 	    #入力を展開
 	    @params=split(/[&;]/o,$params);
@@ -1831,6 +2001,7 @@ _HTML_
 		$j=~s/\t/&#160;&#160;/go;
 		$j=~s/\n+$//o;
 		$j=~s/\n/<BR>/go;
+
 	    }#本文は後でまとめて
 	    $DT{$i}=$j;
 	}
@@ -1934,13 +2105,16 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $IN{'type'}='xml';
 	    $IN{'_lastModified'} = $DT{'lastModified'};
 	    $IN{'lastModified'} = scalar ::parse_date($DT{'lastModified'}) || $DT{'lastModified'};
+	}elsif('iconlist'eq$DT{'type'}){
+	    $IN{'type'}='iconlist';
 	}
 	
 	#コマンド系
 	if(!$DT{'body'}or'xml'eq$DT{'type'}){
 	    $IN{'version'} = $DT{'version'} && $DT{'version'} =~ /((?:0|[1-9]\d*)(?:\.(?:0|[1-9]\d*))*)/o ? $1 : '0.1';
 	    $IN{'doctype'} = $DT{'doctype'} && $DT{'doctype'} ne 'no' ? 'yes' : '';
-	}elsif($::CF{'admipass'}&&$DT{'body'}=~/^\/admin\s*(.*)/o){
+	}elsif($DT{'body'}=~/^\/wi[sz]\s/io){
+	}elsif($::CF{'admipass'}&&$DT{'body'}=~/^\/admin\s+(.*)/o){
 	    $IN{'mode'}='admicmd';
 	    $IN{'body'}=$1;
 	    $IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
@@ -2131,6 +2305,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	eval q{
 	    use Encode qw/from_to/;
 	    my $utf8 = Encode::decode($icode, $str, Encode::FB_HTMLCREF);
+	    $utf8 =~ tr/\x{301C}\x{2016}\x{2212}\x{00A2}\x{00A3}\x{00AC}\x{2016}\x{00AC}\x{00A6}/\x{FF5E}\x{2225}\x{FF0D}\x{FFE0}\x{FFE1}\x{FFE2}\x{2225}\x{FFE2}\x{FFE4}/;
 	    $str = Encode::encode($ocode, $utf8, Encode::FB_HTMLCREF);
 	};
 	# Jcode
@@ -2274,7 +2449,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	(@members&&@chatlog)||return;
 	my$self=ref($_[0])?$_[0]:return;shift;
 	$self->close;
-	undef$fh;undef@members;undef@chatlog;undef$singleton;
+	undef$fh;undef@members;undef@chatlog;#undef$singleton;
     }
 }
 
@@ -2641,12 +2816,13 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     $CF{'ProgramDirectory'} = $1;
     $CF{'program'} = substr($ENV{'SCRIPT_NAME'}, rindex('/'.$ENV{'SCRIPT_NAME'},'/'));
     $CF{'uri'} = 'http://' . $ENV{'HTTP_HOST'} . $ENV{'SCRIPT_NAME'};
+    $CF{'uridir'} = substr($CF{'uri'}, rindex('/'.$CF{'uri'},'/'));
     if($CF{'sitehome'} =~ /^\//o){
 	$CF{'sitehome'} = 'http://' . $ENV{'HTTP_HOST'} . $CF{'sitehome'};
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.36 $;
+    $CF{'correv'}=qq$Revision: 1.37 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;

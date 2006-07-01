@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 = Marldia - Web Chat System
 #
-# $Id: Marldia.txt,v 1.36 2006-03-17 03:55:40 naruse Exp $
+# $Id: Marldia.txt,v 1.37 2006-07-01 22:12:14 naruse Exp $
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
@@ -19,7 +19,7 @@
 == 設置して動かないときのメモ。
 
 === 真っ白に燃え尽きた
-index.cgi内のはじめの方に(({$ENV{'ACCEPT_ENCODING'}='';}))と書いてください
+index.cgi内のはじめの方に $ENV{'HTTP_ACCEPT_ENCODING'} = ''; と書いてください
 === それ以外
 Mireilleの説明書を見てください（死
 === それでもわからない
@@ -28,6 +28,10 @@ Airemixの掲示板で質問してみてください
 
 #------------------------------------------------------------------------------#
 == Marldia History
+:2006-07-02 Revision: 1.37
+  * アイコン履歴
+  * Cast 0.4 beta 対応
+  * XML アイコンリスト
 :2006-03-17 Revision: 1.36
   * 非ASCIIを含んだURL自動リンクが開いたときに化けるのを修正
 :2006-03-11 Revision: 1.35

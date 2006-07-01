@@ -3,7 +3,7 @@
  * Marldia.js
  * 
  * -*- coding: utf-8 -*-
- * $Id: Marldia.js,v 1.5 2006-03-11 09:33:00 naruse Exp $
+ * $Id: Marldia.js,v 1.6 2006-07-01 22:12:14 naruse Exp $
  * 
  ******************************************************************************/
 
@@ -59,6 +59,7 @@ function iconPreview(arg){
 function changeOption(){
     if(!isInitialized)return false;
     
+    myIcon.text=null;
     myIcon.value=null;
     myIcon.isAbsolute=false;
     myIcon.surface = eForm['surface'].value;
@@ -67,17 +68,22 @@ function changeOption(){
 	eForm['icon'].disabled=false;
     }else if(iconSetting&1&&eForm['opt'].value.match(/(^|;)absoluteIcon=([^;]*)/)){
 	//絶対指定アイコン
+	myIcon.text = '絶対指定';
 	myIcon.value=RegExp.$2;
 	myIcon.isAbsolute=true;
 	eForm['icon'].disabled=true;
     }else if(iconSetting&2&&eForm['opt'].value.match(/(^|;)relativeIcon=([^;:.]*(\.[^;:.]+)*)/)){
 	//相対指定アイコン
+	myIcon.text = '相対指定';
 	myIcon.value=RegExp.$2;
 	eForm['icon'].disabled=true;
     }else{
 	eForm['icon'].disabled=false;
     }
-    if(!myIcon.value)myIcon.value=eForm['icon'].value;
+    if(!myIcon.value){
+	myIcon.text = eForm['icon'].options[eForm['icon'].selectedIndex].text;
+	myIcon.value = eForm['icon'].value;
+    }
 	
     if(myIcon.isAbsolute){
 	imgPreview.src=myIcon.value;
@@ -165,6 +171,25 @@ function changeSurface(index){
 
 
 /*========================================================*/
+// アイコンを変更
+function changeIcon(title){
+    var array = title.split(' ');
+    var value = array[ array.length-1 ];
+    var iconSelector = eForm['icon'];
+    var options = iconSelector.options;
+    var length = options.length;
+    for( var i = 0; i < length; i++){
+	if(options[i].value == value){
+	    iconSelector.selectedIndex = i;
+	    iconSelector.onchange();
+	    break;
+	}
+    }
+    return false;
+}
+
+
+/*========================================================*/
 // 表情アイコン見本
 function surfaceSample(e){
     if(!isInitialized || !document.getElementById || !top.south || !top.south.document)
@@ -211,22 +236,60 @@ function surfaceSample(e){
 	elButton.style.border	= '0';
 	elButton.style.margin	= '0';
 	elButton.style.padding	= '0';
-	elButton.style.width	= '60px';
+	elButton.style.width	= '55px';
 	elButton.title=i.toString();
 	elButton.onclick=function(){changeSurface(this.title)};
 	var elImg = myDocument.createElement('img');
 	elImg.src=myIcon.isAbsolute?eForm['surface'].options[i].value:iconDirectory+eForm['surface'].options[i].value;
-	elImg.title=i?(i-1).toString():'-';
+	elImg.title=myIcon.text+(i?(i-1).toString():'-');
 	elButton.appendChild(elImg);
 	fragment.appendChild(elButton);
     }
+    if(myIconHistory && myIconHistory['_optgroup']){
+	var options = myIconHistory['_optgroup'].getElementsByTagName('OPTION');
+	for(var j = 0, lengthj=options.length; j<lengthj; j++){
+	    var option = options[j];
+	    var elButton = myDocument.createElement('button');
+	    elButton.id='iconhistory'+option.value;
+	    elButton.style.border	= '0';
+	    elButton.style.margin	= '0';
+	    elButton.style.padding	= '0';
+	    elButton.style.width	= '55px';
+	    elButton.title = option.value;
+	    elButton.onclick = function(){
+		changeIcon(this.title)
+	    };
+	    var elImg = myDocument.createElement('img');
+	    elImg.src = iconDirectory + option.value;
+	    elImg.title = option.text;
+	    elButton.appendChild(elImg);
+	    fragment.appendChild(elButton);
+	}
+    }
+    
+    var search_input = myDocument.createElement('input');
+    search_input.type = 'text';
+    function(text){
+	var iconSelector = eForm['icon'];
+	var options = iconSelector.options;
+	var length = options.length;
+	for( var i = 0; i < length; i++){
+	    if(options[i].text.match(text)){
+		options[i].text;
+		options[i].value;
+	    }
+	}
+	return false;
+    };
     
     var divSurfaceList = myDocument.createElement('div');
     divSurfaceList.id			= 'surfaceList';
     divSurfaceList.style.borderWidth	= '1px';
     divSurfaceList.style.borderStyle	= 'solid';
     divSurfaceList.style.borderClor	= 'ActiveBorder';
+    divSurfaceList.style.height		= '220px';
     divSurfaceList.style.margin		= '2px';
+    divSurfaceList.style.overflow	= 'auto';
     divSurfaceList.appendChild(fragment);
     surfaceWindow.appendChild(divSurfaceList);
     
@@ -342,7 +405,8 @@ function showCommandWindow(e){
 	   }
 	   break;
 	case 'import':
-	   if(temp = prompt('Import Information?',document.cookie)) return false;
+	   temp = prompt('Import Information?',document.cookie);
+	   if(temp == '') return false;
 	   if(importInfo(temp)){
 	       alert("インポートされました");
 	   }else{
@@ -352,7 +416,7 @@ function showCommandWindow(e){
 	case 'version':
 	   alert(
 		 MARLDIA_CORE_ID + "\n"+
-		 "$Id: Marldia.js,v 1.5 2006-03-11 09:33:00 naruse Exp $");
+		 "$Id: Marldia.js,v 1.6 2006-07-01 22:12:14 naruse Exp $");
 	   break;
 	case 'exit':
 	case 'quit':
@@ -617,6 +681,23 @@ function getChatHistory(count){
 /*========================================================*/
 // Import Cookie
 function importInfo(str){
+    var hash = _importInfo(str);
+    if(hash){
+	for(var key in hash){
+	    if(eForm[key]){
+		eForm[key].value = hash[key];
+	    }
+	}
+	if(eForm['color'] && eForm['color'].value)
+	    eForm['color'].style.color = eForm['color'].value;
+	if(eForm['bcolo'] && eForm['bcolo'].value)
+	    eForm['bcolo'].style.color = eForm['bcolo'].value;
+	return true;
+    }else{
+	return false;
+    }
+}
+function _importInfo(str){
     if(str && str.match); else return false;
     var matched = str.match(/(^|; )Marldia1=([^;]+)/);
     if(matched && matched[2]); else return false;
@@ -629,18 +710,7 @@ function importInfo(str){
 /*========================================================*/
 // Get Cookie
 function getCookie(){
-    var hash = importInfo(document.cookie);
-    if(hash){
-	for(var key in hash){
-	    if(eForm[key]){
-		eForm[key].value = hash[key];
-	    }
-	}
-    }
-    if(eForm['color'] && eForm['color'].value)
-	eForm['color'].style.color = eForm['color'].value;
-    if(eForm['bcolo'] && eForm['bcolo'].value)
-	eForm['bcolo'].style.color = eForm['bcolo'].value;
+    importInfo(document.cookie);
 }
 
 
