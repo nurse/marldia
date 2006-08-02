@@ -2,11 +2,11 @@
 # 'iconCatalog' iconCatalog for MireilleIconList0.x
 # - Mireille/Marldia Icon Catalog Module -
 #
-$CF{'iconCatalog'}=qq$Revision: 1.1 $;
+$CF{'iconCatalog'}=qq$Revision: 1.2 $;
 # "This file is written in utf-8, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $rcsid = q$Id: iconctlg.cgi,v 1.1 2006-03-11 09:34:45 naruse Exp $;
+# $rcsid = q$Id: iconctlg.cgi,v 1.2 2006-08-02 16:25:52 naruse Exp $;
 require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK);
@@ -148,9 +148,9 @@ sub iconctlg{
 		my%DT=%{$_};
 		#コマンド分岐
 		if('TAG'eq$DT{'cmd'}){
-			$IN{'page'}&&$page!=$IN{'page'}&& next;
+			$IN{'page'} > 0 && $page != $IN{'page'} && next;
 			#$IN{'page'}==0か$page==$IN{'page'}の時のみこれより下を実行
-			if('OPTION'eq$DT{'swt'}){
+			if($IN{'page'} >= 0 && 'OPTION'eq$DT{'swt'}){
 				if(!$j){
 					#others
 					push(@others,qq(<TD><IMG src="$CF{'iconDir'}$DT{'value'}" onclick="changeIcon(this.title)")
@@ -170,43 +170,49 @@ sub iconctlg{
 					}
 				}
 			}elsif('OPTGROUP'eq$DT{'swt'}){
+				if($IN{'page'} >= 0){
 				$table=<<"_HTML_";
 <TABLE cellspacing="0" class="icon" summary="$DT{'label'}">
 <CAPTION>$DT{'label'}</CAPTION>
 <COL span="$cols" width="110">
 <TR>
 _HTML_
+				}else{
+					push(@icon,qq(<li><a href="index.cgi?icct;page=$page">$DT{'label'}</a></li>\n));
+				}
 				$j=1;
 			}elsif('/OPTGROUP'eq$DT{'swt'}){
-				for(keys%CR){
-					if($CR{$_}{'LINK'}){
-					}elsif($CR{$_}{'NAME'}&&$CR{$_}{'URL'}){
-						$CR{$_}{'LINK'}=qq(<A href="$CR{$_}{'URL'}" title=")
-						.(('VENDOR'eq$_)?'製作者':'一次著作権者').qq(">$CR{$_}{'NAME'}</A>);
-					}elsif($CR{$_}{'NAME'}){
-						$CR{$_}{'LINK'}=$CR{$_}{'NAME'};
-					}elsif($CR{$_}{'URL'}){
-						$CR{$_}{'LINK'}=qq(<A href="$CR{$_}{'URL'}" title=")
-						.(('VENDOR'eq$_)?'製作者':'一次著作権者').qq(">$CR{$_}{'URL'}</A>);
+				if($IN{'page'} >= 0){
+					for(keys%CR){
+						if($CR{$_}{'LINK'}){
+						}elsif($CR{$_}{'NAME'}&&$CR{$_}{'URL'}){
+							$CR{$_}{'LINK'}=qq(<A href="$CR{$_}{'URL'}" title=")
+								.(('VENDOR'eq$_)?'製作者':'一次著作権者').qq(">$CR{$_}{'NAME'}</A>);
+						}elsif($CR{$_}{'NAME'}){
+							$CR{$_}{'LINK'}=$CR{$_}{'NAME'};
+						}elsif($CR{$_}{'URL'}){
+							$CR{$_}{'LINK'}=qq(<A href="$CR{$_}{'URL'}" title=")
+								.(('VENDOR'eq$_)?'製作者':'一次著作権者').qq(">$CR{$_}{'URL'}</A>);
+						}
 					}
-				}
 				
-				my$copy='';
-				if($CR{'VENDOR'}{'LINK'}&&$CR{'COPY1'}{'LINK'}){
-					$copy="&#169;$CR{'COPY1'}{'LINK'} &gt;&gt; by$CR{'VENDOR'}{'LINK'}";
-				}elsif($CR{'VENDOR'}{'LINK'}){
-					$copy="by$CR{'VENDOR'}{'LINK'}";
-				}elsif($CR{'COPY1'}{'LINK'}){
-					$copy="&#169;$CR{'COPY1'}{'LINK'}";
-				}
-				$table.=($j>1?"</TR>\n<TR>\n":'').<<"_HTML_";
+					my$copy='';
+					if($CR{'VENDOR'}{'LINK'}&&$CR{'COPY1'}{'LINK'}){
+						$copy="&#169;$CR{'COPY1'}{'LINK'} &gt;&gt; by$CR{'VENDOR'}{'LINK'}";
+					}elsif($CR{'VENDOR'}{'LINK'}){
+						$copy="by$CR{'VENDOR'}{'LINK'}";
+					}elsif($CR{'COPY1'}{'LINK'}){
+						$copy="&#169;$CR{'COPY1'}{'LINK'}";
+					}
+					$table.=($j>1?"</TR>\n<TR>\n":'').<<"_HTML_";
 <TH colspan="$cols" class="foot">$copy</TH>
 </TR>
 </TABLE>
 
 _HTML_
+					push(@icon,$table);
+				}
 				$j=0;
-				push(@icon,$table);
 			}
 		}elsif('PAGE-BREAK'eq$DT{'cmd'}){
 			#改ページ処理を。
@@ -268,6 +274,11 @@ _HTML_
 		push(@icon,$table);
 	}
 	undef$table;
+	if($IN{'page'} < 0){
+		@icon = map{$$_[1]}sort{$$a[0]cmp$$b[0]}map{/>([^<]+)<\/a>/;[$1,$_]}@icon;
+		unshift(@icon, qq!<ul style="line-height:1.5em">!);
+		push(@icon, qq!</ul>!);
+	}
 	
 	#-----------------------------
 	# HTML出力
@@ -380,6 +391,7 @@ $ モードの保持(rvs,del,icct)
 	#配列へ
 	my@page=map{$_==$IN{'page'}?qq(<STRONG class="pgsl">$_</STRONG>)
 	:qq(<A href="index.cgi?$mode$_").($key[$_]?$key[$_]:'').">$_</A>\n"}(1..$pages);
+	unshift(@page,qq(<A href="index.cgi?$mode-1">グループリスト</A>\n));
 
 	#いざ出力
 	return<<"_HTML_";
@@ -462,7 +474,7 @@ sub getParam{
 sub filteringParams{
 	my%OLD=%{shift()};
 	my%NEW;
-	$NEW{'page'}=($OLD{'page'}&&(int$OLD{'page'})=~/([1-9]\d*)/o)?$1:1;
+	$NEW{'page'}=($OLD{'page'}&&(int$OLD{'page'})=~/-1|(\d+)/o)?$1:1;
 	$NEW{'mode'}=$1 if($OLD{'mode'}&&$OLD{'mode'}=~/(\w*)/o);
 	return\%NEW
 }
@@ -727,7 +739,7 @@ BEGIN{
 		};
 	}
 	# Revision Number
-	$CF{'iconCatalog'}=qq$Revision: 1.1 $;
+	$CF{'iconCatalog'}=qq$Revision: 1.2 $;
 	$CF{'Exte'}.=qq(icon:\t$CF{'iconCatalog'}\n);
 }
 
@@ -803,6 +815,9 @@ NARUSE Yui naruse@airemix.com
 =head1 HISTORY
 
 $Log: not supported by cvs2svn $
+Revision 1.1  2006/03/11 09:34:45  naruse
+* imported.
+
 Revision 1.4  2003/03/11 15:57:29  naruse
 細かいバグ修正
 
