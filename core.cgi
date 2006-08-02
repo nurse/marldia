@@ -4,10 +4,10 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.37 $
+# $Revision: 1.38 $
 # Scripted by NARUSE, Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.37 2006-07-01 22:12:14 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.38 2006-08-02 16:25:11 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -526,7 +526,7 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '$Id: core.cgi,v 1.37 2006-07-01 22:12:14 naruse Exp $';
+MARLDIA_CORE_ID = '$Id: core.cgi,v 1.38 2006-08-02 16:25:11 naruse Exp $';
 var isInitialized;
 _HTML_
     print<<"_HTML_";
@@ -656,8 +656,8 @@ title="reset&#10;内容を初期化します" value="キャンセル" tabindex="
 <TR>
 <TH><LABEL accesskey="b" for="body" title="Body&#10;発言する本文の内容です&#10;/rankで発言ランキング、/memberで参加者一覧を見れます">内容(<SPAN class="ak">B</SPAN>)</LABEL>:</TH>
 <TD colspan="5" id="bodyContainer"><INPUT type="text" class="text" name="body" id="body"
-onkeydown="isInitialized&&getChatHistoryByKey(event);return false;"
-onmousewheel="isInitialized&&getChatHistoryByMouseWheel(event);return false;"
+onkeydown="if(isInitialized)return getChatHistoryByKey(event)"
+onmousewheel="if(isInitialized)return getChatHistoryByMouseWheel(event)"
 maxlength="300" size="100" style="ime-mode:active;width:400px" tabindex="1">
 <INPUT type="button" id="bodySwitch" class="button" value="↓" tabindex="2"
 onclick="isInitialized&&switchBodyFormType(event);return false;"></TD>
@@ -1057,9 +1057,9 @@ $::CF{'admipass'}='admicmd';なら、
     if(!$arg[0]){
     }elsif('rank'eq$arg[0]){
 	#発言ランキング
-	my $rank = Rank->getInstance;
-	my %rank = %{Rank->getOnlyHash()};
+	my %rank;
 	if($arg[1]){
+	    my $rank = Rank->getInstance;
 	    if('del'eq$arg[1]){
 		#ランキングから削除
 		$rank->delete($arg[2]);
@@ -1079,8 +1079,11 @@ $::CF{'admipass'}='admicmd';なら、
 		    $rank->delete($arg[$_]);
 		}
 	    }
+	    %rank = %{Rank->getOnlyHash()};
+	    $rank->dispose;
+	}else{
+	    %rank = %{Rank->getOnlyHash()};
 	}
-	%rank = %{Rank->getOnlyHash()};
 
 	#ランキング表示
 	&header;
@@ -1113,7 +1116,6 @@ _HTML_
 </TR>
 _HTML_
 	}
-	$rank->dispose;
 	print"</TABLE>";
 	&showFooter;
 	exit;
@@ -1539,8 +1541,9 @@ sub commonRoutineForView{
     $IN{'time'}=$^T;
     if(!$IN{'icon'}&&!$EX{'absoluteIcon'}&&!$EX{'relativeIcon'}&&$IN{'isActive'}){
         $IN{'icon'} = $CF{'default_icon'};
-    }elsif($IN{'icon'} eq 'licesoft/char_11.png'){
-	$IN{'icon'} = 'kero/jmio.png';
+    }
+    if(defined &userArgumentFilter){
+	&userArgumentFilter(\%IN);
     }
     
     #-----------------------------
@@ -2137,7 +2140,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $IN{'jump'} = $DT{'jump'};
 	}elsif(exists$DT{'icct'} or 'icct'eq$IN{'mode'}){
 	    #アイコンカタログ
-	    $IN{'page'}=($DT{'page'}&&$DT{'page'}=~/([1-9]\d*)/o)?$1:1;
+	    $IN{'page'}=($DT{'page'}&&$DT{'page'}=~/(-1|[1-9]\d*)/o)?int$1:1;
 	    $IN{'mode'}='icct';
 	}elsif(defined$DT{'id'}&&$DT{'name'}){
 	    #発言
@@ -2822,7 +2825,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.37 $;
+    $CF{'correv'}=qq$Revision: 1.38 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
