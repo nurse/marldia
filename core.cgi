@@ -4,10 +4,10 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.38 $
+# $Revision: 1.39 $
 # Scripted by NARUSE, Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.38 2006-08-02 16:25:11 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.39 2006-10-06 07:37:11 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -78,6 +78,11 @@ sub main{
 # Mobile Entrance
 #
 sub mobileEntrance{
+    my $extension = '';
+    if($IN{'_show_icon'}){
+	my %icon = &getIconTag(\%IN);
+	$extension = sprintf('<img src="http://aloe.sister.jp/~naruse/icon/iconcache.cgi?height=32;uri=%s">', $icon{'uri'});
+    }
     my $output =  <<"_HTML_";
 Status: 200 OK
 Content-type: text/html; charset=$IN{'encoding'}
@@ -90,9 +95,10 @@ Content-type: text/html; charset=$IN{'encoding'}
 <META name="ROBOTS" content="NOINDEX,NOFOLLOW,NOARCHIVE">
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
-<BODY><font size=2>
+<BODY><font size=2>$extension
 <FORM name="north" method="get" action="$CF{'index'}">
 <INPUT name="type" type="hidden" value="mobile">
+<INPUT name="from" type="hidden" value="entrance">
 <INPUT name="encoding" type="hidden" value="$IN{'encoding'}">
 名: <INPUT type="text" name="name" value="$IN{'name'}">
 名色: <INPUT type="text" name="color" value="$IN{'color'}" istyle="3">
@@ -103,6 +109,7 @@ Identity: <INPUT type="text" name="id" value="$IN{'id'}">
 E-mail: <INPUT type="text" name="email" value="$IN{'email'}" istyle="3">
 Option: <INPUT type="text" name="opt" value="$IN{'opt'}" istyle="3">
 Home: <INPUT type="text" name="home" value="$IN{'home'}" istyle="3">
+入口へ: <INPUT name="mode" type="checkbox" value="entrance">
 <INPUT type="submit" value="OK" accesskey="1">
 </FORM>
 -<A href="http://www.airemix.com/" title="Airemixへいってみる">Marldia v$CF{'version'}</A>-
@@ -140,6 +147,12 @@ sub mobileView{
     
     #---------------------------------------
     #データ表示
+    my $extension = '';
+    if($IN{'_show_icon'} && $IN{'from'} && $IN{'from'} eq 'entrance'){
+	my %icon = &getIconTag(\%IN);
+	$extension = sprintf('<img src="http://aloe.sister.jp/~naruse/icon/iconcache.cgi?height=32;uri=%s">', $icon{'uri'});
+    }
+
     
     #-----------------------------
     #ヘッダ出力
@@ -152,8 +165,9 @@ Content-type: text/html; charset=$IN{'encoding'}
 <META http-equiv="Content-type" content="text/html; charset=$IN{'encoding'}">
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
-<BODY><font size=2>
+<BODY><font size=2>$extension
 <FORM name="north" method="$method" action="$CF{'index'}">
+<INPUT name="from" type="hidden" value="south">
 <INPUT name="encoding" type="hidden" value="$IN{'encoding'}">
 <INPUT type="hidden" name="type"  value="mobile">
 <INPUT type="hidden" name="name"  value="$IN{'name'}">
@@ -195,13 +209,19 @@ _HTML_
 	$IN{'id'} eq $DT{'id'} or $isAdmin or $acl or next;
 	
 	#日付
-	my$date=sprintf("%s",(split(/\s+/o,localtime$DT{'time'}))[3]);;
+	my$date=sprintf("%02d:%02d",(split(/[\s:]/o,localtime$DT{'time'}))[4,5]);
 	#名前・メールアドレス・名前色
 	#出力
 	my $status = '';
-	$status .= '[制限]' if $acl == 2;
+	$status .= '制' if $acl == 2;
+	$status .= '削' if 'del' eq $DT{'Mar1'};
+	my $icon = '';
+	if($IN{'_show_icon'}){
+	    my %icon = &getIconTag(\%DT);
+	    $icon = sprintf('<img src="http://aloe.sister.jp/~naruse/icon/iconcache.cgi?height=32;uri=%s">', $icon{'uri'});
+	}
 	$output .= <<"_HTML_";
-$status <FONT color="$DT{'color'}">$DT{'name'}</FONT> &gt; <FONT color="$DT{'bcolo'}">$DT{'body'}</FONT> $date
+$icon<font color="$DT{'color'}">$DT{'name'}</font> &gt; <font color="$DT{'bcolo'}">$DT{'body'}</font>$date$status
 _HTML_
     }
     $chatlog->dispose;
@@ -261,6 +281,8 @@ sub xmlView{
     #ヘッダ出力
     print<<"_EOM_";
 Status: 200 OK
+Pragma: no-cache
+Cache-Control: no-cache
 Content-type: application/xml; charset=$::CF{'encoding'}
 
 <?xml version="1.0" encoding="$::CF{'encoding'}"?>
@@ -287,6 +309,7 @@ _EOM_
 	for(qw/id name color/){
 	    $person{$_} = escape_xml($member->{$_}) if exists$member->{$_} && length($member->{$_});
 	}
+	$person{'id'} = Airemix::Digest::MD5_hex($person{'id'});
 	Filter->is_utf8(join('',values%person)) or next;
 	print "      <member>\n";
         for(qw/updated id color name/){
@@ -321,29 +344,28 @@ _EOM_
 	my %article;
 	my %author;
 	
-	my $article_id = $DT{'id'};
-	$article_id =~ s{(\W)}{'-'.unpack('H2',$1)}ego;
-	$article_id = $DT{'exp'}. '_' .$article_id;
+	my $article_id = $DT{'exp'} . '_' . Airemix::Digest::MD5_hex($DT{'id'});
 	$DT{'level'}=&getLevel($DT{'exp'});
+	$DT{'email'}=~s/&#64;/@/o;
 	
-	for(qw/id name color email home exp level/){
+	for(qw/name color email home exp level/){
 	    $author{$_} = sprintf('<%s>%s</%s>', $_, escape_xml($DT{$_}), $_)
 		if exists$DT{$_} && length($DT{$_});
 	}
-
+	$author{'id'} = sprintf('<%s>%s</%s>', 'id', Airemix::Digest::MD5_hex($DT{'id'}), 'id');
 	#アイコン
 	my %icon = &getIconTag(\%DT);
 	$author{'icon'} =
 	    sprintf('<icon dir="%s" file="%s" src="%s" width="48" height="48" />',
-		    @icon{'dir','file','uri'}) if $icon{'uri'};
+		    map{escape_xml($_)}@icon{'dir','file','uri'}) if $icon{'uri'};
 	
 	#削除ボタン
 	if('del'eq$DT{'Mar1'}){
 	    $article{'delete'} = qq(<delete />);
 	}elsif($IN{'id'}&&$DT{'id'}eq$IN{'id'}){
-	    $article{'delete'} = qq(<delete href="$CF{'index'}?del=$DT{'exp'}&#59;$query" />);
+	    $article{'delete'} = qq(<delete href="$CF{'uri'}?del=$DT{'exp'}&#59;$query" />);
 	}elsif($isAdmin){
-	    $article{'delete'} = qq(<delete href="$CF{'index'}?del=$article_id&#59;$query" />);
+	    $article{'delete'} = qq(<delete href="$CF{'uri'}?del=$article_id&#59;$query" />);
 	}
 	
 	$article{'updated'} = '<updated>'.&datef($DT{'time'},'dateTime').'</updated>';
@@ -419,23 +441,23 @@ _HTML_
 		if(/^\s*<!--[^\-]*(?:\-[^\-]+)*-->\s*$/o){
 		    print;
 		}elsif(/^\s*<optgroup\s+(?:\w+=(?:"[^"]*"|'[^']*')\s*)*>\s*$/io){
-		    /label=("[^"]*"|'[^']*')/io or next;
+		    /label=(?:"([^"]*)"|'([^']*)')/io or next;
 		    print "</optgroup>" if $is_optgroup;
-		    my $attr = $1;
+		    my $attr = $1 || $2;
 		    $attr = escape_xml($attr);
-		    print "<optgroup label=$attr>";
+		    printf '<optgroup label="%s">', $attr;
 		    $is_optgroup = 1;
 		}elsif(/^\s*<\/optgroup>\s*$/io){
 		    $is_optgroup or next;
 		    print "</optgroup>";
 		    $is_optgroup = 0;
-		}elsif(/^\s*<option\s+(?:\w+=(?:"[^"]*"|'[^']*')\s*)*>([^<]*)<\/option>\s*$/io){
-		    /value=("[^"]*"|'[^']*').*>([^<]*)<\/option>\s*$/io or next;
-		    my $attr = $1;
+		}elsif(/^\s*<option\s+(?:\w+=(?:"[^"]*"|'[^']*')\s*)*>(?:[^<]*)<\/option>\s*$/io){
+		    /value=(?:"([^"]*)"|'([^']*)').*>([^<]*)<\/option>\s*$/io or next;
+		    my $attr = $1 || $2;
+		    my $content = $3;
 		    $attr = escape_xml($attr);
-		    my $content = $2;
 		    $content = escape_xml($content);
-		    print "\t<option value=$attr>$content</option>";
+		    print "\t<option value=\"$attr\">$content</option>";
 		}
 	    }
 	    close(RD);
@@ -450,23 +472,23 @@ _HTML_
 	    if(/^\s*<!--[^\-]*(?:\-[^\-]+)*-->\s*$/o){
 		print;
 	    }elsif(/^\s*<optgroup\s+(?:\w+=(?:"[^"]*"|'[^']*')\s*)*>\s*$/io){
-		/label=("[^"]*"|'[^']*')/io or next;
+		/label=(?:"([^"]*)"|'([^']*)')/io or next;
 		print "</optgroup>" if $is_optgroup;
-		my $attr = $1;
+		my $attr = $1 || $2;
 		$attr = escape_xml($attr);
-		print "<optgroup label=$attr>";
+		print "<optgroup label=\"$attr\">";
 		$is_optgroup = 1;
 	    }elsif(/^\s*<\/optgroup>\s*$/io){
 		$is_optgroup or next;
 		print "</optgroup>";
 		$is_optgroup = 0;
 	    }elsif(/^\s*<option\s+(?:\w+=(?:"[^"]*"|'[^']*')\s*)*>([^<]*)<\/option>\s*$/io){
-		/value=("[^"]*"|'[^']*').*>([^<]*)<\/option>\s*$/io or next;
-		my $attr = $1;
+		/value=(?:"([^"]*)"|'([^']*)').*>([^<]*)<\/option>\s*$/io or next;
+		my $attr = $1 || $2;
+		my $content = $3;
 		$attr = escape_xml($attr);
-		my $content = $2;
 		$content = escape_xml($content);
-		print "\t<option value=$attr>$content</option>";
+		print "\t<option value=\"$attr\">$content</option>";
 	    }
 	}
 	close(RD);
@@ -526,7 +548,7 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '$Id: core.cgi,v 1.38 2006-08-02 16:25:11 naruse Exp $';
+MARLDIA_CORE_ID = '$Id: core.cgi,v 1.39 2006-10-06 07:37:11 naruse Exp $';
 var isInitialized;
 _HTML_
     print<<"_HTML_";
@@ -601,14 +623,14 @@ window.onload = init;
 <FORM name="north" id="north" method="post" action="$CF{'index'}" target="south"
 onsubmit="return onSubmitHandler(event);">
 <TABLE cellspacing="0" style="width:770px" summary="発言フォーム">
-<COL style="width:130px">
+<COL style="width:115px">
 <COL style="width: 60px">
 <COL style="width:160px">
 <COL style="width: 70px">
 <COL style="width:130px">
-<COL style="width: 55px">
-<COL style="width: 45px">
-<COL style="width:120px">
+<COL style="width: 75px">
+<COL style="width: 50px">
+<COL style="width:110px">
 
 <TR>
 <TD style="text-align:center;white-space:nowrap" nowrap>
@@ -626,8 +648,7 @@ style="ime-mode:active;width:80px" value="$CK{'name'}" tabindex="11">
 <TD>@{[&iptcol('color','tabindex="21"')]}</TD>
 <TH><LABEL accesskey="g" for="line" title="log Gyosu&#10;表示するログの行数です&#10;最高$CF{'max'}行"
 >行数(<SPAN class="ak">G</SPAN>)</LABEL>:</TH>
-<TD><INPUT type="text" class="text" name="line" id="line" maxlength="4" size="4"
-style="ime-mode:disabled;width:32px" value="$CK{'line'}行" tabindex="31"></TD>
+<TD>@{[&input_select('line','tabindex="31"')]}</TD>
 <TD style="text-align:center"><INPUT type="submit" accesskey="s" class="submit"
 title="Submit&#10;現在の内容で発言します" value="OK" tabindex="41"></TD>
 <TD></TD>
@@ -647,8 +668,7 @@ src="$CF{'iconDir'}$CK{'icon'}" $CF{'imgatt'} style="margin:0"></BUTTON>
 <TD>@{[&iptcol('bcolo','tabindex="22"')]}</TD>
 <TH><LABEL accesskey="r" for="reload" title="Reload&#10;何秒ごとに自動的にリロードするか、です"
 >間隔(<SPAN class="ak">R</SPAN>)</LABEL>:</TH>
-<TD><INPUT type="text" class="text" name="reload" id="reload" maxlength="4" size="4"
-style="ime-mode:disabled;width:32px" value="$CK{'reload'}秒" tabindex="32"></TD>
+<TD>@{[&input_select('reload','tabindex="32"')]}</TD>
 <TD style="text-align:center"><INPUT type="reset" class="reset"
 title="reset&#10;内容を初期化します" value="キャンセル" tabindex="42"></TD>
 </TR>
@@ -839,6 +859,8 @@ qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}"
 	if($acl == 2){
 	    $del .= "[制限]"
 	}
+	my $status = '';
+	$status = ' [携帯]' if $DT{'hua'} =~/DoCoMo|KDDI|Vodafone|WILLCOM/o;
 	#出力
 	print<<"_HTML_";
 <TABLE cellspacing="0" class="article" summary="article">
@@ -849,7 +871,7 @@ qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}"
 </TR>
 <TR>
 <TD class="artdel">$del</TD>
-<TD class="artinfo"><SPAN class="artlev">Exp.$DT{'exp'}/Lv.$DT{'level'}</SPAN>
+<TD class="artinfo"><SPAN class="artlev">Exp.$DT{'exp'}/Lv.$DT{'level'}</SPAN>$status
 <SPAN class="artdate">$date</SPAN></TD>
 </TR>
 </TABLE>
@@ -1536,6 +1558,9 @@ sub commonRoutineForView{
 	$IN{'icon'}=$IN{'surface'};
     }
     
+    $IN{'_show_icon'} = 1 if $EX{'showIcon'};
+    $IN{'id'} =~ /^(?:\s|　)+$/o and die 'crfvi: Something Wicked happend!';
+    $IN{'name'} =~ /^(?:\s|　)+$/o and die 'crfvn: Something Wicked happend!';
     $IN{'body'}=$IN{'body'}?Filter->filteringBody($IN{'body'},%EX):'';
     $IN{'isActive'}=$ENV{'CONTENT_LENGTH'}?1:0;
     $IN{'time'}=$^T;
@@ -1770,12 +1795,7 @@ $_[1]: 'tabindex=12'
 
     my$id=$_[0]||'color';
     my$opt=$_[1]?" $_[1]":'';
-    if('input'eq$CF{'colway'}){
-	return<<"_HTML_";
-<INPUT type="text" class="text" name="$id" id="$id" class="blur" maxlength="20" style="ime-mode:disabled; width:90px;"
-onFocus="this.className='focus'" onBlur="this.className='blur'" value="$CK{$id}"$opt>
-_HTML_
-    }else{
+    if($CF{'colway'} && 'select' eq $CF{'colway'} && $CF{'colorList'}){
 	my$list=$CF{'colorList'};
 	if($CK{$id}&&$list=~s/(value=(["'])$CK{$id}\2)/$1 selected="selected"/i){
 	}elsif($list=~s/value=(["'])(.+?)\1/value="$2" selected="selected"/io){
@@ -1784,6 +1804,44 @@ _HTML_
 	return<<"_HTML_";
 <SELECT name="$id" id="$id"$opt onchange="this.style.color=this.value" onkeydown="this.style.color=this.value">
 $list</SELECT>
+_HTML_
+    }else{
+	return<<"_HTML_";
+<INPUT type="text" class="text" name="$id" id="$id" maxlength="20" style="ime-mode:disabled; width:90px;"
+value="$CK{$id}"$opt>
+_HTML_
+    }
+}
+
+
+#-------------------------------------------------
+# 更新間隔/ログ行数リスト読み込み
+#
+sub input_select{
+
+=item 引数
+
+$_[0]: 'reload' or 'line'
+$_[1]: 'tabindex="32"'
+
+=cut
+
+    my$id=$_[0]||'reload';
+    my$opt=$_[1]?" $_[1]":'';
+    if($CF{$id.'_element'} && 'select' eq $CF{$id.'_element'} && $CF{$id.'_list'}){
+	my$list=$CF{$id.'_list'};
+	if($CK{$id}&&$list=~s/(value=(["'])$CK{$id}\D*\2)/$1 selected="selected"/i){
+	}elsif($list=~s/value=(["'])(.+?)\1/value="$2" selected="selected"/io){
+	    $CK{$id}=$2;
+	}
+	return<<"_HTML_";
+<SELECT name="$id" id="$id"$opt>
+$list</SELECT>
+_HTML_
+    }else{
+	return<<"_HTML_";
+<INPUT type="text" class="text" name="$id" id="$id" maxlength="4" size="4"
+style="ime-mode:disabled;width:32px" value="$CK{$id}"$opt>
 _HTML_
     }
 }
@@ -1943,7 +2001,7 @@ sub showUserError{
 _HTML_
     print map{"<TR><TH>$_</TH><TD><XMP>$IN{$_}</XMP></TD>\n"}keys%IN;
     print '</TABLE>';
-    &showgetFooter;
+    &showFooter;
     exit;
 }
 
@@ -2100,6 +2158,9 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		$DT{$_} = Filter->decode($DT{$_}, $IN{'encoding'});
 	    }
 	}
+	for(keys%DT){
+	    $DT{$_} =~ s/\343\200\234/\357\275\236/go;
+	}
 	
 	#特殊
 	if('mobile'eq$DT{'type'}){
@@ -2113,7 +2174,8 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	}
 	
 	#コマンド系
-	if(!$DT{'body'}or'xml'eq$DT{'type'}){
+	unless(exists$DT{'body'}&&defined$DT{'body'}){
+	}elsif(!$DT{'body'}or'xml'eq$DT{'type'}){
 	    $IN{'version'} = $DT{'version'} && $DT{'version'} =~ /((?:0|[1-9]\d*)(?:\.(?:0|[1-9]\d*))*)/o ? $1 : '0.1';
 	    $IN{'doctype'} = $DT{'doctype'} && $DT{'doctype'} ne 'no' ? 'yes' : '';
 	}elsif($DT{'body'}=~/^\/wi[sz]\s/io){
@@ -2129,7 +2191,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
 	    $IN{'mode'}&&return\%IN;
 	}
-	$DT{'body'}=~s/^\/\//\//o if$DT{'body'};
+	$DT{'body'}=~s/^\/\//\//o if exists$DT{'body'}&&defined$DT{'body'}&&$DT{'body'};
 	
 	if(!%DT||($DT{'mode'}&&'frame'eq$DT{'mode'})){
 	    #フレーム
@@ -2144,7 +2206,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $IN{'mode'}='icct';
 	}elsif(defined$DT{'id'}&&$DT{'name'}){
 	    #発言
-	    if(defined$DT{'body'}){
+	    if(exists$DT{'body'}&&defined$DT{'body'}){
 		$IN{'body'}=$DT{'body'}||'';
 		$IN{'cook'}=$DT{'cook'}?1:0;
 	    }
@@ -2172,6 +2234,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
 	    $IN{'line'}=($DT{'line'}=~/([1-9]\d*)/o)?$1:$::CF{'defline'};
 	    $IN{'reload'}=($DT{'reload'}=~/([1-9]\d+|0)/o)?$1:$::CF{'defreload'};
+	    $IN{'from'} = $DT{'from'} if $DT{'from'};
 	    if('entrance' eq $DT{'mode'}){
 		$IN{'mode'}='entrance';
 	    }else{
@@ -2182,11 +2245,13 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $IN{'mode'}='north';
 	    $IN{'line'}=$::CF{'defline'};
 	    $IN{'reload'}=$::CF{'defreload'};
-	}elsif( defined$DT{'south'} or 'south'eq$IN{'mode'}){
+	}elsif(defined$DT{'south'} or 'south'eq$DT{'mode'}){
 	    #南
 	    $IN{'mode'}='south';
 	    $IN{'line'}=$::CF{'romline'};
 	    $IN{'reload'}=$::CF{'romreload'};
+	}elsif('iconlist'eq$DT{'mode'}){
+	    $IN{'mode'}='iconlist';
 	}
 	$IN{'ra'}=($ENV{'REMOTE_ADDR'}&&$ENV{'REMOTE_ADDR'}=~/([\d\:\.]{2,56})/o)?"$1":'';
 	$IN{'hua'}=($ENV{'HTTP_USER_AGENT'}&&$ENV{'HTTP_USER_AGENT'}=~/([\x20-~]+)/o)?"$1":'';
@@ -2241,6 +2306,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		#$result .= $tag_tmp if $tag_tmp !~ /^<\/?(FONT|IMG)(?![\dA-Za-z])/io;
 		my $safe = 0;
 		my$pos=length$str;
+		my @tagstack =();
 		while($str=~/\G($text_regex)($comment_tag_regex|\03$tag_regex_)?/gso){
 		    $safe++>10000 and die 'AutoLink Processing Error($str)';
 		    $pos=pos$str;
@@ -2249,6 +2315,15 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 		    my$tag_tmp=$2;
 		    if($tag_tmp=~s/^\03((\/?(?:$remain))(?![\dA-Za-z]).*)\04/<$1>/io){
 			$tag_tmp=~tr/\01\02/"'/;
+			if ('/' eq substr($2,0,1)) {
+			    my $etag = shift(@tagstack);
+			    unless ($etag && $etag eq substr($2,1)) {
+				push(@tagstack, $2);
+				last;
+			    }
+			} else {
+			    push(@tagstack, $2);
+			}
 			$result.=$attrdel?"<$2>":$tag_tmp;
 		    }else{
 			$result.=$tag_tmp;
@@ -2259,7 +2334,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 			$result.=$tag_tmp;
 		    }
 		}
-		$str=$result.substr($str,$pos);
+		$str=$result.substr($str,$pos) unless @tagstack;
 	    }else{
 		#許可タグ無しorCommand:notag
 	    }
@@ -2779,6 +2854,86 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 }
 
 
+# ---------------------------------------------------------------------------- #
+# Airemix::Digest::MD5
+#
+# ---------------------------------------------------------------------------- #
+# MD5.pl - perl library for MD5 Message-Digest
+# Copyright (C) 1998 Masanao Izumo <mo@goice.co.jp>
+#
+# This program is free software.  You can redistribute it and/or modify
+# it without any warranty.  This library calculates the MD5 based on RFC1321.
+# See RFC1321 for more information and algorism.
+#
+
+{package Airemix::Digest;
+    my@T;
+    sub MD5{
+	@T=map{int}map{4294967296.0*$_}map{abs}map{sin}0..64unless@T;
+	my$data=shift;
+	my@state=(0x67452301,0xefcdab89,0x98badcfe,0x10325476);
+	my$len=length$data;
+	my$index=$len&0x3f;
+	my$padLen=($index<56?55:119)-$index;
+	$data.=($padLen>1?"\x80".("\x00"x$padLen):'').pack('VV',$len*8);
+	while($data=~/(.{64})/gos){
+	    my@x=unpack('V16',$1);
+	    my@s=@state;
+	    #Round 1
+	    my@ksi=(0,7,1,1,12,2,2,17,3,3,22,4,4,7,5,5,12,6,6,17,7,7,22,8,8,7,9,9
+		    ,12,10,10,17,11,11,22,12,12,7,13,13,12,14,14,17,15,15,22,16);
+	    while(@ksi){
+		my($k,$s,$i)=splice(@ksi,0,3);
+		my$t=($s[0]+((($s[2]^$s[3])&$s[1])^$s[3])+$x[$k]+$T[$i])%4294967296;
+		$s[0]=((($t<<$s)|($t>>(32-$s)))+$s[1])%4294967296;
+		unshift(@s,pop(@s));
+	    }
+	    #Round 2
+	    @ksi=(1,5,17,6,9,18,11,14,19,0,20,20,5,5,21,10,9,22,15,14,23,4,20,24
+		  ,9,5,25,14,9,26,3,14,27,8,20,28,13,5,29,2,9,30,7,14,31,12,20,32);
+	    while(@ksi){
+		my($k,$s,$i)=splice(@ksi,0,3);
+		my$t=($s[0]+((($s[1]^$s[2])&$s[3])^$s[2])+$x[$k]+$T[$i])%4294967296;
+		$s[0]=((($t<<$s)|($t>>(32-$s)))+$s[1])%4294967296;
+		unshift(@s,pop(@s));
+	    }
+	    #Round 3
+	    @ksi=(5,4,33,8,11,34,11,16,35,14,23,36,1,4,37,4,11,38,7,16,39,10,23,40
+		  ,13,4,41,0,11,42,3,16,43,6,23,44,9,4,45,12,11,46,15,16,47,2,23,48);
+	    while(@ksi){
+		my($k,$s,$i)=splice(@ksi,0,3);
+		my$t=($s[0]+($s[1]^$s[2]^$s[3])+$x[$k]+$T[$i])%4294967296;
+		$s[0]=((($t<<$s)|($t>>(32-$s)))+$s[1])%4294967296;
+		unshift(@s,pop(@s));
+	    }
+	    #Round 4
+	    @ksi=(0,6,49,7,10,50,14,15,51,5,21,52,12,6,53,3,10,54,10,15,55,1,21,56
+		  ,8,6,57,15,10,58,6,15,59,13,21,60,4,6,61,11,10,62,2,15,63,9,21,64);
+	    while(@ksi){
+		my($k,$s,$i)=splice(@ksi,0,3);
+		my$t=($s[0]+(($s[1]|(~$s[3]&4294967295))^$s[2])+$x[$k]+$T[$i])%4294967296;
+		$s[0]=((($t<<$s)|($t>>(32-$s)))+$s[1])%4294967296;
+		unshift(@s,pop(@s));
+	    }
+	    $state[$_]+=$s[$_],$state[$_]%=4294967296for 0..3;
+	}
+	return wantarray?@state:pack('VVVV',@state);
+    }
+	
+    sub MD5_hex{
+	return unpack('H*',MD5(shift));
+    }
+    sub MD5_uue{
+	return pack('u*',MD5(shift));
+    }
+    sub MD5_0Zencode{
+	my@ar=split(//o,'-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz');
+	return join"",map{my$res='';do{$res.=$ar[($_&63)]}while($_>>=6);$res}unpack('V*',MD5(shift));
+    }
+}
+
+
+
 package main;
 #-------------------------------------------------
 # 初期設定
@@ -2825,7 +2980,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.38 $;
+    $CF{'correv'}=qq$Revision: 1.39 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;

@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.21 $
+# $Revision: 1.22 $
 # "This file is written in utf-8, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.21 2006-03-11 09:33:00 naruse Exp $;
+# $cvsid = q$Id: index.cgi,v 1.22 2006-10-06 07:39:42 naruse Exp $;
 require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK %IC);
@@ -109,6 +109,29 @@ $CF{'colorList'}=<<'_CONFIG_';
 <OPTION value="#DED2BF" style="color:#DED2BF">■象牙色</OPTION>
 _CONFIG_
 
+#-----------------------------
+# 更新間隔リスト
+$CF{'reload_element'} = 'select';
+$CF{'reload_list'} = <<'_CONFIG_';
+<OPTION value="20"  >20秒</OPTION>
+<OPTION value="60"  >60秒</OPTION>
+<OPTION value="120">120秒</OPTION>
+<OPTION value="300">300秒</OPTION>
+<OPTION value="0"   >手動</OPTION>
+_CONFIG_
+
+#-----------------------------
+# ログ行数リスト
+$CF{'line_element'} = 'select';
+$CF{'line_list'} = <<'_CONFIG_';
+<OPTION value="20"    >20行</OPTION>
+<OPTION value="50"    >50行</OPTION>
+<OPTION value="100"  >100行</OPTION>
+<OPTION value="200"  >200行</OPTION>
+<OPTION value="500"  >500行</OPTION>
+<OPTION value="1000"  >1k行</OPTION>
+_CONFIG_
+
 #-------------------------------------------------
 # 実行 or 読み込み？
 
@@ -153,7 +176,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
 	};
     }
     # Revision Number
-    $CF{'idxrev'}=qq$Revision: 1.21 $;
+    $CF{'idxrev'}=qq$Revision: 1.22 $;
 }
 1;
 __END__
