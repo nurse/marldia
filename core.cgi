@@ -4,10 +4,10 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.39 $
+# $Revision: 1.40 $
 # Scripted by NARUSE, Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.39 2006-10-06 07:37:11 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.40 2006-10-22 07:01:36 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -81,7 +81,7 @@ sub mobileEntrance{
     my $extension = '';
     if($IN{'_show_icon'}){
 	my %icon = &getIconTag(\%IN);
-	$extension = sprintf('<img src="http://aloe.sister.jp/~naruse/icon/iconcache.cgi?height=32;uri=%s">', $icon{'uri'});
+	$extension = sprintf('<img src="%s?height=32;format=gif;uri=%s">', $CF{'iconcache'}, $icon{'uri'});
     }
     my $output =  <<"_HTML_";
 Status: 200 OK
@@ -150,9 +150,10 @@ sub mobileView{
     my $extension = '';
     if($IN{'_show_icon'} && $IN{'from'} && $IN{'from'} eq 'entrance'){
 	my %icon = &getIconTag(\%IN);
-	$extension = sprintf('<img src="http://aloe.sister.jp/~naruse/icon/iconcache.cgi?height=32;uri=%s">', $icon{'uri'});
+	$extension = sprintf('<img src="%s?height=32;format=gif;uri=%s">', $CF{'iconcache'}, $icon{'uri'});
     }
-
+    my $color = $IN{'_opt'}{'color'} ? ' color=' . $IN{'_opt'}{'color'} : '';
+    my $bgcolor = $IN{'_opt'}{'bgcolor'} ? ' bgcolor=' . $IN{'_opt'}{'bgcolor'} : '';
     
     #-----------------------------
     #ヘッダ出力
@@ -165,7 +166,7 @@ Content-type: text/html; charset=$IN{'encoding'}
 <META http-equiv="Content-type" content="text/html; charset=$IN{'encoding'}">
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
-<BODY><font size=2>$extension
+<BODY$bgcolor><font size=1$color>$extension
 <FORM name="north" method="$method" action="$CF{'index'}">
 <INPUT name="from" type="hidden" value="south">
 <INPUT name="encoding" type="hidden" value="$IN{'encoding'}">
@@ -209,7 +210,7 @@ _HTML_
 	$IN{'id'} eq $DT{'id'} or $isAdmin or $acl or next;
 	
 	#日付
-	my$date=sprintf("%02d:%02d",(split(/[\s:]/o,localtime$DT{'time'}))[4,5]);
+	my$date=sprintf("%02d:%02d",(split(/[\s:]/o,localtime$DT{'time'}))[3,4]);
 	#名前・メールアドレス・名前色
 	#出力
 	my $status = '';
@@ -218,8 +219,13 @@ _HTML_
 	my $icon = '';
 	if($IN{'_show_icon'}){
 	    my %icon = &getIconTag(\%DT);
-	    $icon = sprintf('<img src="http://aloe.sister.jp/~naruse/icon/iconcache.cgi?height=32;uri=%s">', $icon{'uri'});
+	    $icon = sprintf('<img src="%s?height=32;format=gif;uri=%s">', $CF{'iconcache'}, $icon{'uri'});
 	}
+	if($color){
+	$output .= <<"_HTML_";
+$icon$DT{'name'} &gt; $DT{'body'}$date$status
+_HTML_
+	}else{
 	$output .= <<"_HTML_";
 $icon<font color="$DT{'color'}">$DT{'name'}</font> &gt; <font color="$DT{'bcolo'}">$DT{'body'}</font>$date$status
 _HTML_
@@ -548,7 +554,7 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '$Id: core.cgi,v 1.39 2006-10-06 07:37:11 naruse Exp $';
+MARLDIA_CORE_ID = '$Id: core.cgi,v 1.40 2006-10-22 07:01:36 naruse Exp $';
 var isInitialized;
 _HTML_
     print<<"_HTML_";
@@ -2980,7 +2986,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.39 $;
+    $CF{'correv'}=qq$Revision: 1.40 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
