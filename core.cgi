@@ -4,10 +4,10 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.40 $
+# $Revision: 1.41 $
 # Scripted by NARUSE, Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.40 2006-10-22 07:01:36 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.41 2007-01-16 09:34:34 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -166,7 +166,7 @@ Content-type: text/html; charset=$IN{'encoding'}
 <META http-equiv="Content-type" content="text/html; charset=$IN{'encoding'}">
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
-<BODY$bgcolor><font size=1$color>$extension
+<BODY$bgcolor><font size=2$color>$extension
 <FORM name="north" method="$method" action="$CF{'index'}">
 <INPUT name="from" type="hidden" value="south">
 <INPUT name="encoding" type="hidden" value="$IN{'encoding'}">
@@ -210,7 +210,7 @@ _HTML_
 	$IN{'id'} eq $DT{'id'} or $isAdmin or $acl or next;
 	
 	#日付
-	my$date=sprintf("%02d:%02d",(split(/[\s:]/o,localtime$DT{'time'}))[3,4]);
+	my$date=sprintf("%02d:%02d",(split(/[\s:]+/o,localtime$DT{'time'}))[3,4]);
 	#名前・メールアドレス・名前色
 	#出力
 	my $status = '';
@@ -222,13 +222,16 @@ _HTML_
 	    $icon = sprintf('<img src="%s?height=32;format=gif;uri=%s">', $CF{'iconcache'}, $icon{'uri'});
 	}
 	if($color){
-	$output .= <<"_HTML_";
+	    $output .= <<"_HTML_";
 $icon$DT{'name'} &gt; $DT{'body'}$date$status
 _HTML_
 	}else{
-	$output .= <<"_HTML_";
-$icon<font color="$DT{'color'}">$DT{'name'}</font> &gt; <font color="$DT{'bcolo'}">$DT{'body'}</font>$date$status
+	    my $name = $DT{'color'} ? qq{<font color="$DT{'color'}">$DT{'name'}</font>} : $DT{'name'};
+	    my $body = $DT{'bcolo'} ? qq{<font color="$DT{'bcolo'}">$DT{'body'}</font>} : $DT{'body'};
+	    $output .= <<"_HTML_";
+$icon$name &gt; $body$date$status
 _HTML_
+	}
     }
     $chatlog->dispose;
     $logfile->dispose;
@@ -554,7 +557,7 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '$Id: core.cgi,v 1.40 2006-10-22 07:01:36 naruse Exp $';
+MARLDIA_CORE_ID = '$Id: core.cgi,v 1.41 2007-01-16 09:34:34 naruse Exp $';
 var isInitialized;
 _HTML_
     print<<"_HTML_";
@@ -1594,7 +1597,7 @@ sub commonRoutineForView{
     
     #-----------------------------
     #書き込み
-    if(length$IN{'body'}&&$IN{'id'}){
+    if(length($IN{'body'})&&length($IN{'id'})){
 	#ランキング加点
 	if( 'HASH' ne ref($chatlog->[0]) || #連続投稿防止
 	   $chatlog->[0]->{'id'} ne $IN{'id'} ||
@@ -2986,7 +2989,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.40 $;
+    $CF{'correv'}=qq$Revision: 1.41 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
