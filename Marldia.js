@@ -3,7 +3,7 @@
  * Marldia.js
  * 
  * -*- coding: utf-8 -*-
- * $Id: Marldia.js,v 1.6 2006-07-01 22:12:14 naruse Exp $
+ * $Id: Marldia.js,v 1.7 2007-05-07 05:38:03 naruse Exp $
  * 
  ******************************************************************************/
 
@@ -35,7 +35,7 @@ function init(){
     }else return false;
     if(!eForm) return false;
     isInitialized=true;
-    getCookie();
+    if(eForm['name'] && !eForm['name'].value)getCookie();
     if(eForm['cook']){
 	eForm['cook'].parentNode.style.display = 'none';
     }
@@ -269,7 +269,7 @@ function surfaceSample(e){
     
     var search_input = myDocument.createElement('input');
     search_input.type = 'text';
-    function(text){
+    function __search(text){
 	var iconSelector = eForm['icon'];
 	var options = iconSelector.options;
 	var length = options.length;
@@ -416,7 +416,7 @@ function showCommandWindow(e){
 	case 'version':
 	   alert(
 		 MARLDIA_CORE_ID + "\n"+
-		 "$Id: Marldia.js,v 1.6 2006-07-01 22:12:14 naruse Exp $");
+		 "$Id: Marldia.js,v 1.7 2007-05-07 05:38:03 naruse Exp $");
 	   break;
 	case 'exit':
 	case 'quit':

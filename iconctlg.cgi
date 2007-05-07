@@ -2,11 +2,11 @@
 # 'iconCatalog' iconCatalog for MireilleIconList0.x
 # - Mireille/Marldia Icon Catalog Module -
 #
-$CF{'iconCatalog'}=qq$Revision: 1.2 $;
+$CF{'iconCatalog'}=qq$Revision: 1.3 $;
 # "This file is written in utf-8, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $rcsid = q$Id: iconctlg.cgi,v 1.2 2006-08-02 16:25:52 naruse Exp $;
+# $rcsid = q$Id: iconctlg.cgi,v 1.3 2007-05-07 05:38:03 naruse Exp $;
 require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK);
@@ -173,12 +173,12 @@ sub iconctlg{
 				if($IN{'page'} >= 0){
 				$table=<<"_HTML_";
 <TABLE cellspacing="0" class="icon" summary="$DT{'label'}">
-<CAPTION>$DT{'label'}</CAPTION>
+<CAPTION><a name="$DT{'label'}">$DT{'label'}</a></CAPTION>
 <COL span="$cols" width="110">
 <TR>
 _HTML_
 				}else{
-					push(@icon,qq(<li><a href="index.cgi?icct;page=$page">$DT{'label'}</a></li>\n));
+					push(@icon,qq(<li><a href="index.cgi?icct;page=$page#$DT{'label'}">$DT{'label'}</a></li>\n));
 				}
 				$j=1;
 			}elsif('/OPTGROUP'eq$DT{'swt'}){
@@ -739,7 +739,7 @@ BEGIN{
 		};
 	}
 	# Revision Number
-	$CF{'iconCatalog'}=qq$Revision: 1.2 $;
+	$CF{'iconCatalog'}=qq$Revision: 1.3 $;
 	$CF{'Exte'}.=qq(icon:\t$CF{'iconCatalog'}\n);
 }
 
@@ -811,26 +811,5 @@ B<Mireille>のヘルプも見てください
 =head1 AUTHOR
 
 NARUSE Yui naruse@airemix.com
-
-=head1 HISTORY
-
-$Log: not supported by cvs2svn $
-Revision 1.1  2006/03/11 09:34:45  naruse
-* imported.
-
-Revision 1.4  2003/03/11 15:57:29  naruse
-細かいバグ修正
-
-Revision 1.3  2003/01/24 05:16:39  naruse
-バグ修正と全体的な調整
-
-Revision 1.2  2002/10/21 07:13:52  naruse
-ealis3のアイコンリストを生成する機能を追加
-Mireilleのアイコンリストを解析する関数を分離
-そのほか調整
-
-Revision 1.1  2002/09/27 08:19:40  naruse
-Initial revision
-
 
 =cut

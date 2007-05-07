@@ -4,15 +4,14 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.41 $
+# $Revision: 1.42 $
 # Scripted by NARUSE, Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.41 2007-01-16 09:34:34 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.42 2007-05-07 05:38:03 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
 #use Data::Dumper;
-$CF{'default_icon'} = 'alicesoft/chr_11.png';
 
 #-------------------------------------------------
 # MAIN SWITCH
@@ -27,7 +26,7 @@ sub main{
     &getParams;
     $IN{'name'}&&index(" $CF{'denyname'} "," $IN{'name'} ") > -1&& exit;
     
-    &getCookie;
+    &getCookie unless $IN{'name'};
     $CK{'name'}&&index(" $CF{'denyname'} "," $CK{'name'} ") > -1&& exit;
 
     $CF{'supass'} = [$CF{'admipass'}]unless$CF{'supass'};
@@ -35,6 +34,8 @@ sub main{
 	&locate($IN{'jump'});
     }elsif('iconlist'eq$IN{'mode'}){
 	&xmlIconlist();
+    }elsif('help'eq$IN{'mode'}){
+	&help();
     }elsif('xml'eq$IN{'type'}){
 	&xmlView();
     }elsif('mobile'eq$IN{'type'} || $IN{'hua'} =~ /(?:^Mozilla\/[1-3].0|DoCoMo|UP\.Browser|^J-PHONE|^Vodafone|^ASTEL)/o){
@@ -298,7 +299,7 @@ Content-type: application/xml; charset=$::CF{'encoding'}
 $doctype<$rootElement version="$version"$xmlns>
   <updated>$updated</updated>
   <system>
-    <uri>http://airemix.com/Marldia/$CF{'version'}</uri>
+    <uri>http://airemix.com/Marldia</uri>
     <name>Marldia</name>
     <version>$CF{'version'}</version>
   </system>
@@ -355,7 +356,7 @@ _EOM_
 	
 	my $article_id = $DT{'exp'} . '_' . Airemix::Digest::MD5_hex($DT{'id'});
 	$DT{'level'}=&getLevel($DT{'exp'});
-	$DT{'email'}=~s/&#64;/@/o;
+	$DT{'email'}=~s/&#64;/@/go;
 	
 	for(qw/name color email home exp level/){
 	    $author{$_} = sprintf('<%s>%s</%s>', $_, escape_xml($DT{$_}), $_)
@@ -512,6 +513,15 @@ _HTML_
 # Frame
 #
 sub modeFrame{
+    my$query='';
+    if($IN{'id'}){
+	$query=join(';',map{my$val=$IN{$_};$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
+		    grep{defined$IN{$_}}qw(id name color bcolo icon email home line reload surface opt));
+	if($IN{'quit'}){
+	    $query.=';quit=on';
+	    $IN{'reload'} = 0;
+	}
+    }
     print<<"_HTML_";
 Status: 200 OK
 Content-Language: ja
@@ -529,7 +539,7 @@ Content-type: text/html; charset=$::CF{'encoding'}
 <TITLE>$CF{'title'}</TITLE>
 </HEAD>
 <FRAMESET rows="120,*">
-<FRAME frameborder="0" name="north" src="$CF{'index'}?north">
+<FRAME frameborder="0" name="north" src="$CF{'index'}?north;$query">
 <FRAME frameborder="0" name="south" src="$CF{'index'}?south">
 <NOFRAMES>
 <BODY>
@@ -557,7 +567,7 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '$Id: core.cgi,v 1.41 2007-01-16 09:34:34 naruse Exp $';
+MARLDIA_CORE_ID = '$Id: core.cgi,v 1.42 2007-05-07 05:38:03 naruse Exp $';
 var isInitialized;
 _HTML_
     print<<"_HTML_";
@@ -768,7 +778,7 @@ sub modeSouth{
     #-----------------------------
     #携帯電話用クエリ
     my $mobileQuery = 'type=mobile&amp;' .
-    	join('&amp;',map{my$val=$IN{$_};$val=~s/&#64;/\@/;$val=~s{([^!"\$'-:<>-~])}{'%'.unpack('H2',$1)}ego;"$_=$val"}
+    	join('&amp;',map{my$val=$IN{$_};$val=~s/&#64;/\@/go;$val=~s{([^!"\$'-:<>-~])}{'%'.unpack('H2',$1)}ego;"$_=$val"}
 	     grep{defined$IN{$_}&&length$IN{$_}}qw(id name color bcolo icon opt email home))
 	if $IN{'icon'};
     
@@ -1026,8 +1036,36 @@ _HTML_
 	}else{
 	    print"<P>なにも修正しなかったょ</P>";
 	}
+    }elsif('save'eq$arg[0]){
+	#Save settings
+	my $rank = Rank->getInstance;
+	$rank->{$IN{'id'}}->{sprintf('setting%d', $arg[1])} =
+	Filter->json_encode({
+	    'id'    => $IN{'id'},
+	    'name'  => $IN{'name'},
+	    'color' => $IN{'color'},
+	    'bcolo' => $IN{'bcolo'},
+	    'icon'  => $IN{'icon'},
+	    'email' => $IN{'email'},
+	    'home'  => $IN{'home'},
+	    'line'  => $IN{'line'},
+	    'reload'  => $IN{'reload'},
+	    'surface' => $IN{'surface'},
+	    'opt'   => $IN{'opt'}
+	});
+	$rank->dispose;
+	&header;
+	printf "<P>設定%dに保存しました。</P>", $arg[1];
+	my $id = $IN{'id'};
+	$id =~ s/&#64;/\@/go;
+	$id =~ s{([^!"\$'-:<>-~])}{'%'.unpack('H2',$1)}ego;
+	printf "<P><a href=\"$CF{'index'}?type=mobile;id=%s;setting=%d\">携帯用アドレス</a></P>",
+	$id, $arg[1];
 	&showFooter;
 	exit;
+    }elsif('help'eq$arg[0]){
+	#Show Help
+	&help;
     }elsif(''eq$arg[0]){
 	#
     }
@@ -1275,6 +1313,71 @@ _HTML_
     exit;
 }
 
+
+#-------------------------------------------------
+# Mobile View
+#
+sub help{
+    #-----------------------------
+    #ヘッダ出力
+    my $output = <<"_HTML_";
+Status: 200 OK
+Content-type: text/html; charset=$IN{'encoding'}
+
+<html lang="ja-JP">
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=$IN{'encoding'}">
+<title>$CF{'title'}</title>
+</head>
+<body>
+<dl>
+  <dt>Command</dt>
+  <dd>
+    <p>内容欄にさまざまなコマンドを入力することができます。</p>
+    <dl>
+      <dt>/rank</dt>
+      <dd>ランキングを表示</dd>
+      <dt>/mem</dt>
+      <dd>参加者情報を表示</dd>
+      <dt>/del &lt;exp&gt;</dt>
+      <dd>発言削除</dd>
+      <dt>/edit &lt;exp&gt; [&lt;key&gt;=&lt;value&gt;]..</dt>
+      <dd>発言編集</dd>
+      <dt>/save &lt;num&gt;</dt>
+      <dd>設定保存</dd>
+      <dt>/help</dt>
+      <dd>このヘルプを表示</dd>
+    </dl>
+  </dd>
+  <dt>Option</dt>
+  <dd>
+    <p>Option欄にさまざまなコマンドを入力することができます。例:「showIcon=1;color=white;bgcolor=black」</p>
+    <dl>
+      <dt>icon</dt>
+      <dd>専用アイコンを指定します。</dd>
+      <dt>absoluteIcon</dt>
+      <dd>絶対指定アイコンを指定します。</dt>
+      <dt>relativeIcon</dt>
+      <dd>相対指定アイコンを指定します。</dt>
+      <dt>showIcon</dt>
+      <dd>携帯電話でもアイコンを表示します。</dt>
+      <dt>color</dt>
+      <dd>携帯モードでの文字色を指定します。</dt>
+      <dt>bgcolor</dt>
+      <dd>携帯モードでの背景色を指定します。</dt>
+      <dt>css</dt>
+      <dd>拡張外部CSSファイルを指定します。</dt>
+    </dl>
+  </dd>
+</dl>
+<p>Airemix Marldia</p>
+</body>
+</html>
+_HTML_
+    $output = Filter->encode($output, $IN{'encoding'}) if $IN{'encoding'} !~ /$CF{'encoding'}/i;
+    print $output;
+    exit;
+}
 
 
 #------------------------------------------------------------------------------#
@@ -1548,6 +1651,7 @@ sub parse_date{
 #-------------------------------------------------
 #引数の前処理
 sub commonRoutineForView{
+    # Parse options
     $IN{'_opt'} = parseOption($IN{'opt'});
     my %EX = %{$IN{'_opt'}};
     #専用アイコン機能。index.cgiで設定する。
@@ -2061,6 +2165,7 @@ _HTML_
 	    $j=~s/%([\dA-Fa-f]{2})/pack('H2',$1)/ego;
 	    #メインフレームの改行は\x85らしいけど、対応する必要ないよね？
 	    $j=~s/\x0D\x0A/\n/go;$j=~tr/\r/\n/;
+	    $j=~tr/\x00-\x08\x0B-\x1F//d;
 	    if('body'ne$i&&'opt'ne$i){
 		#本文以外は全面タグ禁止
 		$j=~s/&(#?\w+;)?/$1?"&$1":'&#38;'/ego;
@@ -2168,7 +2273,35 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    }
 	}
 	for(keys%DT){
+	    if($::CF{'encoding'} =~ /utf-8/io){
+		my $str = '';
+		while($DT{$_}=~/\G([\w\W]*?)((?:$utf8char)*)/gso){
+		    $str .= ('?' x length($1)) . $2;
+		}
+		$DT{$_} = $str;
+	    }
 	    $DT{$_} =~ s/\343\200\234/\357\275\236/go;
+	}
+	
+	# Load save settings
+	if(defined$DT{'setting'} && $DT{'setting'} =~ /\d/o){
+	    my %rank = %{Rank->getOnlyHash()};
+	    unless($rank{$DT{'id'}}){
+		die 'cannot find user';
+	    }
+	    my %member = %{$rank{$DT{'id'}}};
+	    unless($member{sprintf('setting%d', $DT{'setting'})}){
+		die 'cannot find setting';
+	    }
+	    my $setting = Filter->json_decode($member{sprintf('setting%d', $DT{'setting'})});
+	    if (ref$setting eq 'HASH') {
+		for(keys %{$setting}){
+		    $DT{$_} = $setting->{$_} if !exists$DT{$_} && $setting->{$_};
+		}
+	    }
+	    if (!$DT{'type'}) {
+		$DT{'mode'} = 'frame';
+	    }
 	}
 	
 	#特殊
@@ -2198,13 +2331,48 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $IN{'body'}=$1;
 	    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($::CK{'id'}||$IN{'name'});
 	    $IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
+	    
+	    $IN{'cook'}=$DT{'cook'}?1:0;
+	    $IN{'name'}=($DT{'name'}=~/(.{1,100})/o)?$1:'';
+	    if($DT{'bcolo'}){
+		$IN{'color'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+		$IN{'bcolo'}=($DT{'bcolo'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+	    }else{
+		$IN{'color'}=($DT{'nameColor'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+		$IN{'bcolo'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+	    }
+	    $DT{'email'}=($DT{'email'}=~/(.{1,200})/o)?$1:'';
+	    $IN{'email'}=($DT{'email'}=~/($mail_regex)/o)?$1:'';
+	    $IN{'email'}=~s/\@/&#64;/go;
+	    $DT{'home'} = $DT{'uri'} if $DT{'uri'};
+	    $DT{'home'}=($DT{'home'}=~/(.{1,200})/o)?$1:'';
+	    $IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?$1:'';
+	    $IN{'icon'}=($DT{'icon'}=~/([\w\:\.\~\-\%\/\#]+)/o)?$1:'';
+	    $IN{'surface'}=$1 if$DT{'surface'}=~/([\w\:\.\~\-\%\/\#]+)/o;
+	    $IN{'line'}=($DT{'line'}=~/([1-9]\d*)/o)?$1:$::CF{'defline'};
+	    $IN{'reload'}=($DT{'reload'}=~/([1-9]\d+|0)/o)?$1:$::CF{'defreload'};
 	    $IN{'mode'}&&return\%IN;
 	}
 	$DT{'body'}=~s/^\/\//\//o if exists$DT{'body'}&&defined$DT{'body'}&&$DT{'body'};
 	
 	if(!%DT||($DT{'mode'}&&'frame'eq$DT{'mode'})){
 	    #フレーム
+	    for(keys %DT){
+		$IN{$_} = $DT{$_};
+	    }
 	    $IN{'mode'}='frame';
+	}elsif( defined$DT{'north'} or 'north'eq$DT{'mode'}){
+	    #北
+	    for(keys %DT){
+		$IN{$_} = $DT{$_};
+	    }
+	    $IN{'mode'}='north';
+	    $IN{'line'}=$::CF{'defline'} unless $IN{'line'};
+	    $IN{'reload'}=$::CF{'defreload'} unless $IN{'reload'};
+	}elsif(exists$DT{'help'} || 'help'eq$DT{'mode'}){
+	    $IN{'mode'}='help';
+	}elsif('iconlist'eq$DT{'mode'}){
+	    $IN{'mode'}='iconlist';
 	}elsif(defined$DT{'jump'} or 'jump'eq$IN{'mode'}){
 	    #アイコンカタログ
 	    $IN{'mode'} = 'jump';
@@ -2224,16 +2392,16 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    }
 	    $IN{'name'}=($DT{'name'}=~/(.{1,100})/o)?$1:'';
 	    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($::CK{'id'}||$IN{'name'});
-	    if($DT{'bcolo'}){
+	    if($DT{'nameColor'}){
+		$IN{'color'}=($DT{'nameColor'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+		$IN{'bcolo'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
+	    }else{
 		$IN{'color'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
 		$IN{'bcolo'}=($DT{'bcolo'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
-	    }else{
-		$IN{'nameColor'}=($DT{'nameColor'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
-		$IN{'color'}=($DT{'color'}=~/([\#\w\(\)\,]{1,20})/o)?$1:'';
 	    }
 	    $DT{'email'}=($DT{'email'}=~/(.{1,200})/o)?$1:'';
 	    $IN{'email'}=($DT{'email'}=~/($mail_regex)/o)?$1:'';
-	    $IN{'email'}=~s/\@/&#64;/o;
+	    $IN{'email'}=~s/\@/&#64;/go;
 	    $DT{'home'} = $DT{'uri'} if $DT{'uri'};
 	    $DT{'home'}=($DT{'home'}=~/(.{1,200})/o)?$1:'';
 	    $IN{'home'}=($DT{'home'}=~/($http_URL_regex)/o)?$1:'';
@@ -2249,18 +2417,11 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    }else{
 		$IN{'mode'}='south';
 	    }
-	}elsif( defined$DT{'north'} or 'north'eq$DT{'mode'}){
-	    #北
-	    $IN{'mode'}='north';
-	    $IN{'line'}=$::CF{'defline'};
-	    $IN{'reload'}=$::CF{'defreload'};
 	}elsif(defined$DT{'south'} or 'south'eq$DT{'mode'}){
 	    #南
 	    $IN{'mode'}='south';
 	    $IN{'line'}=$::CF{'romline'};
 	    $IN{'reload'}=$::CF{'romreload'};
-	}elsif('iconlist'eq$DT{'mode'}){
-	    $IN{'mode'}='iconlist';
 	}
 	$IN{'ra'}=($ENV{'REMOTE_ADDR'}&&$ENV{'REMOTE_ADDR'}=~/([\d\:\.]{2,56})/o)?"$1":'';
 	$IN{'hua'}=($ENV{'HTTP_USER_AGENT'}&&$ENV{'HTTP_USER_AGENT'}=~/([\x20-~]+)/o)?"$1":'';
@@ -2457,6 +2618,107 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	$enc=~/Shift_JIS/i   ? Filter->is_sjis($str) :
 	    $enc=~/EUC(?:-JP)?/i ? Filter->is_euc($str) :
 	    $enc=~/UTF-?8/i      ? Filter->is_utf8($str) : undef;
+    }
+    sub json_encode {
+	my $pkg = shift;
+	if ($#_ > 0) {
+	    _json_encode([@_]);
+	} else {
+	    _json_encode(shift);
+	}
+    }
+    sub _json_encode {
+	my $obj = shift;
+	if (ref($obj) eq 'HASH') {
+	    '{' . (join ', ',
+		   map {
+			_json_encode($_) . ' : ' . _json_encode($obj->{$_});
+		       }keys(%{$obj})) . '}';
+	} elsif(ref$obj eq 'ARRAY') {
+	    '[' . (join ', ', map {_json_encode($_)}@{$obj}) . ']';
+	} else {
+	    '"' . double_quote_escape($obj) . '"'
+	}
+    }
+    sub double_quote_escape {
+	my $str = shift;
+	$str =~ s/\\/\\\\/go;
+	$str =~ s/"/\\"/go;
+	$str =~ s/\t/\\t/go;
+	$str =~ s/\r\n|[\r\n]/\\n/go;
+	return $str
+    }
+    sub json_decode {
+	my $pkg = shift;
+	my $str = shift;
+	my @queue = grep{/\S/o}($str =~ /\G\s+|[{[\]\}:,]|"[^"]*(?:\\"[^"]*)*"|[\d\.]+/go);
+	return _json_decode(\@queue);
+    
+    }
+    sub _json_decode {
+	my $queue = shift;
+	my @res;
+	if ($queue->[0] eq '{') {
+	    shift(@$queue);
+	    _json_decode_hash($queue);
+	} elsif ($queue->[0] eq '[') {
+	    shift(@$queue);
+	    _json_decode_array($queue);
+	} elsif (substr($queue->[0], 0, 1) eq '"') {
+	    _double_quote_unescape(shift@$queue);
+	} else {
+	    shift@$queue;
+	}
+    }
+    sub _json_decode_hash {
+	my $queue = shift;
+	if ($queue->[0] eq '}') {
+	    shift(@$queue);
+	    return {};
+	}
+	my %res;
+	while (@$queue) {
+	    my $key = _json_decode($queue);
+	    return {} unless (shift(@$queue) eq ':');
+	    $res{$key} = _json_decode($queue);
+	    if ($queue->[0] eq '}') {
+		last;
+	    } elsif ($queue->[0] eq ',') {
+		shift(@$queue);
+	    } else {
+	    }
+	}
+	return \%res;
+    }
+    sub _json_decode_array {
+	my $queue = shift;
+	if ($queue->[0] eq ']') {
+	    shift(@$queue);
+	    return [];
+	}
+	my @res;
+	while (@$queue) {
+	    if ($queue->[0] eq ']') {
+		shift(@$queue);
+		last;
+	    } else {
+		push @res, _json_decode($queue);
+		if ($queue->[0] eq ',') {
+		    shift(@$queue);
+		}
+	    }
+	}
+	return \@res;
+    }
+    sub _double_quote_unescape {
+	my $str = shift;
+	$str =~ s/\A"//go;
+	$str =~ s/"\z//go;
+	$str =~ s/\\n/\n/go;
+	$str =~ s/\\"/"/go;
+	$str =~ s/\\t/\t/go;
+	$str =~ s/\\\\/\\/go;
+	return $str
     }
 }
 
@@ -2834,6 +3096,11 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	$self->{"$DT{'id'}"}{'ra'}=$DT{'ra'};
 	$self->{"$DT{'id'}"}{'color'}=$DT{'color'};
 	$self->{"$DT{'id'}"}{'bcolo'}=$DT{'bcolo'};
+	$self->{"$DT{'id'}"}{'line'}=$DT{'line'};
+	$self->{"$DT{'id'}"}{'icon'}=$DT{'icon'};
+	$self->{"$DT{'id'}"}{'email'}=$DT{'email'};
+	$self->{"$DT{'id'}"}{'home'}=$DT{'home'};
+	$self->{"$DT{'id'}"}{'opt'}=$DT{'opt'};
 	return$self->{"$DT{'id'}"}->{'exp'};
     }
     #ログを削除
@@ -2989,7 +3256,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.41 $;
+    $CF{'correv'}=qq$Revision: 1.42 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
