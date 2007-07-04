@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 = Marldia - Web Chat System
 #
-# $Id: Marldia.txt,v 1.42 2007-05-07 05:38:03 naruse Exp $
+# $Id: Marldia.txt,v 1.43 2007-07-04 00:42:18 naruse Exp $
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
@@ -28,9 +28,11 @@ Airemixの掲示板で質問してみてください
 
 #------------------------------------------------------------------------------#
 == Marldia History
-:2006-05-07 Revision: 1.43
+:2006-07-04 Revision: 1.43
   * コマンド /help を追加
   * コマンド /save を追加
+  * Safari 対応
+  * REMOTE_HOST をランキングと参加者一覧で表示するように
 :2006-03-23 Revision: 1.42
   * Cast出力のsystem/uriからバージョンを削除
   * UTF-8として正しくない文字列の入力を許さない

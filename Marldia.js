@@ -3,7 +3,7 @@
  * Marldia.js
  * 
  * -*- coding: utf-8 -*-
- * $Id: Marldia.js,v 1.7 2007-05-07 05:38:03 naruse Exp $
+ * $Id: Marldia.js,v 1.8 2007-07-04 00:42:18 naruse Exp $
  * 
  ******************************************************************************/
 
@@ -35,13 +35,79 @@ function init(){
     }else return false;
     if(!eForm) return false;
     isInitialized=true;
-    if(eForm['name'] && !eForm['name'].value)getCookie();
+    if(!self.location.toString().match(/setting=/))getCookie();
     if(eForm['cook']){
 	eForm['cook'].parentNode.style.display = 'none';
     }
     changeOption();
     commentHistory = new CommentHistory();
     return true;
+}
+
+
+/*========================================================*/
+// Autoclear for Safari
+function autoclear() {
+    if(document.forms && document.forms[0]){
+	var form = document.forms[0];
+	if(form['cook'] && form['cook'].checked) form['cook'].checked = false;
+	if(form['body']){
+	    form['body'].value = '';
+	}
+    }else{
+	return true;
+    }
+}
+
+
+/*========================================================*/
+// OnSubmit
+function onSubmitHandler(e){
+    if(document.forms && document.forms[0]){
+	var form = document.forms[0];
+	if(form['id'] && form['name'] &&
+	   !form['id'].value && form['name'].value){
+	    form['id'].value = form['name'].value;
+	}
+	if(isInitialized){
+	    if(commentHistory && form['body'].value && maxHistory > 0){
+		commentHistory.last();
+		commentHistory.set( form['body'].value );
+		commentHistory.push('');
+	    }
+	    setCookie();
+	}
+	form.submit();
+	if(form['body']){
+	    form['body'].focus();
+	    if (!window.Components && !document.compatMode) setTimeout(autoclear, 500);
+	    else form['body'].value = '';
+	}
+	if(myIconHistory == null){
+	    var optgroup = document.createElement('OPTGROUP');
+	    optgroup.label = '履歴';
+	    eForm['icon'].appendChild(optgroup);
+	    myIconHistory = {'_optgroup' : optgroup};
+	}
+	if(getSelectingIcon() && !myIconHistory[myIcon.value] &&
+		myIcon.text != '絶対指定' && myIcon.text != '相対指定'){
+	    myIconHistory[myIcon['value']] = myIcon.text;
+	    var option = document.createElement('OPTION');
+	    myIconHistory['_optgroup'].appendChild(option);
+	    option.text = myIcon['text'];
+	    option.value = myIcon['value'];
+	}
+	if(!e){
+	}else if(document.all){ 
+	    e.returnValue = false;
+	}else if(document.getElementById){
+	    e.preventDefault();
+	}else return false;
+	if(e) e.cancelBubble=true;
+	return false;
+    }else{
+	return true;
+    }
 }
 
 
@@ -416,7 +482,7 @@ function showCommandWindow(e){
 	case 'version':
 	   alert(
 		 MARLDIA_CORE_ID + "\n"+
-		 "$Id: Marldia.js,v 1.7 2007-05-07 05:38:03 naruse Exp $");
+		 "$Id: Marldia.js,v 1.8 2007-07-04 00:42:18 naruse Exp $");
 	   break;
 	case 'exit':
 	case 'quit':

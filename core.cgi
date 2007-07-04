@@ -4,10 +4,10 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.42 $
+# $Revision: 1.43 $
 # Scripted by NARUSE, Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.42 2007-05-07 05:38:03 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.43 2007-07-04 00:42:18 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -567,7 +567,7 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '$Id: core.cgi,v 1.42 2007-05-07 05:38:03 naruse Exp $';
+MARLDIA_CORE_ID = '$Id: core.cgi,v 1.43 2007-07-04 00:42:18 naruse Exp $';
 var isInitialized;
 _HTML_
     print<<"_HTML_";
@@ -576,56 +576,6 @@ var iconSetting = @{[ !!$CF{'absoluteIcon'} * 1 + !!$CF{'relativeIcon'} * 2 ]};
 var myIcon = { 'value': '$CK{'icon'}', 'isAbsolute': 0 };
 var myIconHistory = null;
 function init(){}
-
-/*========================================================*/
-// OnSubmit
-function onSubmitHandler(e){
-    if(document.forms && document.forms[0]){
-	var form = document.forms[0];
-	if(form['id'] && form['name'] &&
-	   !form['id'].value && form['name'].value){
-	    form['id'].value = form['name'].value;
-	}
-	if(isInitialized){
-	    if(commentHistory && form['body'].value && maxHistory > 0){
-		commentHistory.last();
-		commentHistory.set( form['body'].value );
-		commentHistory.push('');
-	    }
-	    setCookie();
-	}
-	form.submit();
-	if(form['cook'] && form['cook'].checked) form['cook'].checked = false;
-	if(form['body']){
-	    form['body'].value = '';
-	    form['body'].focus();
-	}
-	if(myIconHistory == null){
-	    var optgroup = document.createElement('OPTGROUP');
-	    optgroup.label = '履歴';
-	    eForm['icon'].appendChild(optgroup);
-	    myIconHistory = {'_optgroup' : optgroup};
-	}
-	if(getSelectingIcon() && !myIconHistory[myIcon.value] &&
-		myIcon.text != '絶対指定' && myIcon.text != '相対指定'){
-	    myIconHistory[myIcon['value']] = myIcon.text;
-	    var option = document.createElement('OPTION');
-	    myIconHistory['_optgroup'].appendChild(option);
-	    option.text = myIcon['text'];
-	    option.value = myIcon['value'];
-	}
-	if(!e){
-	}else if(document.all){ 
-	    e.returnValue = false;
-	}else if(document.getElementById){
-	    e.preventDefault();
-	}else return false;
-	if(e) e.cancelBubble=true;
-	return false;
-    }else{
-	return true;
-    }
-}
 //-->
 </SCRIPT>
 <![if gte IE 5.5000]>
@@ -961,10 +911,15 @@ sub modeUsercmd{
 <TH scope="col">けいけんち</TH>
 <TH scope="col">しょうそく</TH>
 <TH scope="col">はつとうじょう</TH>
+<TH scope="col">ぷろばいだ</TH>
 _HTML_
 	my $i = 0;
 	for(sort{$b->{'exp'}<=>$a->{'exp'}}values%{Rank->getOnlyHash}){
 	    $i++;
+	    my $packed_ra = pack("C4", split(/[\.\/]/, $_->{'ra'}));
+	    my $remote_host = gethostbyaddr($packed_ra, 2);
+	    $remote_host =~ /\.?([-\w]+\.(?:\w{2}\.\w+|\w+))$/o;
+	    $remote_host = $1;
 	    print<<"_HTML_";
 <TR>
 <TD style="color:$_->{'color'}">$i</TD>
@@ -972,6 +927,7 @@ _HTML_
 <TD style="color:$_->{'bcolo'}">$_->{'exp'}</TD>
 <TD style="color:$_->{'bcolo'}">@{[$_->{'lastContact'}?&datef($_->{'lastContact'},'dateTime'):'<HR>']}</TD>
 <TD style="color:$_->{'bcolo'}">@{[$_->{'firstContact'}?&datef($_->{'firstContact'},'dateTime'):'<HR>']}</TD>
+<TD style="color:$_->{'bcolo'}">$remote_host</TD>
 </TR>
 _HTML_
 	}
@@ -988,14 +944,20 @@ _HTML_
 <TH scope="col">なまえ</TH>
 <TH scope="col">ぶらんく</TH>
 <TH scope="col">おとさた</TH>
+<TH scope="col">ぷろばいだ</TH>
 _HTML_
 	for(values%{Members->getOnlyHash}){
+	    my $packed_ra = pack("C4", split(/[\.\/]/, $_->{'ra'}));
+	    my $remote_host = gethostbyaddr($packed_ra, 2);
+	    $remote_host =~ /\.?([-\w]+\.(?:\w{2}\.\w+|\w+))$/o;
+	    $remote_host = $1;
 	    if($_->{'name'}){
 		print<<"_HTML_";
 <TR>
 <TD style="color:$_->{'color'}">$_->{'name'}</TD>
 <TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'lastModified'}]}</TD>
 <TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'time'}]}</TD>
+<TD style="color:$_->{'bcolo'}">$remote_host</TD>
 </TR>
 _HTML_
 	    }else{
@@ -1004,6 +966,7 @@ _HTML_
 <TD>ROM</TD>
 <TD>null</TD>
 <TD>@{[$^T-$_->{'time'}]}</TD>
+<TD>$remote_host</TD>
 </TR>
 _HTML_
 	    }
@@ -1167,11 +1130,14 @@ $::CF{'admipass'}='admicmd';なら、
 <TH scope="col">LAST CONTACT</TH>
 <TH scope="col">FIRST CONTACT</TH>
 <TH scope="col">REMOTE_ADDR</TH>
+<TH scope="col">REMOTE_HOST</TH>
 <TH scope="col">HTTP_USER_AGENT</TH>
 _HTML_
 	my $i = 0;
 	for(map{{id=>$_,%{$rank{$_}}}}sort{$rank{$b}->{'exp'}<=>$rank{$a}->{'exp'}}keys%rank){
 	    $i++;
+	    my $packed_ra = pack("C4", split(/[\.\/]/, $_->{'ra'}));
+	    my $remote_host = gethostbyaddr($packed_ra, 2);
 	    print<<"_HTML_";
 <TR>
 <TD style="color:$_->{'color'}">$i</TD>
@@ -1181,6 +1147,7 @@ _HTML_
 <TD style="color:$_->{'bcolo'}">@{[$_->{'lastContact'}?&datef($_->{'lastContact'},'dateTime'):'<HR>']}</TD>
 <TD style="color:$_->{'bcolo'}">@{[$_->{'firstContact'}?&datef($_->{'firstContact'},'dateTime'):'<HR>']}</TD>
 <TD style="color:$_->{'bcolo'}">$_->{'ra'}</TD>
+<TD style="color:$_->{'bcolo'}">$remote_host</TD>
 <TD style="color:$_->{'bcolo'}">$_->{'hua'}</TD>
 </TR>
 _HTML_
@@ -1200,9 +1167,12 @@ _HTML_
 <TH scope="col">BLANK</TH>
 <TH scope="col">OTOSATA</TH>
 <TH scope="col">REMOTE_ADDR</TH>
+<TH scope="col">REMOTE_HOST</TH>
 <TH scope="col">HTTP_USER_AGENT</TH>
 _HTML_
 	for(values%{Members->getOnlyHash}){
+	    my $packed_ra = pack("C4", split(/[\.\/]/, $_->{'ra'}));
+	    my $remote_host = gethostbyaddr($packed_ra, 2);
 	    if($_->{'name'}){
 		print<<"_HTML_";
 <TR>
@@ -1211,6 +1181,7 @@ _HTML_
 <TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'lastModified'}]}</TD>
 <TD style="color:$_->{'bcolo'}">@{[$^T-$_->{'time'}]}</TD>
 <TD style="color:$_->{'bcolo'}">$_->{'ra'}</TD>
+<TD style="color:$_->{'bcolo'}">$remote_host</TD>
 <TD style="color:$_->{'bcolo'}">$_->{'hua'}</TD>
 </TR>
 _HTML_
@@ -1222,6 +1193,7 @@ _HTML_
 <TD>null</TD>
 <TD>@{[$^T-$_->{'time'}]}</TD>
 <TD>$_->{'ra'}</TD>
+<TD>$remote_host</TD>
 <TD>$_->{'hua'}</TD>
 </TR>
 _HTML_
@@ -3256,7 +3228,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.42 $;
+    $CF{'correv'}=qq$Revision: 1.43 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
