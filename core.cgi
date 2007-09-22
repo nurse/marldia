@@ -4,10 +4,10 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.43 $
+# $Revision: 1.44 $
 # Scripted by NARUSE, Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.43 2007-07-04 00:42:18 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.44 2007-09-22 22:42:58 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -207,7 +207,7 @@ _HTML_
 	my%DT=%{$_};
 	!$isAdmin && 'del'eq$DT{'Mar1'}&&next;
 	++$i>$IN{'line'}&&last;
-	my $acl = can_access($DT{'body'});
+	my $acl = can_access(\%DT);
 	$IN{'id'} eq $DT{'id'} or $isAdmin or $acl or next;
 	
 	#日付
@@ -348,7 +348,7 @@ _EOM_
 	!$isAdmin&&'del'eq$DT{'Mar1'}&&next;
 	++$i>$IN{'line'}&&last;
 	Filter->is_utf8(join('',values%DT)) or next;
-	my $acl = can_access($DT{'body'});
+	my $acl = can_access(\%DT);
 	$IN{'id'} eq $DT{'id'} or $isAdmin or $acl or next;
 	
 	my %article;
@@ -382,7 +382,7 @@ _EOM_
 	$article{'body'} = $DT{'body'};
 	$article{'body'} = '[制限]' . $article{'body'} if $acl == 2;
 	$article{'body'} =~ s/<A class="autolink"[^>]*>([^<]+)<\/A>/$1/go;
-	$article{'body'} =~ s/<BR>/\n/go;
+	$article{'body'} =~ s/<BR>/<br \/>/go;
 	$article{'body'} = escape_xml($article{'body'});
 	$article{'body'} = '<body type="html">'.$article{'body'}.'</body>';
 	
@@ -567,7 +567,7 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '$Id: core.cgi,v 1.43 2007-07-04 00:42:18 naruse Exp $';
+MARLDIA_CORE_ID = '$Id: core.cgi,v 1.44 2007-09-22 22:42:58 naruse Exp $';
 var isInitialized;
 _HTML_
     print<<"_HTML_";
@@ -797,7 +797,7 @@ _HTML_
     for(@{$chatlog}){
 	my%DT=%{$_};
 	!$isAdmin&&'del'eq$DT{'Mar1'}&&next;
-	my $acl = can_access($DT{'body'});
+	my $acl = can_access(\%DT);
 	$IN{'id'} eq $DT{'id'} or $isAdmin or $acl or next;
 	++$i>$IN{'line'}&&last;
 
@@ -1936,22 +1936,32 @@ _HTML_
 # Access Control
 #
 sub can_access{
-    ref$CF{'taboo_alist'} eq 'ARRAY' or return 1;
-    my $body = shift;
+    my $data = shift;
+    my $body = $data->{'body'};
     my $allow = 1;
     if($body =~ /^\/wi[sz]\s/io){
 	return 0;
     }
-    for(@{$CF{'taboo_alist'}}){
-	if(index($body, $_->{'keyword'}) > -1){
-	    $allow = 0;
-	    for(@{$_->{'allow'}}){
-		if($_ eq $IN{'id'}){
-		    $allow = 2;
-		    last;
-		}
+    if (ref$CF{'honeypot'} eq 'ARRAY') {
+	for (@{$CF{'honeypot'}}) {
+	    if($_ eq $data->{'id'}){
+		$allow = 0;
+		last;
 	    }
-	    last unless $allow;
+	}
+    }
+    if (ref$CF{'taboo_alist'} eq 'ARRAY') {
+	for(@{$CF{'taboo_alist'}}){
+	    if(index($body, $_->{'keyword'}) > -1){
+		$allow = 0;
+		for(@{$_->{'allow'}}){
+		    if($_ eq $IN{'id'}){
+			$allow = 2;
+			last;
+		    }
+		}
+		last unless $allow;
+	    }
 	}
     }
     return $allow;
@@ -3228,7 +3238,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.43 $;
+    $CF{'correv'}=qq$Revision: 1.44 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
