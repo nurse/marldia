@@ -3,7 +3,7 @@
  * Marldia.js
  * 
  * -*- coding: utf-8 -*-
- * $Id: Marldia.js,v 1.8 2007-07-04 00:42:18 naruse Exp $
+ * $Id: Marldia.js,v 1.9 2008-01-27 07:53:34 naruse Exp $
  * 
  ******************************************************************************/
 
@@ -35,7 +35,7 @@ function init(){
     }else return false;
     if(!eForm) return false;
     isInitialized=true;
-    if(!self.location.toString().match(/setting=/))getCookie();
+    if(!top.location.toString().match(/setting=/))getCookie();
     if(eForm['cook']){
 	eForm['cook'].parentNode.style.display = 'none';
     }
@@ -65,9 +65,9 @@ function autoclear() {
 function onSubmitHandler(e){
     if(document.forms && document.forms[0]){
 	var form = document.forms[0];
-	if(form['id'] && form['name'] &&
-	   !form['id'].value && form['name'].value){
-	    form['id'].value = form['name'].value;
+	if(form['id'] && !form['id'].value){
+	    alert('Identity を入力してください');
+	    return false;
 	}
 	if(isInitialized){
 	    if(commentHistory && form['body'].value && maxHistory > 0){
@@ -482,7 +482,7 @@ function showCommandWindow(e){
 	case 'version':
 	   alert(
 		 MARLDIA_CORE_ID + "\n"+
-		 "$Id: Marldia.js,v 1.8 2007-07-04 00:42:18 naruse Exp $");
+		 "$Id: Marldia.js,v 1.9 2008-01-27 07:53:34 naruse Exp $");
 	   break;
 	case 'exit':
 	case 'quit':

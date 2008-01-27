@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 = Marldia - Web Chat System
 #
-# $Id: Marldia.txt,v 1.44 2007-09-22 22:42:58 naruse Exp $
+# $Id: Marldia.txt,v 1.45 2008-01-27 07:53:34 naruse Exp $
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
@@ -28,6 +28,8 @@ Airemixの掲示板で質問してみてください
 
 #------------------------------------------------------------------------------#
 == Marldia History
+:2008-01-27 Revision: 1.45
+  * いろいろ変更
 :2007-09-23 Revision: 1.44
   * ハニーポット機能を実装
 :2007-07-04 Revision: 1.43

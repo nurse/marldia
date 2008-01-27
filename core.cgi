@@ -4,10 +4,10 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.44 $
+# $Revision: 1.45 $
 # Scripted by NARUSE, Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.44 2007-09-22 22:42:58 naruse Exp $;
+# $cvsid = q$Id: core.cgi,v 1.45 2008-01-27 07:53:34 naruse Exp $;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -208,7 +208,7 @@ _HTML_
 	!$isAdmin && 'del'eq$DT{'Mar1'}&&next;
 	++$i>$IN{'line'}&&last;
 	my $acl = can_access(\%DT);
-	$IN{'id'} eq $DT{'id'} or $isAdmin or $acl or next;
+	$IN{'id'} eq $DT{'id'} or ($isAdmin && !$acl) or $acl > 0 or next;
 	
 	#日付
 	my$date=sprintf("%02d:%02d",(split(/[\s:]+/o,localtime$DT{'time'}))[3,4]);
@@ -349,7 +349,7 @@ _EOM_
 	++$i>$IN{'line'}&&last;
 	Filter->is_utf8(join('',values%DT)) or next;
 	my $acl = can_access(\%DT);
-	$IN{'id'} eq $DT{'id'} or $isAdmin or $acl or next;
+	$IN{'id'} eq $DT{'id'} or ($isAdmin && !$acl) or $acl > 0 or next;
 	
 	my %article;
 	my %author;
@@ -567,7 +567,7 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '$Id: core.cgi,v 1.44 2007-09-22 22:42:58 naruse Exp $';
+MARLDIA_CORE_ID = '$Id: core.cgi,v 1.45 2008-01-27 07:53:34 naruse Exp $';
 var isInitialized;
 _HTML_
     print<<"_HTML_";
@@ -798,7 +798,7 @@ _HTML_
 	my%DT=%{$_};
 	!$isAdmin&&'del'eq$DT{'Mar1'}&&next;
 	my $acl = can_access(\%DT);
-	$IN{'id'} eq $DT{'id'} or $isAdmin or $acl or next;
+	$IN{'id'} eq $DT{'id'} or ($isAdmin && !$acl) or $acl > 0 or next;
 	++$i>$IN{'line'}&&last;
 
 	#日付
@@ -860,7 +860,9 @@ sub getLevel{
     #レベル計算-まとも
     my$lev=0;
     my$sum=0;
-    while($sum<$_[0]){
+    my $exp = $_[0];
+    $exp *= -1 if $exp < 0;
+    while($sum<$exp){
 	$lev++;
 	$sum+=int(exp(($lev-1)/15)*100);
     }
@@ -1327,6 +1329,8 @@ Content-type: text/html; charset=$IN{'encoding'}
     <dl>
       <dt>icon</dt>
       <dd>専用アイコンを指定します。</dd>
+      <dt>iconlist</dt>
+      <dd>アイコンリストの読み込みを省略します。(nolist|economy)</dd>
       <dt>absoluteIcon</dt>
       <dd>絶対指定アイコンを指定します。</dt>
       <dt>relativeIcon</dt>
@@ -1944,7 +1948,7 @@ sub can_access{
     }
     if (ref$CF{'honeypot'} eq 'ARRAY') {
 	for (@{$CF{'honeypot'}}) {
-	    if($_ eq $data->{'id'}){
+	    if($_ eq $data->{'id'} && $IN{'id'} ne $_ && $CK{'id'} ne $_){
 		$allow = 0;
 		last;
 	    }
@@ -1961,6 +1965,17 @@ sub can_access{
 		    }
 		}
 		last unless $allow;
+	    }
+	}
+    }
+    if (ref$CF{'ignore_list'} eq 'HASH') {
+	my $list = $CF{'ignore_list'}->{$IN{'id'}};
+	if (ref$list eq 'ARRAY') {
+	    for (@$list) {
+		if ($_ eq $data->{'id'}){
+		    $allow = -1;
+		    last;
+		}
 	    }
 	}
     }
@@ -2311,7 +2326,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	}elsif($DT{'body'}=~/^\/(\w+(?:\s.*)?)$/o){
 	    $IN{'mode'}='usercmd';
 	    $IN{'body'}=$1;
-	    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:($::CK{'id'}||$IN{'name'});
+	    $IN{'id'}=($DT{'id'}=~/(.{1,100})/o)?$1:$::CK{'id'};
 	    $IN{'opt'}=$1 if$DT{'opt'}=~/(.+)/o;
 	    
 	    $IN{'cook'}=$DT{'cook'}?1:0;
@@ -2363,7 +2378,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    #アイコンカタログ
 	    $IN{'page'}=($DT{'page'}&&$DT{'page'}=~/(-1|[1-9]\d*)/o)?int$1:1;
 	    $IN{'mode'}='icct';
-	}elsif(defined$DT{'id'}&&$DT{'name'}){
+	}elsif($DT{'id'}&&$DT{'name'}){
 	    #発言
 	    if(exists$DT{'body'}&&defined$DT{'body'}){
 		$IN{'body'}=$DT{'body'}||'';
@@ -2515,7 +2530,7 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $str=~s/\04/&#62;/go;
 	    $str=~tr/\05/&/;
 	}
-	$str=~s/\t/&#160;&#160;/go;
+	$str=~s/\t/&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;/go;
 	$str=~s/(\x20{2,})/'&#160;' x length$1/ego;
 	$str=~s/^[\n\r]+//go;
 	$str=~s/[\n\r]+$//go;
@@ -2899,8 +2914,13 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	$singleton&&die 'これはSingletonなのでnewを勝手に呼ばないで！getInstanceを使うこと';
 	my$class=ref($_[0])||$_[0];shift;
 	$logfile=Logfile->getInstance;
+	my %ignore;
+	if (ref$::CF{'ignore_list'} eq 'HASH') {
+	    %ignore = map{$_,1}@{$::CF{'ignore_list'}->{$::IN{'id'}}};
+	}
 	my$self={
 	    map{$_->[0]=>{$_->[1]=~/([^\t]+)=\t([^\t]*);\t/go}}
+	    grep{!$ignore{$_->[0]}}
 	    map{/^id=\t([^\t]+);\t((?:[^\t]+=\t[^\t]*;\t)+)/o;[$1,$2]}
 	    grep{/^id=\t[^\t]+;\t(?:[^\t]+=\t[^\t]*;\t)+/o}$logfile->getMembers
 	};
@@ -3238,7 +3258,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.44 $;
+    $CF{'correv'}=qq$Revision: 1.45 $;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
