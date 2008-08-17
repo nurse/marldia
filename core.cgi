@@ -179,14 +179,13 @@ sub mobileView{
     my $color = $IN{'_opt'}{'color'} ? ' color=' . $IN{'_opt'}{'color'} : '';
     my $bgcolor = $IN{'_opt'}{'bgcolor'} ? ' bgcolor=' . $IN{'_opt'}{'bgcolor'} : '';
     my $size =
-        $IN{'hua'} =~ /iPhone/o ? 50 :
-        $IN{'hua'} =~ /Mozilla|922SH/o ? 50 :
+        $IN{'hua'} =~ /Mozilla|922SH|iPhone/o ? 50 :
         4;
     my $style = '';
     if ($IN{'hua'} =~ /iPhone/o) {
       $style = <<_STYLE_;
 <style>
-body{width:1024}
+body{width:1024px}
 input{font-size:x-large}
 font{font-size:large}
 </style>
@@ -734,7 +733,7 @@ value="$CK{'opt'}" tabindex="102" onblur="isInitialized&&changeOption()"></TD>
 <TD colspan="3"><INPUT type="text" class="text" name="home" id="home" maxlength="200" size="40"
 style="ime-mode:inactive;width:200px" value="$CK{'home'}" tabindex="112"></TD>
 <TH style="letter-cpacing:-1px;text-align:center">-<A href="http://airemix.com/" title="Airemixへいってみる"
-target="_top">Marldia v$CF{'version'}</A>-</TH>
+target="_top">Marldia r$CF{'version'}</A>-</TH>
 </TR>
 </TABLE>
 </FORM>
@@ -1484,7 +1483,7 @@ _HTML_
 #
 sub showFooter{
     print<<"_HTML_";
-<DIV class="AiremixCopy">- <A href="http://airemix.com/" target="_top" title="Airemix - Marldia -">Airemix Marldia</A><VAR title="times:@{[times]}">v$CF{'version'}</VAR> -</DIV>
+<DIV class="AiremixCopy">- <A href="http://airemix.com/" target="_top" title="Airemix - Marldia -">Airemix Marldia</A><VAR title="times:@{[times]}">r$CF{'version'}</VAR> -</DIV>
 </BODY>
 </HTML>
 _HTML_
