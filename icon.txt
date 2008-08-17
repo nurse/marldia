@@ -1,0 +1,2067 @@
+<!-- Iconlist for Marldia -->
+<!-- LastModified 2006-03-11 [ by NARUSE,Yui ] -->
+<!-- "This file is written in utf-8, CRLF." 空 -->
+
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR 白と黒の境界線 †Black &#38; White Gorge† -->
+<!-- %VENDOR_URL http://homepage2.nifty.com/BWG/ -->
+<optgroup label="アメコミ系">
+	<option value="bwg/hellboy.png" title="HELL BOY">ヘルボーイ</option>
+	<option value="bwg/abraham.png" title="HELL BOY">エイブラハム</option>
+	<option value="bwg/master.png" title="HELL BOY">導師</option>
+	<option value="bwg/spawn.png" title="SPAWN">スポーン</option>
+	<option value="bwg/ghorst.png" title="GHORST RIDER">ゴーストライダー</option>
+	<option value="bwg/wolv.png" title="X-MEN">ウルヴァリン</option>
+	<option value="bwg/raven.png" title="McFARLANE TOYS">レイヴンスポーン</option>
+</optgroup>
+<optgroup label="GOTH">
+	<option value="bwg/g_kao.png">ゴス香里</option>
+	<option value="bwg/g_nayu.png">ゴス名雪</option>
+	<option value="bwg/g_sayu.png">ゴス佐祐理</option>
+	<option value="bwg/g_saya.png">ゴスさやか</option>
+	<option value="bwg/saki.png">花島咲</option>
+	<option value="bwg/sara.png">サラ</option>
+</optgroup>
+<!-- %END_VENDOR -->
+
+
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR 鬼包丁 -->
+<!-- %VENDOR_URL http://www.scn-net.ne.jp/~oni/ -->
+
+<!-- %BEGIN_COPY1 TYPE-MOON -->
+<!-- %COPY1_URL http://www.typemoon.com/ -->
+<optgroup label="Fate/stay night">
+	<OPTION value="oni/iconsaber.png">セイバー</OPTION>
+	<OPTION value="oni/iconsaber2.png">セイバー2</OPTION>
+	<OPTION value="oni/iconsaber3.png">セイバー3</OPTION>
+	<OPTION value="oni/iconsaber4.png">セイバー4</OPTION>
+	<OPTION value="oni/iconrin.png">凛</OPTION>
+	<OPTION value="oni/iconrinn.png">凛2</OPTION>
+	<OPTION value="oni/iconrin3.png">凛3</OPTION>
+	<OPTION value="oni/iconsakura.png">桜</OPTION>
+	<OPTION value="oni/iconsakura2.png">桜2</OPTION>
+	<OPTION value="oni/iconiriya.png">イリヤ</OPTION>
+	<OPTION value="oni/iconiriya2.png">イリヤ2</OPTION>
+	<OPTION value="oni/iconhuji.png">藤ねぇ</OPTION>
+	<OPTION value="oni/icontiger.png">藤ねぇ2</OPTION>
+	<OPTION value="oni/icontiger2.png">藤ねぇ3</OPTION>
+	<OPTION value="oni/iconcaster.png">キャス子</OPTION>
+	<OPTION value="oni/iconcaster3.png">キャス子2</OPTION>
+	<OPTION value="oni/iconcaster2.png">キャス子3</OPTION>
+	<OPTION value="oni/iconcaster4.png">キャス子4</OPTION>
+	<OPTION value="oni/iconcaster5.png">キャス子5</OPTION>
+	<OPTION value="oni/iconcastear.png">キャス子6</OPTION>
+	<OPTION value="oni/iconraider.png">ライダー</OPTION>
+	<OPTION value="oni/iconbzt.png">バゼット</OPTION>
+	<OPTION value="oni/iconbzt2.png">バゼット2</OPTION>
+	<OPTION value="oni/iconbzt3.png">バゼット3</OPTION>
+	<OPTION value="oni/iconbzt4.png">バゼット4</OPTION>
+	<OPTION value="oni/iconkaren.png">カレン</OPTION>
+	<OPTION value="oni/iconkaren2.png">カレン2</OPTION>
+	<OPTION value="oni/iconkaren3.png">カレン3</OPTION>
+	<OPTION value="oni/iconkaren4.png">カレン4</OPTION>
+	<OPTION value="oni/iconkuzuki.png">宗一郎</OPTION>
+	<OPTION value="oni/iconsera.png">セラ・リズ</OPTION>
+	<OPTION value="oni/iconsera2.png">セラ・リズ2</OPTION>
+	<OPTION value="oni/iconliz.png">セラ・リズ3</OPTION>
+	<OPTION value="oni/iconayako.png">美綴</OPTION>
+</optgroup>
+<optgroup label="月姫">
+	<option value="oni/iconark.png">アルクェイド</option>
+	<option value="oni/iconarc3.png">アルクェイド</option>
+	<option value="oni/iconarc4.png">アルクェイド</option>
+	<option value="oni/iconciel.png">シエル</option>
+	<option value="oni/iconciel3.png">シエル</option>
+	<option value="oni/iconakiha.png">秋葉</option>
+	<option value="oni/iconakiha3.png">秋葉</option>
+	<option value="oni/iconakiha4.png">秋葉</option>
+	<option value="oni/iconhisui.png">翡翠</option>
+	<option value="oni/iconkohaku.png">琥珀</option>
+	<option value="oni/iconkohaku2.png">琥珀</option>
+	<option value="oni/iconkohaku3.png">琥珀</option>
+	<option value="oni/iconsatuki.png">さっちん</option>
+	<option value="oni/iconakira.png">晶</option>
+	<option value="oni/iconakira2.png">晶</option>
+	<option value="oni/iconnanako.png">ななこ</option>
+	<option value="oni/iconnanako2.png">ななこ</option>
+	<option value="oni/iconren.png">レン</option>
+	<option value="oni/iconren2.png">レン</option>
+	<option value="oni/iconnero.png">ネロ</option>
+	<option value="oni/iconsion.png">シオン</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Leaf -->
+<!-- %COPY1_URL http://leaf.aquaplus.co.jp/ -->
+<optgroup label="痕">
+	<option value="oni/icontiduru.png">千鶴さん</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %END_VENDOR -->
+
+
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR 稚的遊戯 -->
+<!-- %VENDOR_URL http://t-yu-gi.com/ -->
+
+<optgroup label="遥かに仰ぎ、麗しの">
+	<option value="t-yu-gi/icon_miyabi01.png">風祭みやび</option>
+	<option value="t-yu-gi/icon_tonoko01.png">鷹月殿子</option>
+	<option value="t-yu-gi/icon_sino01.png">八乙女梓乃</option>
+	<option value="t-yu-gi/icon_misaki01.png">相沢美綺</option>
+	<option value="t-yu-gi/icon_sumika01.png">仁礼栖香</option>
+	<option value="t-yu-gi/icon_yu-na01.png">榛葉邑那</option>
+	<option value="t-yu-gi/icon_tu-hansan01.png">通販さん</option>
+	<option value="t-yu-gi/icon_ri-da01.png">リーダさん</option>
+	<option value="t-yu-gi/icon_misima01.png">三嶋鏡花</option>
+	<option value="t-yu-gi/icon_kanade01.png">上原奏</option>
+</optgroup>
+<optgroup label="CLANNAD">
+	<option value="t-yu-gi/aikonn_yukine.png">宮沢有紀寧</option>
+	<option value="t-yu-gi/aikonn_kouko.png">伊吹公子</option>
+	<option value="t-yu-gi/aikonn_misae.png">相楽美佐枝</option>
+	<option value="t-yu-gi/aikonn_sanae.png">古河早苗</option>
+	<option value="t-yu-gi/aikonn_nagisa11.png">古河渚</option>
+	<option value="t-yu-gi/aikonn_huuko11.png">伊吹風子</option>
+	<option value="t-yu-gi/aikonn_kotomi11.png">一ノ瀬ことみ</option>
+	<option value="t-yu-gi/aikonn_mei11.png">春原芽衣</option>
+	<option value="t-yu-gi/aikonn_ryou11.png">藤林椋</option>
+	<option value="t-yu-gi/aikonn_kyou11.png">藤林杏</option>
+	<option value="t-yu-gi/aikonn_tomoyo11.png">坂上智代</option>
+</optgroup>
+<!-- %END_VENDOR -->
+
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR ねこねこソフト -->
+<!-- %VENDOR_URL http://www.din.or.jp/~nekoneko/ -->
+<optgroup label="ねこねこ1">
+	<option value="nekoneko/ayame1.png">あやめ</option>
+	<option value="nekoneko/ginko.png">ぎんこちゃん</option>
+	<option value="nekoneko/asana.png">朝奈</option>
+	<option value="nekoneko/ne-chin.png">ね～ちん</option>
+	<option value="nekoneko/sagiri.png">さぎりさん</option>
+	<option value="nekoneko/sagiri2.png">さぎりさん2</option>
+	<option value="nekoneko/hiyori.png">ポンコツ</option>
+	<option value="nekoneko/yuki.png">ゆき</option>
+	<option value="nekoneko/kiyoka.png">きよか</option>
+	<option value="nekoneko/sindou.png">進藤</option>
+	<option value="nekoneko/senpai.png">センパイ</option>
+	<option value="nekoneko/hiyori2.png">ポンコツ２</option>
+	<option value="nekoneko/sindou2.png">まとも進藤</option>
+	<option value="nekoneko/izumi.png">いずみ</option>
+</optgroup>
+
+<optgroup label="ねこねこ2">
+	<option value="nekoneko/2izumi.png">和泉</option>
+	<option value="nekoneko/2ayame1.png">名無し</option>
+	<option value="nekoneko/2ayame2.png">あやめ</option>
+	<option value="nekoneko/2sagiri.png">狭霧</option>
+	<option value="nekoneko/2asana.png">朝奈</option>
+	<option value="nekoneko/2nechin.png">ねーちん</option>
+	<option value="nekoneko/2ginko.png">銀子</option>
+	<option value="nekoneko/2isuna.png">石切</option>
+	<option value="nekoneko/2newpon.png">νぽんこつ</option>
+	<option value="nekoneko/2hiyorin.png">ひよりん</option>
+	<option value="nekoneko/2yuki.png">雪希</option>
+	<option value="nekoneko/2kiyoka.png">清香</option>
+	<option value="nekoneko/2yakama.png">やかま進藤</option>
+	<option value="nekoneko/2senpai.png">先輩</option>
+	<option value="nekoneko/2omake.png">げっちゅ</option>
+	<option value="nekoneko/2yamada.png">山田さん</option>
+	<option value="nekoneko/2suka.png">スカーレット</option>
+	<option value="nekoneko/2yuka.png">結花</option>
+	<option value="nekoneko/2adoson.png">アドソ</option>
+</optgroup>
+
+<optgroup label="ねこねこ3">
+	<option value="nekoneko/arrems.png">アラミス</option>
+	<option value="nekoneko/chuchu.png">チュチュ</option>
+	<option value="nekoneko/fou.png">ファウ</option>
+	<option value="nekoneko/rutent.png">ルタ</option>
+	<option value="nekoneko/fuyuka.png">冬佳</option>
+	<option value="nekoneko/magical_yuki.png">まじかる雪希</option>
+	<option value="nekoneko/mecha.png">メカ進藤</option>
+</optgroup>
+
+<optgroup label="ねこねこ4">
+	<option value="nekoneko/hakone.png">ハコネ夏</option>
+	<option value="nekoneko/120_whakone.png">ハコネ冬</option>
+	<option value="nekoneko/120_shakone.png">ハコネ夏</option>
+	<option value="nekoneko/aka_arrems.png">アラミス</option>
+	<option value="nekoneko/aka_chuchu.png">チュチュ</option>
+	<option value="nekoneko/aka_fou.png">ファウ</option>
+	<option value="nekoneko/aka_rutent.png">ルタ</option>
+	<option value="nekoneko/aka_isuna.png">イスナ</option>
+	<option value="nekoneko/aka_nimruems.png">ニムラム</option>
+	<option value="nekoneko/FD_magihiyo.png">まじ☆ひよ</option>
+	<option value="nekoneko/FD_magiyuki.png">まじ☆雪希</option>
+	<option value="nekoneko/FD_scarlet.png">スカーレット</option>
+	<option value="nekoneko/mizu_yuki.png">雪希</option>
+	<option value="nekoneko/mizu_hiyori.png">日和</option>
+	<option value="nekoneko/mizu_shinpon.png">新ぽん</option>
+	<option value="nekoneko/mizu_kiyoka.png">清香</option>
+	<option value="nekoneko/mizu_yshindo.png">進藤(やかま)</option>
+	<option value="nekoneko/mizu_oshindoh.png">進藤(おとな)</option>
+	<option value="nekoneko/mizu_asami.png">先輩</option>
+	<option value="nekoneko/mizu_fuyuka.png">冬佳</option>
+	<option value="nekoneko/gin_nanashi.png">あやめ(名無し)</option>
+	<option value="nekoneko/gin_sagiri.png">狭霧</option>
+	<option value="nekoneko/gin_asana.png">朝奈</option>
+	<option value="nekoneko/gin_neechin.png">ねーちん</option>
+	<option value="nekoneko/gin_ginko.png">銀子</option>
+	<option value="nekoneko/gin_ayame5.png">吉備あやめ</option>
+	<option value="nekoneko/white_izumi.png">和泉</option>
+	<option value="nekoneko/white_madoka.png">まどか</option>
+	<option value="nekoneko/white_megumi.png">めぐみ</option>
+</optgroup>
+<!-- %END_VENDOR -->
+
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR 行脚堂 -->
+<!-- %VENDOR_URL http://www.ccsakura.org/home/angyadow/ -->
+
+<!-- %BEGIN_COPY1 Leaf -->
+<!-- %COPY1_URL http://leaf.aquaplus.co.jp/ -->
+<optgroup label="こみっくパーティー">
+	<option value="angyadow/sik_mizuki.png">高瀬瑞樹</option>
+	<option value="angyadow/sik_minami.png">牧村南</option>
+	<option value="angyadow/sik_eimi.png">大庭詠美</option>
+	<option value="angyadow/sik_yu.png">猪名川由宇</option>
+	<option value="angyadow/sik_aya.png">長谷部彩</option>
+	<option value="angyadow/sik_reiko.png">芳賀玲子</option>
+	<option value="angyadow/sik_chisa.png">塚本千紗</option>
+	<option value="angyadow/sik_asahi.png">桜井あさひ</option>
+	<option value="angyadow/sik_ikumi.png">立川郁美</option>
+	<option value="angyadow/sik_subaru.png">御影すばる</option>
+	<option value="angyadow/sik_kazuki.png">千堂和樹</option>
+	<option value="angyadow/sik_taishi.png">九品仏大志</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Visual Art's/Key -->
+<!-- %COPY1_URL http://key.visualarts.gr.jp/ -->
+<optgroup label="Air">
+	<option value="angyadow/sik_misuzu.png">神尾観鈴</option>
+	<option value="angyadow/sik_minagi.png">遠野美凪</option>
+	<option value="angyadow/sik_kano.png">霧島佳乃</option>
+	<option value="angyadow/sik_haruko.png">神尾晴子</option>
+	<option value="angyadow/sik_michiru.png">みちる</option>
+	<option value="angyadow/sik_hijiri.png">霧島聖</option>
+	<option value="angyadow/sik_kanna.png">神奈備命</option>
+	<option value="angyadow/sik_uraha.png">裏葉</option>
+</optgroup>
+<!-- %END_COPY1 -->
+<!-- %END_VENDOR -->
+
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR くもりのち晴れ -->
+<!-- %VENDOR_URL http://www12.wind.ne.jp/s15sakura/ -->
+
+<!-- %BEGIN_COPY1 Ｆ＆Ｃ -->
+<!-- %COPY1_URL http://www.fandc.co.jp/ -->
+<optgroup label="Piaキャロットへようこそ">
+	<option value="akaho/a80.png">さやか</option>
+	<option value="akaho/a81.png">さやか２</option>
+	<option value="akaho/a85.png">さやか３</option>
+	<option value="akaho/ai42.png">さやか４</option>
+	<option value="akaho/ai43.png">さやか５</option>
+	<option value="akaho/ai45.png">さやか６</option>
+	<option value="akaho/a30.png">さやか７</option>
+	<option value="akaho/a32.png">さやか８</option>
+	<option value="akaho/a56.png">さやか９</option>
+	<option value="akaho/a67.png">さやか１０</option>
+	<option value="akaho/a68.png">さやか１１</option>
+	<option value="akaho/ai23.png">さやかa</option>
+	<option value="akaho/ai34.png">さやか２a</option>
+	<option value="akaho/ai35.png">さやか３a</option>
+	<option value="akaho/ai22.png">ともみ</option>
+	<option value="akaho/ai36.png">ともみ２</option>
+	<option value="akaho/ai44.png">ともみ３</option>
+	<option value="akaho/a32.png">ともみ４</option>
+	<option value="akaho/a52.png">ともみ５</option>
+	<option value="akaho/a70.png">ともみ６</option>
+	<option value="akaho/a31.png">ともみ４a</option>
+	<option value="akaho/ai24.png">朱美</option>
+	<option value="akaho/ai37.png">朱美２</option>
+	<option value="akaho/ai38.png">朱美３</option>
+	<option value="akaho/a57.png">朱美４</option>
+	<option value="akaho/a71.png">朱美５</option>
+	<option value="akaho/ai31.png">美春</option>
+	<option value="akaho/ai33.png">ナナ</option>
+	<option value="akaho/a82.png">紀子</option>
+	<option value="akaho/a58.png">紀子２</option>
+	<option value="akaho/a59.png">ユキ</option>
+	<option value="akaho/a53.png">あずさ</option>
+	<option value="akaho/ai32.png">美奈</option>
+	<option value="akaho/a54.png">美奈２</option>
+	<option value="akaho/ai25.png">さとみ</option>
+</optgroup>
+<optgroup label="With you">
+	<option value="akaho/ai50.png">乃絵美</option>
+	<option value="akaho/a55.png">乃絵美２</option>
+	<option value="akaho/a51.png">菜織</option>
+	<option value="akaho/a88.png">菜織a</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<optgroup label="その他">
+	<option value="akaho/65.png">透子</option>
+	<option value="akaho/a33.png">音夢</option>
+	<option value="akaho/a62.png">小麦</option>
+	<option value="akaho/a34.png">ありさ</option>
+	<option value="akaho/a35.png">ありさ２</option>
+	<option value="akaho/a36.png">ありさ３</option>
+	<option value="akaho/a66.png">楓</option>
+	<option value="akaho/a37.png">ソラ</option>
+	<option value="akaho/a38.png">ニース</option>
+	<option value="akaho/a65.png">パラミンシア</option>
+	<option value="akaho/a39.png">太一</option>
+	<option value="akaho/a45.png">ヴィン</option>
+	<option value="akaho/a46.png">聖夜</option>
+	<option value="akaho/a40.png">ちとせ</option>
+	<option value="akaho/ai46.png">小町</option>
+	<option value="akaho/ai48.png">こだま</option>
+	<option value="akaho/ai40.png">さくら</option>
+	<option value="akaho/ai49.png">さくら２</option>
+	<option value="akaho/ai39.png">エリカ</option>
+	<option value="akaho/a78.png">ウサミミ</option>
+	<option value="akaho/a79.png">ネコミミ</option>
+	<option value="akaho/ai7.png">オリジ１</option>
+	<option value="akaho/ai8.png">オリジ２</option>
+	<option value="akaho/ai9.png">オリジ３</option>
+	<option value="akaho/ai28.png">オリジ４</option>
+	<option value="akaho/ai30.png">オリジ５</option>
+	<option value="akaho/ai47.png">オリジ６</option>
+	<option value="akaho/a41.png">オリジ７</option>
+	<option value="akaho/a42.png">オリジ８</option>
+	<option value="akaho/a47.png">オリジ９</option>
+	<option value="akaho/a72.png">オリジ１０</option>
+	<option value="akaho/a73.png">オリジ１１</option>
+	<option value="akaho/a74.png">オリジ１２</option>
+	<option value="akaho/a75.png">オリジ１３</option>
+	<option value="akaho/a76.png">オリジ１４</option>
+	<option value="akaho/a77.png">オリジ１５</option>
+	<option value="akaho/a43.png">マジっすか？！</option>
+	<option value="akaho/a44.png">はにゃ～ん</option>
+</optgroup>
+<!-- %END_VENDOR -->
+
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR 星屑の欠片 -->
+<!-- %VENDOR_URL http://www3.to/hosikuzu -->
+
+<!-- %BEGIN_COPY1 Visual Art's/Key -->
+<!-- %COPY1_URL http://key.visualarts.gr.jp/ -->
+<optgroup label="Clannad">
+	<option value="hosikuzu/icon67.png">古河渚</option>
+	<option value="hosikuzu/icon68.png">古河早苗</option>
+	<option value="hosikuzu/icon69.png">藤林杏</option>
+	<option value="hosikuzu/icon70.png">藤林椋</option>
+	<option value="hosikuzu/icon71.png">伊吹風子</option>
+	<option value="hosikuzu/icon72.png">伊吹公子</option>
+	<option value="hosikuzu/icon73.png">一ノ瀬ことみ</option>
+	<option value="hosikuzu/icon74.png">坂上智代</option>
+	<option value="hosikuzu/icon75.png">宮沢有紀寧</option>
+	<option value="hosikuzu/icon76.png">春原芽</option>
+</optgroup>
+<optgroup label="Air">
+	<option value="hosikuzu/icon14.png">神尾観鈴</option>
+	<option value="hosikuzu/icon16.png">神尾晴子</option>
+	<option value="hosikuzu/icon17.png">霧島佳乃</option>
+	<option value="hosikuzu/icon18.png">霧島聖</option>
+	<option value="hosikuzu/icon19.png">遠野美凪</option>
+	<option value="hosikuzu/icon20.png">みちる</option>
+	<option value="hosikuzu/icon21.png">国崎往人</option>
+	<option value="hosikuzu/icon22.png">きゅぴーん！</option>
+	<option value="hosikuzu/icon23.png">神奈</option>
+	<option value="hosikuzu/icon24.png">裏葉</option>
+</optgroup>
+<optgroup label="Kanon">
+	<option value="hosikuzu/icon01.png">ウイングカノン</option>
+	<option value="hosikuzu/icon02.png">カノンデスサイズ</option>
+	<option value="hosikuzu/icon03.png">カノンヘヴィアームズ</option>
+	<option value="hosikuzu/icon05.png">カノンサンドロック</option>
+	<option value="hosikuzu/icon06.png">シェンロンカノン</option>
+	<option value="hosikuzu/icon07.png">トールギス２</option>
+	<option value="hosikuzu/icon08.png">メルクリウス</option>
+	<option value="hosikuzu/icon09.png">ミシオン</option>
+	<option value="hosikuzu/icon10.png">ヴァイエイト</option>
+	<option value="hosikuzu/icon11.png">アークデーモン</option>
+	<option value="hosikuzu/icon12.png">じょにー</option>
+	<option value="hosikuzu/icon13.png">北川潤</option>
+	<option value="hosikuzu/icon00.png">あゆ</option>
+	<option value="hosikuzu/icon77.png">相沢祐一</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Tactics -->
+<!-- %COPY1_URL http://www.tactics.co.jp/ -->
+<optgroup label="ONE">
+	<option value="hosikuzu/icon25.png">だよもん</option>
+	<option value="hosikuzu/icon26.png">鉄拳七瀬</option>
+	<option value="hosikuzu/icon27.png">澪なの</option>
+	<option value="hosikuzu/icon28.png">みゅ～</option>
+	<option value="hosikuzu/icon29.png">いやです。</option>
+	<option value="hosikuzu/icon30.png">みさき</option>
+	<option value="hosikuzu/icon31.png">深山雪見</option>
+	<option value="hosikuzu/icon32.png">柚木詩子</option>
+	<option value="hosikuzu/icon33.png">広瀬真希</option>
+</optgroup>
+<optgroup label="MOON.">
+	<option value="hosikuzu/icon59.png">天沢郁未</option>
+	<option value="hosikuzu/icon60.png">巳間晴香</option>
+	<option value="hosikuzu/icon61.png">名倉由依</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 TYPE-MOON -->
+<!-- %COPY1_URL http://www.typemoon.com/ -->
+<optgroup label="月姫">
+	<option value="hosikuzu/icon62.png">アルクェイド</option>
+	<option value="hosikuzu/icon63.png">シエル</option>
+	<option value="hosikuzu/icon64.png">秋葉</option>
+	<option value="hosikuzu/icon65.png">翡翠</option>
+	<option value="hosikuzu/icon66.png">琥珀</option>
+</optgroup>
+<!-- %END_COPY1 -->
+<!-- %END_VENDOR -->
+
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR ぶる～うぉ～たぁ -->
+<!-- %VENDOR_URL http://www3.to/rio-ao -->
+
+<!-- %BEGIN_COPY1 コゲどんぼ -->
+<!-- %COPY1_URL http://www.interq.or.jp/asia/koge/ -->
+<optgroup label="コゲどんぼさん">
+	<option value="rio-ao/17.png">でじこ</option>
+	<option value="rio-ao/18.png">ぷちこ</option>
+	<option value="rio-ao/19.png">うさだ</option>
+	<option value="rio-ao/20.png">ぴよこ</option>
+	<option value="rio-ao/21.png">リク</option>
+	<option value="rio-ao/22.png">カイ</option>
+	<option value="rio-ao/23.png">クウ</option>
+	<option value="rio-ao/24.png">美紗</option>
+	<option value="rio-ao/25.png">紫亜</option>
+	<option value="rio-ao/26.png">早紗</option>
+	<option value="rio-ao/27.png">樋口湖太郎</option>
+	<option value="rio-ao/28.png">綾小路天</option>
+	<option value="rio-ao/29.png">植松小星</option>
+	<option value="rio-ao/30.png">御手洗大</option>
+	<option value="rio-ao/31.png">御手洗薫</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 CLAMP -->
+<!-- %COPY1_URL http://www.clamp-net.com/ -->
+<optgroup label="カードキャプターさくら">
+	<option value="rio-ao/32.png">木之本桜</option>
+	<option value="rio-ao/33.png">大道寺知世</option>
+	<option value="rio-ao/34.png">李小狼</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Visual Art's/Key -->
+<!-- %COPY1_URL http://key.visualarts.gr.jp/ -->
+<optgroup label="Key">
+	<option value="rio-ao/35.png">水瀬名雪</option>
+	<option value="rio-ao/36.png">月宮あゆ</option>
+	<option value="rio-ao/37.png">佐渡真琴</option>
+	<option value="rio-ao/38.png">川澄舞</option>
+	<option value="rio-ao/39.png">美坂栞</option>
+	<option value="rio-ao/40.png">倉田佐祐理</option>
+	<option value="rio-ao/41.png">神尾観鈴</option>
+	<option value="rio-ao/42.png">霧島佳乃</option>
+	<option value="rio-ao/43.png">遠野美凪</option>
+	<option value="rio-ao/44.png">みちる</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 高屋奈月 -->
+<!-- %COPY1_URL http://www.hakusensha.co.jp/furuba/ -->
+<optgroup label="フルーツバスケット">
+	<option value="rio-ao/45.png">本田透</option>
+	<option value="rio-ao/46.png">草摩由希</option>
+	<option value="rio-ao/47.png">草摩夾</option>
+	<option value="rio-ao/48.png">草摩紅葉</option>
+	<option value="rio-ao/49.png">草摩杞紗</option>
+	<option value="rio-ao/50.png">草摩楽羅</option>
+	<option value="rio-ao/51.png">草摩發春</option>
+	<option value="rio-ao/52.png">草摩紫呉</option>
+	<option value="rio-ao/53.png">草摩はとり</option>
+	<option value="rio-ao/54.png">草摩綾女</option>
+	<option value="rio-ao/55.png">草摩利津</option>
+	<option value="rio-ao/56.png">草摩緋路</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 スタジオジブリ -->
+<!-- %COPY1_URL http://www.ntv.co.jp/ghibli/ -->
+<optgroup label="千と千尋の神隠し">
+	<option value="rio-ao/57.png">荻野千尋</option>
+	<option value="rio-ao/58.png">ハク</option>
+	<option value="rio-ao/59.png">リン</option>
+	<option value="rio-ao/60.png">ハク竜</option>
+	<option value="rio-ao/61.png">カオナシ</option>
+	<option value="rio-ao/62.png">坊ねずみ</option>
+	<option value="rio-ao/63.png">おしらさま</option>
+	<option value="rio-ao/64.png">オオトリさま</option>
+	<option value="rio-ao/65.png">青蛙</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 WARNER BROS -->
+<!-- %COPY1_URL http://harrypotter.warnerbros.co.jp/ -->
+<optgroup label="ハリー・ポッター">
+	<option value="rio-ao/66.png">ハリー・ポッター</option>
+	<option value="rio-ao/67.png">ロン・ウィーズリー</option>
+	<option value="rio-ao/68.png">ハーマイオニー・グレンジャー</option>
+	<option value="rio-ao/69.png">ドラコ・マルフォイ</option>
+	<option value="rio-ao/70.png">ジニー･ウィーズリー</option>
+	<option value="rio-ao/71.png">フレッド＆ジョージ・ウィーズリー</option>
+	<option value="rio-ao/72.png">パーシー・ウィーズリー</option>
+	<option value="rio-ao/73.png">オリバー・ウッド</option>
+	<option value="rio-ao/74.png">チョウ・チャン</option>
+	<option value="rio-ao/75.png">トム・リドル</option>
+	<option value="rio-ao/76.png">リーマス・ルーピン</option>
+	<option value="rio-ao/77.png">シリウス・ブラック</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<optgroup label="ぶる～うぉ～たぁオリジナル">
+	<option value="rio-ao/01.png">ぶるぅ</option>
+	<option value="rio-ao/02.png">みぃず</option>
+	<option value="rio-ao/03.png">てぃあ</option>
+	<option value="rio-ao/04.png">るりぃ</option>
+	<option value="rio-ao/05.png">望加</option>
+	<option value="rio-ao/06.png">森羅</option>
+	<option value="rio-ao/07.png">河辺咲良</option>
+	<option value="rio-ao/08.png">江南大地</option>
+	<option value="rio-ao/09.png">江南勇地</option>
+	<option value="rio-ao/10.png">江南海斗</option>
+	<option value="rio-ao/11.png">クリーム</option>
+	<option value="rio-ao/12.png">ライチ</option>
+	<option value="rio-ao/13.png">アイス</option>
+	<option value="rio-ao/14.png">ショコラ</option>
+	<option value="rio-ao/15.png">カカオ</option>
+	<option value="rio-ao/16.png">ココア</option>
+</optgroup>
+<!-- %END_VENDOR -->
+
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR Witch -->
+<!-- %VENDOR_URL http://www.witch.gr.jp/ -->
+<optgroup label="AliveRenewal">
+	<option value="witch/haruna1.png">春奈おすまし</option>
+	<option value="witch/haruna2.png">春奈モジモジ</option>
+	<option value="witch/haruna3.png">春奈プンスカ</option>
+	<option value="witch/haruna4.png">春奈ビックリ</option>
+	<option value="witch/kuon1.png">久遠ムス～</option>
+	<option value="witch/kuon2.png">久遠プンスカ</option>
+	<option value="witch/kuon3.png">久遠ニッコリ</option>
+	<option value="witch/kuon4.png">久遠ポリポリ</option>
+	<option value="witch/kuon5.png">久遠ガックリ</option>
+	<option value="witch/kuon6.png">久遠ニヤリ</option>
+	<option value="witch/lilith1.png">リリス</option>
+	<option value="witch/lilith2.png">リリしゅ</option>
+	<option value="witch/lilith3.png">リリぴょん</option>
+	<option value="witch/marie1.png">万理恵ウィンク</option>
+	<option value="witch/marie2.png">万理恵いや～ん</option>
+	<option value="witch/marie3.png">万理恵ガックリ</option>
+	<option value="witch/marie4.png">万理恵ぼんやり</option>
+	<option value="witch/natsumi1.png">菜摘ん～？</option>
+	<option value="witch/natsumi2.png">菜摘ノリノリ！</option>
+	<option value="witch/natsumi3.png">菜摘ニヤリング</option>
+	<option value="witch/natsumi4.png">菜摘ウィンク</option>
+	<option value="witch/selphith1.png">セリフィスビックリ</option>
+	<option value="witch/selphith2.png">セリフィスにっこり</option>
+	<option value="witch/selphith3.png">セリフィスおすまし</option>
+	<option value="witch/setuna2a.png">せつなさんおすまし</option>
+	<option value="witch/setuna2b.png">せつなさんグスグス</option>
+	<option value="witch/setuna2c.png">せつなさんドコ見てるの？</option>
+	<option value="witch/setuna2d.png">せつなさんドッキリ</option>
+	<option value="witch/setsuna1.png">刹那イジイジ</option>
+	<option value="witch/setsuna2.png">刹那ムキーッ</option>
+	<option value="witch/setsuna3.png">刹那殺気</option>
+	<option value="witch/setsuna4.png">刹那、使徒ト成ル</option>
+	<option value="witch/setsuna5.png">刹那しどろもどろ</option>
+	<option value="witch/setsuna6.png">刹那さわやかサン</option>
+	<option value="witch/setsuna7.png">刹那、突撃</option>
+	<option value="witch/takasi1.png">孝テヘヘっ</option>
+	<option value="witch/takasi2.png">孝ガックリ</option>
+	<option value="witch/takasi3.png">孝ビックリ</option>
+	<option value="witch/vall1.png">ヴァルびっくり</option>
+	<option value="witch/vall2.png">ヴァルおすまし</option>
+	<option value="witch/vall3.png">ヴァルっち高笑い</option>
+	<option value="witch/vall4.png">ヴァルちっち</option>
+	<option value="witch/yomi1.png">夜美先生にっこり</option>
+	<option value="witch/yomi2.png">夜美先生病人です</option>
+	<option value="witch/yomi3.png">夜美先生ケガ人です</option>
+	<option value="witch/yu-ji1.png">祐二くんテレテレ</option>
+	<option value="witch/yu-ji2.png">祐二くんボンヤリ</option>
+	<option value="witch/yu-ji3.png">祐二くん壊れる</option>
+	<option value="witch/yu-ji4.png">祐二くんショーック！</option>
+	<option value="witch/yuriko1.png">祐里子、お疲れ</option>
+	<option value="witch/yuriko2.png">祐里子んっきゃーッ！</option>
+	<option value="witch/yuriko3.png">祐里子ニコニコ</option>
+	<option value="witch/yuriko4.png">祐里子ただ今思案中</option>
+	<option value="witch/yuriko5.png">祐里子ウルウル</option>
+	<option value="witch/yuriko6.png">祐里子ニヤリング</option>
+	<option value="witch/yuzki1.png">柚ちゃんウィンク</option>
+	<option value="witch/yuzki2.png">柚ちゃんニコニコ</option>
+	<option value="witch/yuzki3.png">柚ちゃんハテナ</option>
+	<option value="witch/yuzki4.png">柚ちゃんウルウル</option>
+</optgroup>
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<optgroup label="Milkyway">
+	<option value="witch/akira1.png">晶にっこり</option>
+	<option value="witch/akira2.png">晶ギワク</option>
+	<option value="witch/akira3.png">晶びっくり</option>
+	<option value="witch/akira4.png">晶ガッカリ</option>
+	<option value="witch/ayu1.png">あゆおねだり</option>
+	<option value="witch/ayu2.png">あゆニッコリ</option>
+	<option value="witch/ayu3.png">あゆおすまし</option>
+	<option value="witch/ayu-cos1.png">マジカルあゆニッコリ</option>
+	<option value="witch/ayu-cos2.png">マジカルあゆおねだり</option>
+	<option value="witch/ayu-cos3.png">マジカルあゆポリポリ</option>
+	<option value="witch/ayu-cos4.png">マジカルあゆプンスカ</option>
+	<option value="witch/haruka1.png">悠おすまし</option>
+	<option value="witch/haruka2.png">悠ウルルン</option>
+	<option value="witch/haruka3.png">悠ドッキリ</option>
+	<option value="witch/haruka4.png">悠プンスカ</option>
+	<option value="witch/little-mayu1.png">リトルまゆニッコリ</option>
+	<option value="witch/little-mayu2.png">リトルまゆおすまし</option>
+	<option value="witch/little-mayu3.png">リトルまゆシュ～ン</option>
+	<option value="witch/mayu1.png">まゆぽん不安</option>
+	<option value="witch/mayu2.png">まゆぽんシュ～ン</option>
+	<option value="witch/mayu3.png">まゆぽんおすまし</option>
+	<option value="witch/mayu4.png">まゆぽんスマイル</option>
+	<option value="witch/naomi1.png">奈緒美ムス～</option>
+	<option value="witch/naomi2.png">奈緒美びっくり</option>
+	<option value="witch/naomi3.png">奈緒美ビーム</option>
+	<option value="witch/naomi4.png">奈緒美コテコテスマイル</option>
+	<option value="witch/remy1.png">レミ高笑い</option>
+	<option value="witch/remy2.png">レミむにゃ～ん</option>
+	<option value="witch/remy3.png">レミ疑問</option>
+	<option value="witch/remy4.png">レミおすまし</option>
+	<option value="witch/remy5.png">レミ逆ギレ</option>
+	<option value="witch/remy6.png">レミにゃはは・・・</option>
+	<option value="witch/remy7.png">レミうっとり</option>
+	<option value="witch/remy8.png">レミギラギラ</option>
+	<option value="witch/rin1.png">チャイナ倫だよお兄さんっ</option>
+	<option value="witch/rin2.png">チャイナ倫よ、そんな目で俺を見るな</option>
+	<option value="witch/rin3.png">倫おすまし</option>
+	<option value="witch/rin4.png">倫ウィンク</option>
+	<option value="witch/rin5.png">倫あわわっ</option>
+	<option value="witch/sakuya1.png">咲夜ウィンク</option>
+	<option value="witch/sakuya2.png">咲夜うぇぇぇん</option>
+	<option value="witch/sakuya3.png">咲夜あわわ</option>
+	<option value="witch/sakuya4.png">咲夜ただ今思案中</option>
+	<option value="witch/sakuya5.png">咲夜ニコニコ</option>
+	<option value="witch/sakuya-cos1.png">いちごんウルルン</option>
+	<option value="witch/sakuya-cos2.png">いちごんクラッシュ</option>
+	<option value="witch/sakuya-cos3.png">いちごん真っ二ツ</option>
+	<option value="witch/sayura1.png">さゆらんお疲れ様</option>
+	<option value="witch/sayura2.png">さゆらんニコニコ</option>
+	<option value="witch/sayura3.png">さゆらんおすまし</option>
+	<option value="witch/sayura-cos1.png">コスさゆらんおすまし</option>
+	<option value="witch/sayura-cos2.png">コスさゆらんモジモジ</option>
+	<option value="witch/sayura-cos3.png">コスさゆらん困っちゃう</option>
+	<option value="witch/tihiro1.png">千尋おすまし</option>
+	<option value="witch/tihiro2.png">千尋不安</option>
+	<option value="witch/tihiro3.png">千尋大激怒</option>
+	<option value="witch/tihiro4.png">千尋うれしはずかし</option>
+</optgroup>
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<optgroup label="Milkyway2">
+	<option value="witch/akira01.png">晶照れ</option>
+	<option value="witch/akira02.png">晶にっこり</option>
+	<option value="witch/akira11.png">晶残念</option>
+	<option value="witch/akira12.png">晶え～？</option>
+	<option value="witch/akira13.png">晶おすまし</option>
+	<option value="witch/akira21.png">晶てへ</option>
+	<option value="witch/akira22.png">晶ぶ～</option>
+	<option value="witch/akira23.png">晶ねむねむ</option>
+	<option value="witch/alice01.png">ありすきょとん</option>
+	<option value="witch/alice02.png">ありすにこりん</option>
+	<option value="witch/alice11.png">ありすへろへろ～</option>
+	<option value="witch/alice12.png">ありす貧血！！</option>
+	<option value="witch/alice13.png">ありすぐすん・・・</option>
+	<option value="witch/alice21.png">ありすうるる</option>
+	<option value="witch/alice22.png">ありすうるるん</option>
+	<option value="witch/alice23.png">ありすなでなで</option>
+	<option value="witch/aya01.png">礼ラッキー</option>
+	<option value="witch/aya02.png">礼ぷんぷん</option>
+	<option value="witch/aya11.png">礼ふ～ん</option>
+	<option value="witch/aya12.png">礼魔術</option>
+	<option value="witch/aya21.png">礼ふにゅ～</option>
+	<option value="witch/aya22.png">礼得意！</option>
+	<option value="witch/aya23.png">礼あわわ・・・</option>
+	<option value="witch/ran01.png">藍にこ</option>
+	<option value="witch/ran02.png">藍にこにこ</option>
+	<option value="witch/ran11.png">藍つ～ん</option>
+	<option value="witch/ran12.png">藍ぷち怒り</option>
+	<option value="witch/ran13.png">藍ぷ～</option>
+	<option value="witch/ran21.png">藍あわわ</option>
+	<option value="witch/ran22.png">藍喝！</option>
+	<option value="witch/ran23.png">藍はぁ～</option>
+	<option value="witch/remon01.png">恋文ほえほえ？</option>
+	<option value="witch/remon02.png">恋文わーい</option>
+	<option value="witch/remon11.png">恋文おねだり</option>
+	<option value="witch/remon12.png">恋文びっくり</option>
+	<option value="witch/saya01.png">沙耶疑い</option>
+	<option value="witch/saya02.png">沙耶にこり</option>
+	<option value="witch/saya11.png">沙耶疲れ気味</option>
+	<option value="witch/saya12.png">沙耶ごめんなさい</option>
+	<option value="witch/saya21.png">沙耶ため息</option>
+	<option value="witch/saya22.png">沙耶照れ</option>
+	<option value="witch/saya23.png">沙耶まあまあ</option>
+	<option value="witch/yumi01.png">祐美にっこり</option>
+	<option value="witch/yumi02.png">祐美にこ</option>
+	<option value="witch/yumi11.png">祐美怒り！</option>
+	<option value="witch/yumi12.png">祐美あっそ</option>
+	<option value="witch/yumi13.png">祐美ふ～ん</option>
+	<option value="witch/yumi21.png">祐美困り顔</option>
+	<option value="witch/yumi22.png">祐美ふつ～</option>
+	<option value="witch/yumi23.png">祐美はぁ？</option>
+	<option value="witch/mai01.png">麻衣にっこり</option>
+	<option value="witch/mai02.png">麻衣困った</option>
+	<option value="witch/mai03.png">麻衣照れ・・・</option>
+	<option value="witch/mai21.png">麻衣びっくり</option>
+	<option value="witch/ma22.png">麻衣悲しい</option>
+	<option value="witch/mai23.png">麻衣困り顔</option>
+	<option value="witch/kouzi01.png">浩二フゥ</option>
+	<option value="witch/kouzi02.png">浩二滝涙</option>
+	<option value="witch/kouzi03.png">浩二がちょ～ん</option>
+	<option value="witch/kouzi04.png">浩二ぶぅ</option>
+	<option value="witch/kouzi05.png">浩二きらきら</option>
+	<option value="witch/naomi01.png">奈緒美ぶりぶり～</option>
+	<option value="witch/naomi02.png">奈緒美ふつー</option>
+	<option value="witch/ayu01.png">亜由美ぷんぷん</option>
+	<option value="witch/ayu02.png">亜由美てへへ</option>
+	<option value="witch/ayumi11.png">亜由美おすまし</option>
+	<option value="witch/haruka01.png">悠普通</option>
+	<option value="witch/haruka02.png">悠びっくり</option>
+	<option value="witch/haruka11.png">悠照れ</option>
+	<option value="witch/haruka12.png">悠にっこり</option>
+	<option value="witch/haruka21.png">悠こまったわ</option>
+	<option value="witch/haruka22.png">悠はぁ</option>
+	<option value="witch/haruka23.png">悠ブチ切れ</option>
+	<option value="witch/mayu01.png">繭にへらん</option>
+	<option value="witch/mayu02.png">繭むぅ</option>
+	<option value="witch/mayu11.png">繭照れ照れ</option>
+	<option value="witch/mayu12.png">繭にこぉ</option>
+	<option value="witch/remi01.png">恋水猜疑</option>
+	<option value="witch/remi02.png">恋水いちご～</option>
+	<option value="witch/remi11.png">恋水笑い</option>
+	<option value="witch/remi12.png">恋水笑み</option>
+	<option value="witch/rin01.png">倫悪巧み</option>
+	<option value="witch/rin02.png">倫あわわ</option>
+	<option value="witch/rin11.png">倫ウィンク</option>
+	<option value="witch/rin12.png">倫照れ</option>
+	<option value="witch/sakuya01.png">咲夜きゅ～～</option>
+	<option value="witch/sakuya02.png">咲夜にっこり</option>
+	<option value="witch/sakuya11.png">咲夜照れ・・・</option>
+	<option value="witch/sakuya12.png">咲夜あうあう</option>
+	<option value="witch/sakuya13.png">咲夜おすまし</option>
+	<option value="witch/sakuya21.png">咲夜ネコぐち</option>
+	<option value="witch/sakuya22.png">咲夜あわわあわわ</option>
+	<option value="witch/sakuya23.png">咲夜ナミダ～</option>
+	<option value="witch/sayura01.png">さゆら苦笑い</option>
+	<option value="witch/sayura02.png">さゆら安心</option>
+	<option value="witch/sayura11.png">さゆらお疲れ</option>
+	<option value="witch/sayura12.png">さゆらにこり</option>
+	<option value="witch/tihiro01.png">千尋にこにこ</option>
+	<option value="witch/tihiro02.png">千尋怒り！</option>
+	<option value="witch/tihiro11.png">千尋きぃ～</option>
+	<option value="witch/tihiro12.png">千尋余裕</option>
+</optgroup>
+<!-- %END_VENDOR -->
+
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR CIRCUS -->
+<!-- %VENDOR_URL http://www.nandemo.gr.jp/~circus/ -->
+<optgroup label="水夏">
+	<option value="circus/icon_ituki.png">伊月</option>
+	<option value="circus/icon_sayaka.png">さやか</option>
+	<option value="circus/icon_akane.png">茜</option>
+	<option value="circus/icon_touko.png">透子</option>
+	<option value="circus/icon_nanashi.png">名無し</option>
+	<option value="circus/icon_medesu.png">メデス</option>
+	<option value="circus/icon_titose.png">ちとせ</option>
+	<option value="circus/icon_hanako.png">華子</option>
+</optgroup>
+<optgroup label="インファンタリア">
+	<option value="circus/icon_sofia.png">ソフィア</option>
+	<option value="circus/icon_rema.png">レマ</option>
+	<option value="circus/icon_mai.png">マイシェラ</option>
+</optgroup>
+<!-- %END_VENDOR -->
+
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR アリスソフト -->
+<!-- %VENDOR_URL http://www.alicesoft.co.jp/ -->
+<optgroup label="ままにょにょ">
+	<option value="alicesoft/chr_01.png">ナナス</option>
+	<option value="alicesoft/chr_02.png">カカロ</option>
+	<option value="alicesoft/chr_04.png">アーヴィ</option>
+	<option value="alicesoft/chr_05.png">ミュラ</option>
+	<option value="alicesoft/chr_06.png">ストーリン</option>
+	<option value="alicesoft/chr_07.png">リック</option>
+	<option value="alicesoft/chr_08.png">ワン</option>
+	<option value="alicesoft/chr_18.png">ココナ</option>
+	<option value="alicesoft/chr_20.png">エイベル</option>
+	<option value="alicesoft/chr_24.png">ヒーロー</option>
+	<option value="alicesoft/chr_03.png">アリエッタ</option>
+	<option value="alicesoft/chr_11.png">タイガージョー</option>
+	<option value="alicesoft/chr_12.png">ランス</option>
+	<option value="alicesoft/chr_13.png">飛鳥ちとせ</option>
+	<option value="alicesoft/chr_14.png">岳画殺</option>
+	<option value="alicesoft/chr_15.png">アズライト</option>
+	<option value="alicesoft/chr_16.png">火倉いずみ</option>
+	<option value="alicesoft/chr_17.png">クミコ</option>
+	<option value="alicesoft/chr_19.png">パットン</option>
+	<option value="alicesoft/chr_21.png">ミシェーラ</option>
+	<option value="alicesoft/chr_22.png">リズナ</option>
+	<option value="alicesoft/chr_23.png">バレス</option>
+	<option value="alicesoft/chr_25.png">沙由香</option>
+	<option value="alicesoft/chr_26.png">フィーメ</option>
+	<option value="alicesoft/chr_27.png">悪司</option>
+	<option value="alicesoft/chr_28.png">リゼル</option>
+	<option value="alicesoft/chr_29.png">ファネル</option>
+	<option value="alicesoft/chr_30.png">成瀬 涼</option>
+	<option value="alicesoft/chr_31.png">シャルム</option>
+	<option value="alicesoft/chr_32.png">ジャック</option>
+	<option value="alicesoft/chr_33.png">有馬紅葉</option>
+	<option value="alicesoft/chr_34.png">ハニ彦</option>
+	<option value="alicesoft/chr_35.png">コレット</option>
+	<option value="alicesoft/chr_36.png">カナン</option>
+</optgroup>
+<optgroup label="ランス">
+	<option value="alicesoft/rance6/chr01.png">ランス</option>
+	<option value="alicesoft/rance6/chr02.png">シィル・プライン</option>
+	<option value="alicesoft/rance6/chr03.png">ウルザ・プラナアイス</option>
+	<option value="alicesoft/rance6/chr04.png">ダニエル・セフティ</option>
+	<option value="alicesoft/rance6/chr05.png">キムチ・ドライブ</option>
+	<option value="alicesoft/rance6/chr06.png">ロッキー・バンク</option>
+	<option value="alicesoft/rance6/chr07.png">アベルト・セフティ</option>
+	<option value="alicesoft/rance6/chr08.png">プリマ・ホノノマン</option>
+	<option value="alicesoft/rance6/chr09.png">バーナード・セラミテ</option>
+	<option value="alicesoft/rance6/chr10.png">サーナキア・ドレルシュカフ</option>
+	<option value="alicesoft/rance6/chr11.png">カーマ・アトランジャー</option>
+	<option value="alicesoft/rance6/chr12.png">アルフラ・レイ</option>
+	<option value="alicesoft/rance6/chr13.png">セスナ・ベンビール</option>
+	<option value="alicesoft/rance6/chr14.png">メガデス・モロミー</option>
+	<option value="alicesoft/rance6/chr15.png">カオル・クインシー・神楽</option>
+	<option value="alicesoft/rance6/chr16.png">マリア・カスタード</option>
+	<option value="alicesoft/rance6/chr17.png">魔想志津香</option>
+	<option value="alicesoft/rance6/chr18.png">見当かなみ</option>
+	<option value="alicesoft/rance6/chr19.png">タマネギ</option>
+	<option value="alicesoft/rance6/chr20.png">ガンジー</option>
+	<option value="alicesoft/rance6/chr21.png">ウィチタ</option>
+	<option value="alicesoft/rance6/chr22.png">マジック</option>
+	<option value="alicesoft/rance6/chr23.png">アレックス</option>
+	<option value="alicesoft/rance6/chr24.png">千鶴子</option>
+	<option value="alicesoft/rance6/chr25.png">アニス</option>
+	<option value="alicesoft/rance6/chr26.png">サイアス</option>
+	<option value="alicesoft/rance6/chr27.png">ウスピラ</option>
+	<option value="alicesoft/rance6/chr28.png">カバッハーン</option>
+	<option value="alicesoft/rance6/chr29.png">パパイア</option>
+	<option value="alicesoft/rance6/chr30.png">ナギ</option>
+	<option value="alicesoft/rance6/chr31.png">ズルキ</option>
+	<option value="alicesoft/rance6/chr32.png">ラドン</option>
+	<option value="alicesoft/rance6/chr33.png">ネルソン</option>
+	<option value="alicesoft/rance6/chr34.png">エリザベス</option>
+	<option value="alicesoft/rance6/chr35.png">ロドネー</option>
+	<option value="alicesoft/rance6/chr36.png">フット</option>
+	<option value="alicesoft/rance6/chr37.png">キングジョージ</option>
+	<option value="alicesoft/rance6/chr38.png">ポンパドール</option>
+	<option value="alicesoft/rance6/chr39.png">カロリア</option>
+	<option value="alicesoft/rance6/chr40.png">エミ</option>
+	<option value="alicesoft/rance6/chr41.png">ウィリス</option>
+	<option value="alicesoft/rance6/chr42.png">ミカン</option>
+	<option value="alicesoft/rance6/chr43.png">システム神</option>
+	<option value="alicesoft/rance6/chr44.png">リズナ</option>
+	<option value="alicesoft/rance6/chr45.png">コパンドン</option>
+	<option value="alicesoft/rance6/chr46.png">キューティー</option>
+	<option value="alicesoft/rance6/chr47.png">パットン</option>
+	<option value="alicesoft/rance6/chr48.png">ハンティ</option>
+	<option value="alicesoft/rance6/chr49.png">リア</option>
+	<option value="alicesoft/rance6/chr50.png">リック</option>
+	<option value="alicesoft/rance6/chr51.png">セル</option>
+	<option value="alicesoft/rance6/chr52.png">カオス</option>
+	<option value="alicesoft/rance6/chr53.png">血まみれ天使</option>
+	<option value="alicesoft/rance6/chr54.png">復讐ちゃん</option>
+	<option value="alicesoft/rance6/chr55.png">ユキ</option>
+	<option value="alicesoft/rance6/chr56.png">セヤダタラ</option>
+	<option value="alicesoft/rance6/chr57.png">サイゼル</option>
+	<option value="alicesoft/rance6/chr58.png">オーロラ</option>
+	<option value="alicesoft/rance6/chr59.png">ジーク</option>
+	<option value="alicesoft/j_ch04.png">アリス</option>
+	<option value="alicesoft/j_ch04a.png">アリスa</option>
+	<option value="alicesoft/j_ch05.png">闇アリス</option>
+	<option value="alicesoft/j_ch05a.png">闇アリスa</option>
+	<option value="alicesoft/j_ch07.png">シィル・プライン</option>
+	<option value="alicesoft/j_ch08.png">見当かなみ</option>
+	<option value="alicesoft/o_ch03.png">あてな</option>
+	<option value="alicesoft/o_ch04.png">コパンドン・ドット</option>
+	<option value="alicesoft/o_ch05.png">復讐ちゃん</option>
+	<option value="alicesoft/o_ch06.png">バード</option>
+	<option value="alicesoft/o_ch07.png">リズナ・ランフビット</option>
+	<option value="alicesoft/o_ch08.png">海苔子</option>
+</optgroup>
+<optgroup label="夜が来る！">
+	<option value="alicesoft/night/cha2.png">火倉　いずみ</option>
+	<option value="alicesoft/night/kyoka.png">七荻 鏡花</option>
+	<option value="alicesoft/night/cha4.png">三輪坂 真言美</option>
+	<option value="alicesoft/night/makoto.png">祁答院 マコト</option>
+	<option value="alicesoft/night/makoto2.png">祁答院 マコト2</option>
+	<option value="alicesoft/night/kirara.png">キララ</option>
+</optgroup>
+<!-- %END_VENDOR -->
+
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR ExpensiveNoise -->
+<!-- %VENDOR_URL http://mint.cutegirl.jp/ -->
+
+<!-- %BEGIN_COPY1 東映アニメーション -->
+<!-- %COPY1_URL http://www.asahi.co.jp/nadja/ -->
+<optgroup label="明日のナージャ">
+	<option value="y_takai/ic_an_nadja.png">ナージャ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 エルフ -->
+<!-- %COPY1_URL http://www.elf-game.co.jp/ -->
+<optgroup label="あしたの雪之丞">
+	<option value="y_takai/ic_serina.png">せりな</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 ばらスィー -->
+<optgroup label="苺ましまろ">
+	<option value="y_takai/ic_im_chika.png">千佳</option>
+	<option value="y_takai/ic_im_miu.png">美羽</option>
+	<option value="y_takai/ic_im_nobue.png">伸恵</option>
+	<option value="y_takai/ic_im_matsuri.png">茉莉</option>
+	<option value="y_takai/ic_im_ana.png">アナ・コッポラ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 minori -->
+<!-- %COPY1_URL http://www.minori.ph/ -->
+<optgroup label="Wind">
+	<option value="y_takai/ic_minamo.png">みなも</option>
+	<option value="y_takai/ic_hinata.png">ひなた</option>
+	<option value="y_takai/ic_wakaba.png">わかば</option>
+	<option value="y_takai/ic_nozomi.png">望</option>
+	<option value="y_takai/ic_hikari.png">彩</option>
+	<option value="y_takai/ic_kasumi.png">霞</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Ｆ＆Ｃ -->
+<!-- %COPY1_URL http://www.fandc.co.jp/ -->
+<optgroup label="With You">
+	<option value="y_takai/ic_noemi.png">乃絵美</option>
+</optgroup>
+<optgroup label="Canvas">
+	<option value="y_takai/ic_s_ren.png">恋</option>
+	<option value="y_takai/ic_s_ai.png">藍</option>
+	<option value="y_takai/ic_yurina.png">百合奈</option>
+</optgroup>
+<optgroup label="水月">
+	<option value="y_takai/ic_nanami.png">那波</option>
+	<option value="y_takai/ic_karin.png">花梨</option>
+	<option value="y_takai/ic_karin2.png">花梨（パーマ後）</option>
+	<option value="y_takai/ic_karin3.png">花梨（弓道ポニー）</option>
+	<option value="y_takai/ic_izumi1.png">和泉</option>
+	<option value="y_takai/ic_izumi2.png">和泉（メガネ無し）</option>
+	<option value="y_takai/ic_yuki.png">雪</option>
+	<option value="y_takai/ic_alice.png">アリス</option>
+	<option value="y_takai/ic_maria.png">マリア</option>
+	<option value="y_takai/ic_suzuran.png">鈴蘭</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 さくらみかげ -->
+<!-- %COPY1_URL http://sakura.mikage.to/ -->
+<optgroup label="伺か。">
+	<option value="y_takai/ic_niseharuna.png">さくら</option>
+	<option value="y_takai/ic_unyu1.png">うにゅう</option>
+	<option value="y_takai/ic_unyu2.png">うにゅう２</option>
+	<option value="y_takai/ic_nekoko.png">ねここ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Leaf -->
+<!-- %COPY1_URL http://leaf.aquaplus.co.jp/ -->
+<optgroup label="うたわれるもの">
+	<option value="y_takai/ic_hakuoro.png">ハクオロ</option>
+	<option value="y_takai/ic_eruru.png">エルルゥ</option>
+	<option value="y_takai/ic_aruru.png">アルルゥ</option>
+	<option value="y_takai/ic_yuzuha.png">ユズハ</option>
+	<option value="y_takai/ic_uruto.png">ウルトリィ</option>
+	<option value="y_takai/ic_kamyu.png">カミュ</option>
+	<option value="y_takai/ic_oboro.png">オボロ</option>
+	<option value="y_takai/ic_dori.png">ドリィ</option>
+	<option value="y_takai/ic_gura.png">グラァ</option>
+	<option value="y_takai/ic_karura.png">カルラ</option>
+	<option value="y_takai/ic_touka.png">トウカ</option>
+	<option value="y_takai/ic_kuhya.png">クーヤ</option>
+	<option value="y_takai/ic_sakuya.png">サクヤ</option>
+	<option value="y_takai/ic_3510.png">ミコト</option>
+	<option value="y_takai/ic_63.png">ムツミ</option>
+</optgroup>
+<optgroup label="痕">
+	<option value="y_takai/ic_chizuru.png">千鶴</option>
+	<option value="y_takai/ic_onichizuru.png">鬼千鶴</option>
+	<option value="y_takai/ic_azusa.png">梓</option>
+	<option value="y_takai/ic_kaede.png">楓</option>
+	<option value="y_takai/ic_hatsune.png">初音</option>
+</optgroup>
+<optgroup label="天使のいない１２月">
+	<option value="y_takai/ic_t12_tohko.png">透子</option>
+	<option value="y_takai/ic_t12_shinobu.png">しのぶ</option>
+</optgroup>
+<optgroup label="まじかる☆アンティーク">
+	<option value="y_takai/ic_sphie.png">スフィー</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 KID -->
+<!-- %COPY1_URL http://www.kid-game.co.jp/ -->
+<optgroup label="Ever17">
+	<option value="y_takai/ic_ev_sora.png" title="空">空</option>
+	<option value="y_takai/ic_ev_you.png" title="優美清●香菜">優</option>
+	<option value="y_takai/ic_ev_tsugumi.png" title="つぐみ">つぐみ</option>
+	<option value="y_takai/ic_ev_sara.png" title="沙羅">沙羅</option>
+	<option value="y_takai/ic_ev_coco.png" title="ココ">ココ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 パニックアタック -->
+<optgroup label="大人になる呪文">
+	<option value="y_takai/ic_o_miyu.png">未由</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 ROOT -->
+<!-- %COPY1_URL http://www.orbit-soft.com/root/ -->
+<optgroup label="顔のない月">
+	<option value="y_takai/ic_suzuna.png">鈴菜</option>
+	<option value="y_takai/ic_tomomi.png">知美</option>
+	<option value="y_takai/ic_tomomi2.png">知美（メガネ無し）</option>
+	<option value="y_takai/ic_sayaka.png">沙也加</option>
+	<option value="y_takai/ic_yuriko.png">由利子</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Ｄ．Ｏ． -->
+<!-- %COPY1_URL http://www.do-game.co.jp/ -->
+<optgroup label="家族計画">
+	<option value="y_takai/ic_matsuri.png">末莉</option>
+	<option value="y_takai/ic_aoba.png">青葉</option>
+	<option value="y_takai/ic_kichigai.png">寛（キ○ガイ）</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 ニトロプラス -->
+<!-- %COPY1_URL http://www.nitroplus.net/ -->
+<optgroup label="鬼哭街">
+	<option value="y_takai/ic_ruiri.png">瑞麗（ルイリー）</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 アージュ -->
+<!-- %COPY1_URL http://www.age-soft.co.jp/ -->
+<optgroup label="君が望む永遠">
+	<option value="y_takai/ic_akane.png">茜</option>
+	<option value="y_takai/ic_haruka.png">遙</option>
+	<option value="y_takai/ic_mitsuki.png">水月</option>
+	<option value="y_takai/ic_daikuji.png">あゆ</option>
+	<option value="y_takai/ic_mayumayu.png">まゆまゆ</option>
+</optgroup>
+<optgroup label="マブラヴ">
+	<option value="y_takai/ic_ml_sumika.png">純夏</option>
+	<option value="y_takai/ic_ml_meiya.png">冥夜</option>
+	<option value="y_takai/ic_ml_kei.png">慧</option>
+	<option value="y_takai/ic_ml_chizuru.png">千鶴</option>
+	<option value="y_takai/ic_ml_miki.png">壬姫</option>
+	<option value="y_takai/ic_ml_akane.png">茜</option>
+	<option value="y_takai/ic_ml_mikoto.png">尊人</option>
+	<option value="y_takai/ic_ml_mikoto2.png">美琴</option>
+	<option value="y_takai/ic_ml_kasumi.png">霞</option>
+	<option value="y_takai/ic_ml_tsukuyomi.png">月詠</option>
+	<option value="y_takai/ic_ml_takeru.png">武</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 サミー -->
+<!-- %COPY1_URL http://www.guiltygearx.com/ggxx/ -->
+<optgroup label="ギルティギア イグゼクス">
+	<option value="y_takai/ic_bridget.png">ブリジット</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 CAPCOM -->
+<!-- %COPY1_URL http://www.capcom.co.jp/ -->
+<optgroup label="逆転裁判">
+	<option value="y_takai/ic_gs_naruhodo.png">ナルホドくん</option>
+	<option value="y_takai/ic_gs_mitsurugi.png" title="ミッちゃん">ミツルギ検事</option>
+	<option value="y_takai/ic_gs_harumi.png" title="はみたん">春美</option>
+	<option value="y_takai/ic_gs_mayoi.png">真宵</option>
+	<option value="y_takai/ic_gs_chihiro.png">千尋</option>
+	<option value="y_takai/ic_gs_itonoko.png" title="イトノコギリ">イトノコ刑事</option>
+	<option value="y_takai/ic_gs_natsumi.png">ナツミ</option>
+	<option value="y_takai/ic_gs_mei.png" title="めいたん">冥</option>
+	<option value="y_takai/ic_gs_max.png" title="マックス・ギャラクティカ">マックス</option>
+	<option value="y_takai/ic_gs_obachan.png">オバチャン</option>
+	<option value="y_takai/ic_gs_liro.png">リロくん</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 ブロッコリー -->
+<!-- %COPY1_URL http://www.broccoli.co.jp/ -->
+<optgroup label="ギャラクシーエンジェル">
+	<option value="y_takai/ic_mille.png">ミルフィーユ・桜葉</option>
+	<option value="y_takai/ic_ranfa.png">蘭花・フランボワーズ</option>
+	<option value="y_takai/ic_mint.png">ミント・ブラマンシュ</option>
+	<option value="y_takai/ic_vanilla.png">ヴァニラ・Ｈ</option>
+	<option value="y_takai/ic_forte.png">フォルテ・シュトーレン</option>
+	<option value="y_takai/ic_nomad.png">ノーマッド</option>
+	<option value="y_takai/ic_mille_o.png">ミルフィーユ・桜葉</option>
+	<option value="y_takai/ic_ranfa_o.png">蘭花・フランボワーズ</option>
+	<option value="y_takai/ic_mint_o.png">ミント・ブラマンシュ</option>
+	<option value="y_takai/ic_vanilla_o.png">ヴァニラ・Ｈ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+
+<!-- %BEGIN_COPY1 ねこねこソフト -->
+<!-- %COPY1_URL http://www.din.or.jp/~nekoneko/ -->
+<optgroup label="銀色">
+	<option value="y_takai/ic_ayame1.png">あやめ（名無し）</option>
+	<option value="y_takai/ic_sagiri.png">狭霧</option>
+	<option value="y_takai/ic_asana.png">朝奈</option>
+	<option value="y_takai/ic_yuuna.png">夕奈</option>
+	<option value="y_takai/ic_ne-chin.png">夕奈（覚醒後）</option>
+	<option value="y_takai/ic_ayame4.png">あやめ（初代）</option>
+	<option value="y_takai/ic_ginko.png">あやめ（銀子）</option>
+</optgroup>
+<optgroup label="みずいろ">
+	<option value="y_takai/ic_yukimaru6sai.png">雪希ちゃん○６歳</option>
+	<option value="y_takai/ic_hiyori.png">日和</option>
+	<option value="y_takai/ic_kiyoka.png">幼○園児清香</option>
+	<option value="y_takai/ic_oshindoh.png">おとな新藤たん</option>
+	<option value="y_takai/ic_yshindoh.png">やかま新藤たん</option>
+	<option value="y_takai/ic_asami.png">麻美</option>
+	<option value="y_takai/ic_hiyori2.png">νひよりん</option>
+	<option value="y_takai/ic_hiyori3.png">まじかる☆ひよりん</option>
+	<option value="y_takai/ic_kiyokamama.png">清香ママ（ゆかり）</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 小学一年生 -->
+<optgroup label="くるくるりんねちゃん">
+	<option value="y_takai/ic_rinne.png">りんね</option>
+	<option value="y_takai/ic_chiaki.png">ちあき</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 古賀亮一 -->
+<optgroup label="ゲノム">
+	<option value="y_takai/ic_elel.png">エルエル</option>
+	<option value="y_takai/ic_pakuman.png">パクマン</option>
+</optgroup>
+<optgroup label="忠犬ディディー">
+	<option value="y_takai/ic_didi.png">ディディー</option>
+	<option value="y_takai/ic_eim.png">エイム</option>
+	<option value="y_takai/ic_bird.png">ビアード</option>
+</optgroup>
+<optgroup label="ニニンがシノブ伝">
+	<option value="y_takai/ic_onsoku.png">音速丸</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Marron -->
+<!-- %COPY1_URL http://www.marron.nu/ -->
+<optgroup label="秋桜の空に">
+	<option value="y_takai/ic_suzunee.png">すずねえ</option>
+	<option value="y_takai/ic_kanabo.png">カナ坊</option>
+	<option value="y_takai/ic_harup.png">はるぴー</option>
+	<option value="y_takai/ic_uiko.png">初子</option>
+	<option value="y_takai/ic_hiyohiyo.png">ひより</option>
+	<option value="y_takai/ic_marine.png">まりぽん</option>
+	<option value="y_takai/ic_kojika.png">子鹿</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 TerraLunar -->
+<!-- %COPY1_URL http://www.terralunar.com/ -->
+<optgroup label="しすたぁエンジェル">
+	<option value="y_takai/ic_runa.png">流菜</option>
+	<option value="y_takai/ic_mami.png">真美</option>
+	<option value="y_takai/ic_mem.png">メム</option>
+	<option value="y_takai/ic_s_mitsuki.png">深月</option>
+	<option value="y_takai/ic_mili.png">ミリ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Studio Mebius -->
+<!-- %COPY1_URL http://www.studio-mebius.co.jp/ -->
+<optgroup label="SNOW">
+	<option value="y_takai/ic_sn_sumino.png">澄乃</option>
+	<option value="y_takai/ic_sn_shigure.png">しぐれ</option>
+	<option value="y_takai/ic_sn_ohka.png">桜花</option>
+	<option value="y_takai/ic_sn_asahi.png">旭</option>
+	<option value="y_takai/ic_sn_meiko.png">芽依子</option>
+	<option value="y_takai/ic_sn_hohsen.png">鳳仙</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Basil -->
+<!-- %COPY1_URL http://www.basil.jp/ -->
+<optgroup label="それは舞い散る桜のように">
+	<option value="y_takai/ic_s_nozomi.png">希望</option>
+	<option value="y_takai/ic_s_komachi.png">小町</option>
+	<option value="y_takai/ic_s_tsubasa.png">つばさ</option>
+	<option value="y_takai/ic_s_kodama.png">こだま</option>
+	<option value="y_takai/ic_s_aoba.png">青葉</option>
+	<option value="y_takai/ic_s_kagura.png">かぐら</option>
+	<option value="y_takai/ic_s_hikari.png">ひかり</option>
+	<option value="y_takai/ic_s_mizune.png">瑞音</option>
+	<option value="y_takai/ic_s_ei.png">瑛</option>
+	<option value="y_takai/ic_s_tsubaki.png">椿</option>
+	<option value="y_takai/ic_s_ouka.png">桜香</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 アリスソフト -->
+<!-- %COPY1_URL http://www.alicesoft.co.jp/ -->
+<optgroup label="大悪司">
+	<option value="y_takai/ic_satsu.png">殺ちゃん</option>
+</optgroup>
+<optgroup label="デアボリカ">
+	<option value="y_takai/ic_m_aria.png">凶アリア</option>
+</optgroup>
+<optgroup label="ぱすてるチャイム">
+	<option value="y_takai/ic_myu.png">ミューゼル</option>
+	<option value="y_takai/ic_seles.png">セレス</option>
+	<option value="y_takai/ic_colette.png">コレット</option>
+	<option value="y_takai/ic_saya.png">沙耶</option>
+	<option value="y_takai/ic_lony.png">ロニィ先生</option>
+</optgroup>
+<optgroup label="ママトト">
+	<option value="y_takai/ic_ramica.png">ラミカ</option>
+	<option value="y_takai/ic_eibel.png">エイベル（ナルツガイス）</option>
+</optgroup>
+<optgroup label="夜が来る！">
+	<option value="y_takai/ic_kyouka.png">鏡花</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 すたじおみりす -->
+<!-- %COPY1_URL http://www.studio-miris.com/ -->
+<optgroup label="月陽炎">
+	<option value="y_takai/ic_yuzu.png">柚鈴</option>
+	<option value="y_takai/ic_mizuki.png">美月</option>
+	<option value="y_takai/ic_suzuka.png">鈴香</option>
+	<option value="y_takai/ic_futaba.png">双葉</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 TYPE-MOON -->
+<!-- %COPY1_URL http://www.typemoon.com/ -->
+<optgroup label="月姫">
+	<option value="y_takai/ic_arc.png">アルクェイド</option>
+	<option value="y_takai/ic_ciel.png">シエル</option>
+	<option value="y_takai/ic_akiha.png">秋葉</option>
+	<option value="y_takai/ic_hisui.png">翡翠</option>
+	<option value="y_takai/ic_kohaku.png">琥珀</option>
+	<option value="y_takai/ic_sacchin.png">さっちん</option>
+	<option value="y_takai/ic_ren.png">レン</option>
+	<option value="y_takai/ic_akira.png">晶</option>
+	<option value="y_takai/ic_hanepin.png">羽ピン</option>
+	<option value="y_takai/ic_souka.png">蒼香</option>
+	<option value="y_takai/ic_nanako.png">ななこ</option>
+	<option value="y_takai/ic_sion.png">シオン</option>
+</optgroup>
+<optgroup label="Fate">
+	<option value="y_takai/ic2_ft_saber.png" title="アルトリア">セイバー。</option>
+	<option value="y_takai/ic2_ft_rin.png" title="凛">凛。</option>
+	<option value="y_takai/ic2_ft_archer.png" title="エミヤ">アチャ。</option>
+	<option value="y_takai/ic2_ft_iliyaa.png" title="イリヤスフィール">イリヤ帽子。</option>
+	<option value="y_takai/ic2_ft_iliyab.png" title="フォン・アインツベルン">イリヤ。</option>
+	<option value="y_takai/ic2_ft_lancer.png" title="クー・フーリン">ランサー。</option>
+	<option value="y_takai/ic2_ft_saberalter1.png" title="セイバーオルタナティヴ">セイバーオルタマスク。</option>
+	<option value="y_takai/ic2_ft_saberalter1.png" title="セイバーオルタナティヴさん">セイバーオルタ。</option>
+	<option value="y_takai/ic2_ft_rider1.png" title="メドューサ">ライダーマスク。</option>
+	<option value="y_takai/ic2_ft_rider2.png" title="メガネさん">ライダー。</option>
+	<option value="y_takai/ic2_ft_kojiroh.png" title="佐々木小次郎">アサシン。</option>
+	<option value="y_takai/ic2_ft_gilgamesh.png" title="ギルガメッシュ">ギル様。</option>
+	<option value="y_takai/ic2_ft_kotomine.png" title="">言峰。</option>
+	<option value="y_takai/ic2_ft_nenchaku.png" title="粘着">桜。</option>
+	<option value="y_takai/ic2_ft_nenchaku_kokui.png" title="粘着黒衣">黒衣桜。</option>
+	<option value="y_takai/ic2_ft_tiger.png" title="タイガー">藤ねえ。</option>
+	<option value="y_takai/ic2_ft_leysritt.png" title="リズ">リーズリット。</option>
+	<option value="y_takai/ic2_ft_sella.png" title="セラ">セラ。</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 講談社・テレビ愛知 -->
+<!-- %COPY1_URL http://www.tokyo-mewmew.com/ -->
+<optgroup label="東京ミュウミュウ">
+	<option value="y_takai/ic_m_ichigo.png">ミュウイチゴ</option>
+	<option value="y_takai/ic_m_mint.png">ミュウミント</option>
+	<option value="y_takai/ic_m_lettuce.png">ミュウレタス</option>
+	<option value="y_takai/ic_m_purin.png">ミュウプリン</option>
+	<option value="y_takai/ic_m_zakuro.png">ミュウザクロ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+
+<!-- %BEGIN_COPY1 jANIS/ivory -->
+<!-- %COPY1_URL http://www.sp-janis.com/ -->
+<!-- %COPY1_LINK <A href="http://www.sp-janis.com/">jANIS</A>/<A href="http://www.ivory.co.jp/">ivory</A> -->
+<optgroup label="とらいあんぐるハート">
+	<option value="y_takai/ic_kotori.png">小鳥</option>
+	<option value="y_takai/ic_yuuhi.png">ゆうひ</option>
+	<option value="y_takai/ic_mio.png">美緒</option>
+	<option value="y_takai/ic_fiasse.png">フィアッセ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Project.hack -->
+<!-- %COPY1_URL http://www.tv-tokyo.co.jp/anime/hack_udeden/ -->
+<optgroup label=".hack//黄昏の腕輪伝説">
+	<option value="y_takai/ic_hk_shuhgo_kaito.png" title="シューゴorカイト">シューゴ</option>
+	<option value="y_takai/ic_hk_rena_brose.png" title="レナorブラックローズ">レナ</option>
+	<option value="y_takai/ic_hk_mireille.png">ミレイユ</option>
+	<option value="y_takai/ic_hk_ohka.png">凰花</option>
+	<option value="y_takai/ic_hk_hotaru.png">ほたる</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 タツノコプロ／「TheSoulTaker」製作委員会・WOWOW -->
+<!-- %COPY1_URL http://www.mugimugi.com/ -->
+<optgroup label="ナースウィッチ小麦ちゃんマジカルて">
+	<option value="y_takai/ic_nw_komugi.png">小麦</option>
+	<option value="y_takai/ic_nw_koyori.png">こより</option>
+	<option value="y_takai/ic_nw_mugimaru.png">むぎまる</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Witch -->
+<!-- %VENDOR_URL http://www.witch.gr.jp/ -->
+<optgroup label="Milkyway">
+	<option value="y_takai/ic_m_sakuya.png">咲夜</option>
+	<option value="y_takai/ic_m_remi.png">恋水</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 ZERO -->
+<!-- %COPY1_URL http://zero.product.co.jp/ -->
+<optgroup label="はじめてのおいしゃさん">
+	<option value="y_takai/ic_h_yuuna.png">ゆうな</option>
+	<option value="y_takai/ic_h_maina.png">まいな</option>
+</optgroup>
+<optgroup label="はじめてのおるすばん">
+	<option value="y_takai/ic_shiori.png">しおり</option>
+	<option value="y_takai/ic_saori.png">さおり</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 氷川へきる -->
+<optgroup label="ぱにぽに">
+	<option value="y_takai/ic_mesousa.png">メソウサ</option>
+	<option value="y_takai/ic_kami.png">神</option>
+	<option value="y_takai/ic_panda.png">パンダ村長</option>
+	<option value="y_takai/ic_roboko.png">ロボ子</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 ぱじゃまソフト -->
+<!-- %COPY1_URL http://www.pajamas.ne.jp/ -->
+<optgroup label="パンドラの夢">
+	<option value="y_takai/ic_ran.png">蘭</option>
+	<option value="y_takai/ic_suu.png">スウ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 ザウス -->
+<!-- %COPY1_URL http://www.xuse.co.jp/ -->
+<optgroup label="フローラリア">
+	<option value="y_takai/ic_ui.png">憂</option>
+	<option value="y_takai/ic_yukari.png">由佳里</option>
+	<option value="y_takai/ic_yukari2.png">由佳里（メガネ）</option>
+	<option value="y_takai/ic_miaya.png">御文</option>
+	<option value="y_takai/ic_suzune.png">鈴音</option>
+	<option value="y_takai/ic_shino.png">詩乃</option>
+	<option value="y_takai/ic_shino2.png">詩乃（裸眼）</option>
+	<option value="y_takai/ic_f_izumi.png">いずみ</option>
+	<option value="y_takai/ic_ui2.png">うい～っ！</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 Colors -->
+<!-- %COPY1_URL http://www.hue.co.jp/colors/ -->
+<optgroup label="魔法少女アイ">
+	<option value="y_takai/ic_m_ai.png">アイ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 小島あきら -->
+<optgroup label="まほらば">
+	<option value="y_takai/ic_m_kozue.png">蒼葉梢</option>
+	<option value="y_takai/ic_m_saki.png">赤坂早紀</option>
+	<option value="y_takai/ic_m_nanako.png">金沢魚子</option>
+	<option value="y_takai/ic_m_natsume.png">紺野棗（なつめ）</option>
+	<option value="y_takai/ic_m_tamami.png">茶ノ畑珠実</option>
+	<option value="y_takai/ic_m_megumi.png">桃乃恵</option>
+	<option value="y_takai/ic_m_asami.png">黒崎朝美</option>
+	<option value="y_takai/ic_m_sayoko.png">黒崎沙夜子</option>
+	<option value="y_takai/ic_m_sore.png">それ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 中山・ぢたま/ワニブックス・まほろば家政婦斡旋所 -->
+<!-- %COPY1_URL http://www.mahoro-matic.com/ -->
+<optgroup label="まほろまてぃっく">
+	<option value="y_takai/ic_mahoro.png">まほろ</option>
+	<option value="y_takai/ic_minawa.png">みなわ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 今野緒雪 -->
+<optgroup label="マリア様がみてる">
+	<option value="y_takai/ic_mm_yumi.png">祐巳</option>
+	<option value="y_takai/ic_mm_sachiko.png">祥子</option>
+	<option value="y_takai/ic_mm_yohko.png">蓉子</option>
+	<option value="y_takai/ic_mm_yoshino.png">由乃</option>
+	<option value="y_takai/ic_mm_rei.png">令</option>
+	<option value="y_takai/ic_mm_eriko.png">江利子</option>
+	<option value="y_takai/ic_mm_noriko.png">乃梨子</option>
+	<option value="y_takai/ic_mm_shimako.png">志摩子</option>
+	<option value="y_takai/ic_mm_sei.png">聖</option>
+	<option value="y_takai/ic_mm_shizuka.png">静</option>
+	<option value="y_takai/ic_mm_tsutako.png">蔦子</option>
+	<option value="y_takai/ic_mm_tohko.png">瞳子</option>
+	<option value="y_takai/ic_mm_minako.png">三奈子</option>
+	<option value="y_takai/ic_mm_mami.png">真美</option>
+	<option value="y_takai/ic_mm_syohko.png">笙子</option>
+	<option value="y_takai/ic_mm_yumi2.png">祐巳（影付き）</option>
+	<option value="y_takai/ic_mm_sachiko2.png">祥子（影付き）</option>
+	<option value="y_takai/ic_mm_yohko2.png">蓉子（影付き）</option>
+	<option value="y_takai/ic_mm_yoshino2.png">由乃（影付き）</option>
+	<option value="y_takai/ic_mm_rei2.png">令（影付き）</option>
+	<option value="y_takai/ic_mm_eriko2.png">江利子（影付き）</option>
+	<option value="y_takai/ic_mm_noriko2.png">乃梨子（影付き）</option>
+	<option value="y_takai/ic_mm_shimako2.png">志摩子（影付き）</option>
+	<option value="y_takai/ic_mm_sei2.png">聖（影付き）</option>
+	<option value="y_takai/ic_mm_shizuka2.png">静（影付き）</option>
+	<option value="y_takai/ic_mm_tsutako2.png">蔦子（影付き）</option>
+	<option value="y_takai/ic_mm_tohko2.png">瞳子（影付き）</option>
+	<option value="y_takai/ic_mm_minako2.png">三奈子</option>
+	<option value="y_takai/ic_mm_mami2.png">真美（影付き）</option>
+	<option value="y_takai/ic_mm_syohko2.png">笙子（影付き）</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 NAMCO -->
+<!-- %COPY1_URL http://www.namco.co.jp/ -->
+<optgroup label="ゆめりあ">
+	<option value="y_takai/ic_yr_mone.png" title="もね">もね</option>
+	<option value="y_takai/ic_yr_miduki.png" title="みづき">みづき</option>
+	<option value="y_takai/ic_yr_kuyoh.png" title="九葉">九葉</option>
+	<option value="y_takai/ic_yr_neneko.png" title="ねねこ">ねねこ</option>
+	<option value="y_takai/ic_yr_nanase.png" title="七瀬">七瀬</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 ジェリーフィッシュ -->
+<!-- %COPY1_URL http://www.jellyfish-pc.com/ -->
+<optgroup label="ＬＯＶＥＲＳ">
+	<option value="y_takai/ic_l_rie.png">理恵</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 スギサキユキル -->
+<!-- %COPY1_URL http://www.pc-moe.com/rizeru/ -->
+<optgroup label="りぜるまいん">
+	<option value="y_takai/ic_rizel.png">りぜる</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %BEGIN_COPY1 TerraLunar -->
+<!-- %COPY1_URL http://www.terralunar.com/ -->
+<optgroup label="ロケットの夏">
+	<option value="y_takai/ic_rn_chise.png" title="千星">千星</option>
+	<option value="y_takai/ic_rn_ayumu.png" title="歩">歩む</option>
+	<option value="y_takai/ic_rn_bertia.png" title="ベルチア">ベルチア</option>
+	<option value="y_takai/ic_rn_seren.png" title="セレン">セレン</option>
+	<option value="y_takai/ic_rn_haruhi.png" title="((*メガネ*))はるひ">はるひ</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+
+<!-- %BEGIN_COPY1 D3 PUBLISHER -->
+<!-- %COPY1_URL http://www.d3p.co.jp/ -->
+<optgroup label="私におまカフェ">
+	<option value="y_takai/ic_wo_honoka.png">ほのか</option>
+	<option value="y_takai/ic_wo_maromi.png">まろみ</option>
+	<option value="y_takai/ic_wo_kiriri.png">きりり</option>
+</optgroup>
+<!-- %END_COPY1 -->
+
+<!-- %END_VENDOR -->
+
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR 眠りの園 -->
+<!-- %VENDOR_URL http://kamakura.cool.ne.jp/chaccu/ -->
+
+<optgroup label="あずまんが大王">
+	<option value="chaccu/iconaz01.png">ちよちゃん</option>
+	<option value="chaccu/iconaz02.png">とも</option>
+	<option value="chaccu/iconaz03.png">大阪</option>
+	<option value="chaccu/iconaz04.png">榊さん</option>
+	<option value="chaccu/iconaz05.png">よみ</option>
+	<option value="chaccu/iconaz06.png">神楽</option>
+	<option value="chaccu/iconaz07.png">かおりん</option>
+	<option value="chaccu/iconaz08.png">ゆかりちゃん</option>
+	<option value="chaccu/iconaz09.png">にゃも</option>
+	<option value="chaccu/iconaz10.png">木村先生</option>
+	<option value="chaccu/iconaz11.png">お父さん</option>
+	<option value="chaccu/iconaz12.png">噛み猫</option>
+	<option value="chaccu/iconaz13.png">忠吉さん</option>
+</optgroup>
+<optgroup label="アトラク＝ナクア">
+	<option value="chaccu/icona01.png">姉様</option>
+	<option value="chaccu/icona02.png">奏子</option>
+	<option value="chaccu/icona03.png">沙千保</option>
+	<option value="chaccu/icona04.png">鷹弘</option>
+	<option value="chaccu/icona05.png">美由紀</option>
+	<option value="chaccu/icona06.png">つぐみ</option>
+	<option value="chaccu/icona07.png">猪口先生</option>
+	<option value="chaccu/icona08.png">圭太</option>
+	<option value="chaccu/icona09.png">和久</option>
+	<option value="chaccu/icona10.png">燐</option>
+	<option value="chaccu/icona11.png">燐（蜘蛛巫女）</option>
+	<option value="chaccu/icona12.png">銀</option>
+	<option value="chaccu/icona13.png">初音ちゃん（系譜）</option>
+</optgroup>
+<optgroup label="イエスタデイをうたって">
+	<option value="chaccu/iconye01.png">ハル＆カンスケ</option>
+	<option value="chaccu/iconye02.png">魚住</option>
+	<option value="chaccu/iconye03.png">木品子</option>
+</optgroup>
+<optgroup label="AIR">
+	<option value="chaccu/iconai01.png">往人</option>
+	<option value="chaccu/iconai02.png">観鈴</option>
+	<option value="chaccu/iconai03.png">晴子</option>
+	<option value="chaccu/iconai04.png">美凪</option>
+	<option value="chaccu/iconai05.png">みちる</option>
+	<option value="chaccu/iconai06.png">佳乃</option>
+	<option value="chaccu/iconai07.png">聖</option>
+	<option value="chaccu/iconai08.png">ポテト</option>
+	<option value="chaccu/iconai09.png">神奈</option>
+	<option value="chaccu/iconai10.png">裏葉</option>
+</optgroup>
+<optgroup label="エマ">
+	<option value="chaccu/icone01a.png">エマ</option>
+	<option value="chaccu/icone01b.png">エマ（メルダース家）</option>
+	<option value="chaccu/icone02.png">エマ（お出かけ）</option>
+	<option value="chaccu/icone03.png">エマ（少女時代）</option>
+	<option value="chaccu/icone04.png">ウィリアム</option>
+	<option value="chaccu/icone05.png">ケリー</option>
+	<option value="chaccu/icone06.png">若ケリー</option>
+	<option value="chaccu/icone19.png">アル</option>
+	<option value="chaccu/icone07.png">ハキム</option>
+	<option value="chaccu/icone08.png">ハキムガールズ</option>
+	<option value="chaccu/icone09.png">象</option>
+	<option value="chaccu/icone10.png">リチャード</option>
+	<option value="chaccu/icone11.png">グレイス</option>
+	<option value="chaccu/icone12.png">アーサー</option>
+	<option value="chaccu/icone13.png">ヴィヴィー</option>
+	<option value="chaccu/icone14.png">コリン</option>
+	<option value="chaccu/icone15.png">スティーブンス</option>
+	<option value="chaccu/icone16.png">エレノア</option>
+	<option value="chaccu/icone18.png">ロバート</option>
+	<option value="chaccu/icone17.png">イライザ、ファニー、アリス</option>
+	<option value="chaccu/icone20.png">ターシャ</option>
+	<option value="chaccu/icone21.png">アデーレ</option>
+	<option value="chaccu/icone22.png">髪をおろしたアデーレ</option>
+	<option value="chaccu/icone23.png">マリア</option>
+	<option value="chaccu/icone24.png">ハンス</option>
+	<option value="chaccu/icone25.png">ヴィルヘルム</option>
+	<option value="chaccu/icone26.png">ドロテア</option>
+	<option value="chaccu/icone27.png">エーリヒ＆テオ</option>
+	<option value="chaccu/icone28.png">イルゼ</option>
+	<option value="chaccu/icone29.png">ミセストロロープ</option>
+</optgroup>
+<optgroup label="空の境界">
+	<option value="chaccu/iconka01.png">式</option>
+	<option value="chaccu/iconka02.png">幹也</option>
+	<option value="chaccu/iconka03.png">橙子</option>
+	<option value="chaccu/iconka04.png">鮮花</option>
+	<option value="chaccu/iconka05.png">巫条霧絵</option>
+	<option value="chaccu/iconka06.png">ふじのん</option>
+	<option value="chaccu/iconka07.png">臙条巴</option>
+	<option value="chaccu/iconka08.png">白純里緒</option>
+	<option value="chaccu/iconka09.png">荒耶宗蓮</option>
+</optgroup>
+<optgroup label="痕～きずあと～">
+	<option value="chaccu/iconk01.png">耕一</option>
+	<option value="chaccu/iconk02.png">千鶴さん</option>
+	<option value="chaccu/iconk03.png">鬼千鶴</option>
+	<option value="chaccu/iconk04.png">梓</option>
+	<option value="chaccu/iconk05.png">楓ちゃん</option>
+	<option value="chaccu/iconk14.png">エディフェル</option>
+	<option value="chaccu/iconk06.png">ネコミミ楓ちゃん</option>
+	<option value="chaccu/iconk07.png">初音ちゃん</option>
+	<option value="chaccu/iconk15.png">リネット</option>
+	<option value="chaccu/iconk08.png">イヌミミ初音ちゃん</option>
+	<option value="chaccu/iconk09.png">かおり</option>
+	<option value="chaccu/iconk10.png">由美子さん</option>
+	<option value="chaccu/iconk11.png">響子さん</option>
+	<option value="chaccu/iconk12.png">柳川</option>
+	<option value="chaccu/iconk13.png">貴之</option>
+</optgroup>
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+
+<optgroup label="沙耶の唄">
+	<option value="chaccu/iconsa01.png">郁紀</option>
+	<option value="chaccu/iconsa02.png">沙耶</option>
+	<option value="chaccu/iconsa03.png">耕司</option>
+	<option value="chaccu/iconsa04.png">青海</option>
+	<option value="chaccu/iconsa05.png">瑶</option>
+	<option value="chaccu/iconsa06.png">瑶（変質後）</option>
+	<option value="chaccu/iconsa07.png">凉子</option>
+	<option value="chaccu/iconsa08.png">凉子（裏）</option>
+	<option value="chaccu/iconsa09.png">？？？</option>
+	<option value="chaccu/iconsa10.png">沙耶（展開中）</option>
+</optgroup>
+<optgroup label="雫～しずく～">
+	<option value="chaccu/icons01.png">祐介</option>
+	<option value="chaccu/icons02.png">瑠璃子さん</option>
+	<option value="chaccu/icons03.png">さおりん</option>
+	<option value="chaccu/icons04.png">みずぴー</option>
+	<option value="chaccu/icons05.png">太田さん</option>
+	<option value="chaccu/icons06.png">アレな太田さん</option>
+	<option value="chaccu/icons07.png">月島兄</option>
+</optgroup>
+<optgroup label="シャーリー">
+	<option value="chaccu/iconsy01.png">シャーリー</option>
+	<option value="chaccu/iconsy02.png">おつかいシャーリー</option>
+	<option value="chaccu/iconsy03.png">ネコみみシャーリー</option>
+	<option value="chaccu/iconsy04.png">クランリーさん</option>
+	<option value="chaccu/iconsy05.png">クランリーさん（おねむ）</option>
+	<option value="chaccu/iconsy06.png">常連さん</option>
+	<option value="chaccu/iconsy07.png">ネリー</option>
+	<option value="chaccu/iconsy08.png">坊ちゃま</option>
+	<option value="chaccu/iconsy09.png">ノーマ</option>
+	<option value="chaccu/iconsy10.png">ルーシー</option>
+	<option value="chaccu/iconsy11.png">メアリ</option>
+	<option value="chaccu/iconsy12.png">大旦那様</option>
+	<option value="chaccu/iconsy13.png">エリック</option>
+	<option value="chaccu/iconsy14.png">クレール</option>
+	<option value="chaccu/iconsy15.png">カール</option>
+</optgroup>
+<optgroup label="水月">
+	<option value="chaccu/iconsu01.png">牧野さん</option>
+	<option value="chaccu/iconsu08.png">那波ちゃん</option>
+	<option value="chaccu/iconsu02.png">雪さん</option>
+	<option value="chaccu/iconsu09.png">雪さん（私服）</option>
+	<option value="chaccu/iconsu03.png">花梨</option>
+	<option value="chaccu/iconsu10.png">花梨（デート）</option>
+	<option value="chaccu/iconsu04.png">和泉</option>
+	<option value="chaccu/iconsu11.png">和泉（スク水）</option>
+	<option value="chaccu/iconsu05.png">アリス</option>
+	<option value="chaccu/iconsu06.png">マリア</option>
+	<option value="chaccu/iconsu12.png">香坂姉妹</option>
+	<option value="chaccu/iconsu07.png">鈴蘭</option>
+</optgroup>
+<optgroup label="聖剣伝説２">
+	<option value="chaccu/iconse201.png">ランディ</option>
+	<option value="chaccu/iconse202.png">プリム</option>
+	<option value="chaccu/iconse203.png">ポポイ</option>
+	<option value="chaccu/iconse204.png">フラミー</option>
+</optgroup>
+<optgroup label="月姫">
+	<option value="chaccu/icont01.png">志貴</option>
+	<option value="chaccu/icont46.png">志貴（クエスチョン）</option>
+	<option value="chaccu/icont80.png">志貴（直死の魔眼・十七分割）</option>
+	<option value="chaccu/icont02.png">七夜志貴</option>
+	<option value="chaccu/icont47.png">志貴（少年）</option>
+	<option value="chaccu/icont03.png">アルクェイド</option>
+	<option value="chaccu/icont48.png">翡翠服アルク</option>
+	<option value="chaccu/icont92.png">化け猫アルク</option>
+	<option value="chaccu/icont97.png">アルクェイド（空想具現化・千年城の鎖）</option>
+	<option value="chaccu/icont04.png">ワルクェイド</option>
+	<option value="chaccu/icont99.png">暴走アルクェイド（空想具現化・偽りの月）</option>
+	<option value="chaccu/icont05.png">朱い月</option>
+	<option value="chaccu/icont49.png">ちび姫アルク</option>
+	<option value="chaccu/icont06.png">猫アルク</option>
+	<option value="chaccu/icont07.png">シエル先輩</option>
+	<option value="chaccu/icont08.png">シエル（法衣）</option>
+	<option value="chaccu/icont93.png">シエル（完全武装・第七聖典）</option>
+	<option value="chaccu/icont09.png">シエル（メシアン）</option>
+	<option value="chaccu/icont50.png">体操服シエル（獅子）</option>
+	<option value="chaccu/icont51.png">どっかで見覚えがあるような黒服のあの人</option>
+	<option value="chaccu/icont52.png">闇シエル</option>
+	<option value="chaccu/icont10.png">知得留先生</option>
+	<option value="chaccu/icont11.png">秋葉</option>
+	<option value="chaccu/icont55.png">秋葉（制服）</option>
+	<option value="chaccu/icont54.png">秋葉（浴衣）</option>
+	<option value="chaccu/icont94.png">猫又秋葉</option>
+	<option value="chaccu/icont53.png">体操服秋葉（大蛇）</option>
+	<option value="chaccu/icont12.png">秋葉（紅赤朱）</option>
+	<option value="chaccu/icont81.png">秋葉（赤主・檻髪）</option>
+	<option value="chaccu/icont13.png">幼秋葉</option>
+	<option value="chaccu/icont56.png">翡翠</option>
+	<option value="chaccu/icont14.png">翡翠（赤面）</option>
+	<option value="chaccu/icont57.png">アルク服翡翠</option>
+	<option value="chaccu/icont15.png">洗脳探偵翡翠</option>
+	<option value="chaccu/icont82.png">翡翠（暗黒翡翠流・御奉仕推奨波）</option>
+	<option value="chaccu/icont90.png">翡翠（少女時代）</option>
+	<option value="chaccu/icont16.png">メカヒスイ</option>
+	<option value="chaccu/icont17.png">琥珀さん</option>
+	<option value="chaccu/icont58.png">琥珀（頬染め）</option>
+	<option value="chaccu/icont59.png">琥珀さん（めっ）</option>
+	<option value="chaccu/icont83.png">琥珀さん（抜刀奥義・賀正箒星）</option>
+	<option value="chaccu/icont18.png">ミスター陳</option>
+	<option value="chaccu/icont19.png">マジカルアンバー</option>
+	<option value="chaccu/icont91.png">琥珀（少女時代）</option>
+	<option value="chaccu/icont60.png">ヒスコハ</option>
+	<option value="chaccu/icont20.png">さっちん</option>
+	<option value="chaccu/icont64.png">さっちん（しょんぼり）</option>
+	<option value="chaccu/icont21.png">さっちん（吸血鬼）</option>
+	<option value="chaccu/icont66.png">吸血鬼さっちん（お食事中）</option>
+	<option value="chaccu/icont65.png">さつき（固有結界・枯渇庭園）</option>
+	<option value="chaccu/icont22.png">レン</option>
+	<option value="chaccu/icont61.png">レン（微笑み）</option>
+	<option value="chaccu/icont96.png">レン（びっくりネコミミ）</option>
+	<option value="chaccu/icont62.png">レン（猫）</option>
+	<option value="chaccu/icont63.png">白いレン</option>
+	<option value="chaccu/icont23.png">シオン</option>
+	<option value="chaccu/icont24.png">シオン（笑顔）</option>
+	<option value="chaccu/icont71.png">シオン（照れ怒り）</option>
+	<option value="chaccu/icont98.png">シオン（バレルレプリカ・オベリスク）</option>
+	<option value="chaccu/icont95.png">シオン（吸血鬼）</option>
+	<option value="chaccu/icont69.png">リーズバイフェ</option>
+	<option value="chaccu/icont25.png">有彦</option>
+	<option value="chaccu/icont78.png">有彦（むちゅ～）</option>
+	<option value="chaccu/icont26.png">一子さん</option>
+	<option value="chaccu/icont27.png">ななこ（セブン）</option>
+	<option value="chaccu/icont85.png">ななこ（ニンジンうまー♪）</option>
+	<option value="chaccu/icont28.png">アキラちゃん</option>
+	<option value="chaccu/icont68.png">晶（泣きべそ）</option>
+	<option value="chaccu/icont29.png">羽ピン</option>
+	<option value="chaccu/icont30.png">蒼香</option>
+	<option value="chaccu/icont31.png">蒼香（制服）</option>
+	<option value="chaccu/icont67.png">羽＆月</option>
+	<option value="chaccu/icont32.png">四条つかさ</option>
+	<option value="chaccu/icont33.png">朱鷺恵さん</option>
+	<option value="chaccu/icont34.png">時南先生</option>
+	<option value="chaccu/icont35.png">都古ちゃん</option>
+	<option value="chaccu/icont84.png">都古（勝利）</option>
+	<option value="chaccu/icont74.png">都古（笑顔）</option>
+	<option value="chaccu/icont75.png">啓子さん</option>
+	<option value="chaccu/icont70.png">山瀬明美</option>
+	<option value="chaccu/icont36.png">久我峰</option>
+	<option value="chaccu/icont37.png">ネロ</option>
+	<option value="chaccu/icont86.png">ネロ（混沌開放）</option>
+	<option value="chaccu/icont72.png">ネロ（武装999）</option>
+	<option value="chaccu/icont38.png">エト</option>
+	<option value="chaccu/icont39.png">ロア</option>
+	<option value="chaccu/icont87.png">ロア（包帯）</option>
+	<option value="chaccu/icont40.png">四季</option>
+	<option value="chaccu/icont88.png">四季（血刃）</option>
+	<option value="chaccu/icont41.png">偽志貴</option>
+	<option value="chaccu/icont77.png">七夜黄理</option>
+	<option value="chaccu/icont42.png">軋間紅摩</option>
+	<option value="chaccu/icont43.png">ワラキアの夜</option>
+	<option value="chaccu/icont73.png">ワラキアの夜（通常）</option>
+	<option value="chaccu/icont89.png">タタリ</option>
+	<option value="chaccu/icont76.png">ゼル爺</option>
+	<option value="chaccu/icont44.png">先生</option>
+	<option value="chaccu/icont79.png">ブルー</option>
+	<option value="chaccu/icont45.png">無敵キノコ</option>
+</optgroup>
+<optgroup label="天からトルテ！">
+	<option value="chaccu/iconte01.png">トルテ</option>
+	<option value="chaccu/iconte10.png">ウニ</option>
+	<option value="chaccu/iconte02.png">プティング</option>
+	<option value="chaccu/iconte11.png">勇栄</option>
+	<option value="chaccu/iconte03.png">マカロン</option>
+	<option value="chaccu/iconte12.png">佐倉</option>
+	<option value="chaccu/iconte04.png">エクレア</option>
+	<option value="chaccu/iconte13.png">美葉</option>
+	<option value="chaccu/iconte05.png">グラニテ</option>
+	<option value="chaccu/iconte14.png">穎</option>
+	<option value="chaccu/iconte15.png">星歌</option>
+	<option value="chaccu/iconte06.png">シュー</option>
+	<option value="chaccu/iconte07.png">サバラン</option>
+	<option value="chaccu/iconte08.png">コアントロー</option>
+	<option value="chaccu/iconte09.png">シードル</option>
+</optgroup>
+<optgroup label="To Heart">
+	<option value="chaccu/iconth01.png">浩之</option>
+	<option value="chaccu/iconth02.png">あかり</option>
+	<option value="chaccu/iconth03.png">雅史</option>
+	<option value="chaccu/iconth04.png">志保</option>
+	<option value="chaccu/iconth05.png">レミィ</option>
+	<option value="chaccu/iconth06.png">委員長</option>
+	<option value="chaccu/iconth07.png">先輩</option>
+	<option value="chaccu/iconth08.png">マルチ</option>
+	<option value="chaccu/iconth09.png">琴音ちゃん</option>
+	<option value="chaccu/iconth10.png">葵ちゃん</option>
+	<option value="chaccu/iconth11.png">理緒</option>
+	<option value="chaccu/iconth12.png">綾香</option>
+	<option value="chaccu/iconth13.png">セリオ</option>
+	<option value="chaccu/iconth14.png">坂下</option>
+	<option value="chaccu/iconth15.png">シンディさん</option>
+	<option value="chaccu/iconth16.png">田沢さん</option>
+	<option value="chaccu/iconth17.png">セバスチャン</option>
+</optgroup>
+<optgroup label="ニニンがシノブ伝">
+	<option value="chaccu/iconni01.png">音速丸①</option>
+	<option value="chaccu/iconni02.png">音速丸②</option>
+	<option value="chaccu/iconni03.png">音速丸③</option>
+	<option value="chaccu/iconni04.png">音速丸④</option>
+	<option value="chaccu/iconni05.png">音速丸⑤</option>
+	<option value="chaccu/iconni06.png">音速丸⑥</option>
+	<option value="chaccu/iconni07.png">忍</option>
+	<option value="chaccu/iconni08.png">忍（泣きべそ）</option>
+	<option value="chaccu/iconni09.png">楓</option>
+	<option value="chaccu/iconni10.png">雅</option>
+	<option value="chaccu/iconni11.png">サスケ</option>
+	<option value="chaccu/iconni12.png">忍者軍団</option>
+	<option value="chaccu/iconni13.png">泉先生</option>
+	<option value="chaccu/iconni14.png">デビル</option>
+	<option value="chaccu/iconni15.png">ママ上様</option>
+</optgroup>
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+
+<optgroup label="ハロワ">
+	<option value="chaccu/iconhe06.png">和樹</option>
+	<option value="chaccu/iconhe01.png">奈都美</option>
+	<option value="chaccu/iconhe02.png">かおるん</option>
+	<option value="chaccu/iconhe08.png">圭介</option>
+	<option value="chaccu/iconhe11.png">みここちゃん</option>
+	<option value="chaccu/iconhe03.png">千絵梨</option>
+	<option value="chaccu/iconhe12.png">帯刀さん</option>
+	<option value="chaccu/iconhe04.png">深佳</option>
+	<option value="chaccu/iconhe05.png">若佳菜先生</option>
+	<option value="chaccu/iconhe15.png">都</option>
+	<option value="chaccu/iconhe07.png">遥香</option>
+	<option value="chaccu/iconhe09.png">純子さん</option>
+	<option value="chaccu/iconhe10.png">佐知美さん</option>
+	<option value="chaccu/iconhe14.png">影山先生＆そあら</option>
+	<option value="chaccu/iconhe13.png">パーカー男</option>
+</optgroup>
+<optgroup label="羊のうた">
+	<option value="chaccu/iconhi01.png">一砂</option>
+	<option value="chaccu/iconhi02.png">千砂</option>
+	<option value="chaccu/iconhi03.png">八重樫さん</option>
+	<option value="chaccu/iconhi04.png">水無瀬</option>
+</optgroup>
+<optgroup label="Fate/stay night">
+	<option value="chaccu/iconf01.png">士郎</option>
+	<option value="chaccu/iconfa01.png">士郎2</option>
+	<option value="chaccu/iconfa02.png">士郎（笑顔）</option>
+	<option value="chaccu/iconf02.png">セイバー</option>
+	<option value="chaccu/iconfa03.png">セイバー（私服）</option>
+	<option value="chaccu/iconfa04.png">セイバー（いっときのユメ）</option>
+	<option value="chaccu/iconfa05.png">アルトリア（約束された勝利の剣）</option>
+	<option value="chaccu/iconfa06.png">セイバー（黒化）</option>
+	<option value="chaccu/iconfa07.png">セイバー（黄金の別離）</option>
+	<option value="chaccu/iconf03.png">凛</option>
+	<option value="chaccu/iconfa08.png">凛（魔術詠唱）</option>
+	<option value="chaccu/iconfa09.png">メガネ凛</option>
+	<option value="chaccu/iconfa10.png">凛（寝起き）</option>
+	<option value="chaccu/iconfa11.png">幼凛</option>
+	<option value="chaccu/iconfa12.png">魔女トオサカ</option>
+	<option value="chaccu/iconf04.png">アーチャー</option>
+	<option value="chaccu/iconfa13.png">アーチャー2</option>
+	<option value="chaccu/iconfa14.png">アーチャー（背中）</option>
+	<option value="chaccu/iconfa15.png">エミヤ</option>
+	<option value="chaccu/iconf05.png">桜</option>
+	<option value="chaccu/iconfa16.png">桜（制服）</option>
+	<option value="chaccu/iconfa17.png">ジェラシー桜</option>
+	<option value="chaccu/iconfa18.png">桜（黒衣）</option>
+	<option value="chaccu/iconfa19.png">桜（影の呪縛）</option>
+	<option value="chaccu/iconfa20.png">桜（エピローグ）</option>
+	<option value="chaccu/iconfa21.png">ライダー</option>
+	<option value="chaccu/iconfa22.png">メドゥーサ（魔眼・キュベレイ）</option>
+	<option value="chaccu/iconfa23.png">めがねライダーさん</option>
+	<option value="chaccu/iconf06.png">イリヤ</option>
+	<option value="chaccu/iconfa24.png">イリヤ（コート）</option>
+	<option value="chaccu/iconfa25.png">イリヤ（悪魔っ娘）</option>
+	<option value="chaccu/iconfa26.png">イリヤ（令呪発動）</option>
+	<option value="chaccu/iconfa27.png">イリヤ（天のドレス）</option>
+	<option value="chaccu/iconf07.png">バーサーカー</option>
+	<option value="chaccu/iconfa28.png">バーサーカー2</option>
+	<option value="chaccu/iconfa29.png">ヘラクレス（狂化）</option>
+	<option value="chaccu/iconfa30.png">葛木先生</option>
+	<option value="chaccu/iconfa31.png">キャスター</option>
+	<option value="chaccu/iconfa32.png">メディア</option>
+	<option value="chaccu/iconfa33.png">アサシン</option>
+	<option value="chaccu/iconfa34.png">佐々木小次郎（燕返し）</option>
+	<option value="chaccu/iconf17.png">言峰</option>
+	<option value="chaccu/iconfa35.png">言峰2</option>
+	<option value="chaccu/iconfa36.png">言峰（最終局面）</option>
+	<option value="chaccu/iconf08.png">ランサー</option>
+	<option value="chaccu/iconfa37.png">ランサー2</option>
+	<option value="chaccu/iconfa38.png">クー・フーリン（刺し穿つ死棘の槍）</option>
+	<option value="chaccu/iconfa39.png">ギルガメッシュ</option>
+	<option value="chaccu/iconfa40.png">ギルガメッシュ（ライダースーツ）</option>
+	<option value="chaccu/iconfa41.png">臓硯</option>
+	<option value="chaccu/iconfa42.png">白い髑髏</option>
+	<option value="chaccu/iconfa43.png">ハサン・サッバーハ（妄想心音）</option>
+	<option value="chaccu/iconfa59.png">黒い影</option>
+	<option value="chaccu/iconfa60.png">影の巨人</option>
+	<option value="chaccu/iconfa61.png">アンリ・マユ</option>
+	<option value="chaccu/iconf09.png">藤ねえ</option>
+	<option value="chaccu/iconfa44.png">藤ねえ（笑顔）</option>
+	<option value="chaccu/iconfa45.png">冬木の虎</option>
+	<option value="chaccu/iconf11.png">慎二</option>
+	<option value="chaccu/iconfa46.png">慎二2</option>
+	<option value="chaccu/iconf10.png">一成</option>
+	<option value="chaccu/iconfa47.png">一成（喝）</option>
+	<option value="chaccu/iconf12.png">美綴</option>
+	<option value="chaccu/iconfa48.png">美綴2</option>
+	<option value="chaccu/iconf13.png">三枝さん</option>
+	<option value="chaccu/iconfa49.png">三枝さん2</option>
+	<option value="chaccu/iconf14.png">マキジ</option>
+	<option value="chaccu/iconfa50.png">マキジ2</option>
+	<option value="chaccu/iconf15.png">鐘ちん</option>
+	<option value="chaccu/iconfa51.png">鐘ちん2</option>
+	<option value="chaccu/iconfa52.png">切嗣</option>
+	<option value="chaccu/iconfa53.png">ベディヴィエール</option>
+	<option value="chaccu/iconfa54.png">セラ</option>
+	<option value="chaccu/iconfa55.png">リーズリット</option>
+	<option value="chaccu/iconfa56.png">ユスティーツァ</option>
+	<option value="chaccu/iconfa57.png">雷画</option>
+	<option value="chaccu/iconfa58.png">ゼルレッチ</option>
+	<option value="chaccu/iconfa62.png">タイガ</option>
+	<option value="chaccu/iconfa63.png">弟子一号</option>
+	<option value="chaccu/iconfa64.png">せいばあ</option>
+	<option value="chaccu/iconfa65.png">りん</option>
+	<option value="chaccu/iconfa66.png">さくら</option>
+	<option value="chaccu/iconfa67.png">しろう</option>
+</optgroup>
+<optgroup label="マリみて">
+	<option value="chaccu/icon01.png">祐巳ちゃん</option>
+	<option value="chaccu/icon26.png">祐巳ちゃん（クエスチョン）</option>
+	<option value="chaccu/icon38.png">祐巳ちゃん（花寺制服）</option>
+	<option value="chaccu/icon11.png">祥子さま</option>
+	<option value="chaccu/icon27.png">ヒステリー祥子さま</option>
+	<option value="chaccu/icon48.png">祥子さま（5歳）</option>
+	<option value="chaccu/icon12.png">蓉子さま</option>
+	<option value="chaccu/icon45.png">蓉子さま（スーツ）</option>
+	<option value="chaccu/icon09.png">由乃さん</option>
+	<option value="chaccu/icon28.png">はっちゃけ由乃さん</option>
+	<option value="chaccu/icon42.png">反対由乃さん</option>
+	<option value="chaccu/icon29.png">由乃さん（入院中）</option>
+	<option value="chaccu/icon10.png">令さま</option>
+	<option value="chaccu/icon30.png">令さま（胴着）</option>
+	<option value="chaccu/icon31.png">令さま？</option>
+	<option value="chaccu/icon13.png">江利子さま</option>
+	<option value="chaccu/icon46.png">江利子さま（虫歯）</option>
+	<option value="chaccu/icon04.png">乃梨子ちゃん</option>
+	<option value="chaccu/icon33.png">乃梨子ちゃん（仏像大好き♪）</option>
+	<option value="chaccu/icon03.png">志摩子さん</option>
+	<option value="chaccu/icon32.png">志摩子さん（銀杏大好き♪）</option>
+	<option value="chaccu/icon49.png">和服志摩子さん</option>
+	<option value="chaccu/icon14.png">聖さま</option>
+	<option value="chaccu/icon34.png">聖さま（大学生）</option>
+	<option value="chaccu/icon43.png">聖さま（ロングヘア）</option>
+	<option value="chaccu/icon15.png">栞さん</option>
+	<option value="chaccu/icon47.png">スーパーロサギガンティア</option>
+	<option value="chaccu/icon16.png">静さま</option>
+	<option value="chaccu/icon19.png">蔦子さん</option>
+	<option value="chaccu/icon02.png">瞳子ちゃん</option>
+	<option value="chaccu/icon39.png">瞳子ちゃん（女優の微笑み）</option>
+	<option value="chaccu/icon25.png">可南子ちゃん</option>
+	<option value="chaccu/icon44.png">可南子ちゃん（ストーカー）</option>
+	<option value="chaccu/icon08.png">真美さん</option>
+	<option value="chaccu/icon07.png">三奈子さま</option>
+	<option value="chaccu/icon35.png">桂さん</option>
+	<option value="chaccu/icon20.png">笙子ちゃん</option>
+	<option value="chaccu/icon41.png">ちさとさん</option>
+	<option value="chaccu/icon40.png">美冬さん</option>
+	<option value="chaccu/icon17.png">加東さん</option>
+	<option value="chaccu/icon18.png">山辺先生</option>
+	<option value="chaccu/icon05.png">祐麒</option>
+	<option value="chaccu/icon36.png">祐麒（制服）</option>
+	<option value="chaccu/icon06.png">柏木</option>
+	<option value="chaccu/icon50.png">志摩子パパ</option>
+	<option value="chaccu/icon21.png">イヌ祐巳ちゃん</option>
+	<option value="chaccu/icon37.png">タヌ・キネンシス・アン・ブゥトン</option>
+	<option value="chaccu/icon22.png">ネコ由乃さん</option>
+	<option value="chaccu/icon23.png">ウサ・ギガンティア</option>
+	<option value="chaccu/icon24.png">オオカミ聖さま</option>
+</optgroup>
+
+<!-- %END_VENDOR -->
+
+<!-- %PAGE-BREAK -->
+<!-- ======================================================================= -->
+<!-- %BEGIN_VENDOR Hot Spice -->
+<!-- %VENDOR_URL http://www.sutv.zaq.ne.jp/miyaimax/index.html -->
+<optgroup label="魔法先生ネギま！">
+	<option value="miyaimax/negima/i_negi_sayo.png">相坂さよ</option>
+	<option value="miyaimax/negima/i_negi_yuuna.png">明石裕奈</option>
+	<option value="miyaimax/negima/i_negi_asakura.png">朝倉和美</option>
+	<option value="miyaimax/negima/i_negi_yue.png">綾瀬夕映</option>
+	<option value="miyaimax/negima/i_negi_ako.png">和泉亜子</option>
+	<option value="miyaimax/negima/i_negi_akira.png">大河内アキラ</option>
+	<option value="miyaimax/negima/i_negi_kakizaki.png">柿崎美砂</option>
+	<option value="miyaimax/negima/i_negi_asuna.png">神楽坂明日菜</option>
+	<option value="miyaimax/negima/i_negi_misora.png">春日美空</option>
+	<option value="miyaimax/negima/i_negi_chachamaru.png">絡繰茶々丸</option>
+	<option value="miyaimax/negima/i_negi_kugimiya.png">釘宮　円</option>
+	<option value="miyaimax/negima/i_negi_kufe.png">古菲 </option>
+	<option value="miyaimax/negima/i_negi_konoka.png">近衛木之香</option>
+	<option value="miyaimax/negima/i_negi_pal.png">早乙女ハルナ</option>
+	<option value="miyaimax/negima/i_negi_setsuna.png">桜咲刹那</option>
+	<option value="miyaimax/negima/i_negi_makie.png">佐々木まき絵</option>
+	<option value="miyaimax/negima/i_negi_sakurakor.png">椎名桜子</option>
+	<option value="miyaimax/negima/i_negi_tatsumiyar.png">龍宮真名</option>
+	<option value="miyaimax/negima/i_negi_chaor.png">超　鈴音</option>
+	<option value="miyaimax/negima/i_negi_kaeder.png">長瀬　楓</option>
+</optgroup>
+<!-- %END_VENDOR -->
+
