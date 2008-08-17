@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 = Marldia - Web Chat System
 #
-# $Id: Marldia.txt,v 1.45 2008-01-27 07:53:34 naruse Exp $
+# $Id$
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
@@ -28,6 +28,8 @@ Airemixの掲示板で質問してみてください
 
 #------------------------------------------------------------------------------#
 == Marldia History
+:2008-08-17 Revision: 1.65
+  * 色々変更
 :2008-01-27 Revision: 1.45
   * いろいろ変更
 :2007-09-23 Revision: 1.44

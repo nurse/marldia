@@ -1,4 +1,4 @@
-/* $Id: punycode.js,v 1.1 2006-03-11 09:34:45 naruse Exp $ */
+/* $Id$ */
 /*　
  * = Punycode for JavaScript
  * 

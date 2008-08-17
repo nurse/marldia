@@ -2,11 +2,11 @@
 # 'iconCatalog' iconCatalog for MireilleIconList0.x
 # - Mireille/Marldia Icon Catalog Module -
 #
-$CF{'iconCatalog'}=qq$Revision: 1.3 $;
+$CF{'iconCatalog'}=qq$Revision$;
 # "This file is written in utf-8, CRLF." 空
 # Scripted by NARUSE Yui.
 #------------------------------------------------------------------------------#
-# $rcsid = q$Id: iconctlg.cgi,v 1.3 2007-05-07 05:38:03 naruse Exp $;
+# $rcsid = q$Id$;
 require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK);
@@ -739,7 +739,7 @@ BEGIN{
 		};
 	}
 	# Revision Number
-	$CF{'iconCatalog'}=qq$Revision: 1.3 $;
+	$CF{'iconCatalog'}=qq$Revision$;
 	$CF{'Exte'}.=qq(icon:\t$CF{'iconCatalog'}\n);
 }
 

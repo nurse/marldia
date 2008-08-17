@@ -4,11 +4,11 @@
 # 'Marldia' Chat System
 # - Marldia Core File -
 #
-# $Revision: 1.23 $
+# $Revision$
 # "This file is written in utf-8, CRLF." 空
 # Scripted by NARUSE,Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: index.cgi,v 1.23 2008-01-27 07:53:34 naruse Exp $;
+# $cvsid = q$Id$;
 require 5.005;
 #use strict;
 #use vars qw(%CF %IN %CK %IC);
@@ -176,7 +176,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
 	};
     }
     # Revision Number
-    $CF{'idxrev'}=qq$Revision: 1.23 $;
+    $CF{'idxrev'}=qq$Revision$;
 }
 1;
 __END__

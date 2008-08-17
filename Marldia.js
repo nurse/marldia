@@ -3,7 +3,7 @@
  * Marldia.js
  * 
  * -*- coding: utf-8 -*-
- * $Id: Marldia.js,v 1.9 2008-01-27 07:53:34 naruse Exp $
+ * $Id$
  * 
  ******************************************************************************/
 
@@ -482,7 +482,7 @@ function showCommandWindow(e){
 	case 'version':
 	   alert(
 		 MARLDIA_CORE_ID + "\n"+
-		 "$Id: Marldia.js,v 1.9 2008-01-27 07:53:34 naruse Exp $");
+		 "$Id$");
 	   break;
 	case 'exit':
 	case 'quit':

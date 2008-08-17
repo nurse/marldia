@@ -4,10 +4,10 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision: 1.45 $
+# $Revision$
 # Scripted by NARUSE, Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id: core.cgi,v 1.45 2008-01-27 07:53:34 naruse Exp $;
+# $cvsid = q$Id$;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -73,6 +73,29 @@ sub main{
 # MAIN ROUTINS
 #
 # main直下のサブルーチン群
+
+sub nya{
+    my $str = shift;
+    my $end = '(?:ｗ|・|？|、|。|\x28|（)+|$';
+    for (;;) {
+	if ($str =~ s/(です|した|エロス|だ)(?:よ|ねん)?(?=$end)/$1にゃ/g){
+	} elsif ($str =~ s/(?:よう|る)(?=$end)/るにゃ/g){
+	} elsif ($str =~ s/(?:なぁ)(?=$end)/にゃあ/g){
+	} elsif ($str =~ s/(?:かな)(?=$end)/かにゃ/g){
+	} elsif ($str =~ s/(?:ただぜ)(?=$end)/たにゃん/g){
+	} elsif ($str =~ s/(?:から|れん|じゃん)(?=$end)/にゃ/g){
+	} else {
+	    last;
+	}
+    }
+    if ($str !~ /にゃ/) {
+	$str =~ s/(?=？|・|、|。|\x28|（)/にゃ/g;
+	if ($str !~ /にゃ/) {
+	    $str .= 'にゃ';
+	}
+    }
+    return $str;
+}
 
 
 #-------------------------------------------------
@@ -567,7 +590,7 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '$Id: core.cgi,v 1.45 2008-01-27 07:53:34 naruse Exp $';
+MARLDIA_CORE_ID = '$Id$';
 var isInitialized;
 _HTML_
     print<<"_HTML_";
@@ -2270,14 +2293,24 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    }
 	}
 	for(keys%DT){
+	    my $str;
 	    if($::CF{'encoding'} =~ /utf-8/io){
-		my $str = '';
+		$str = '';
 		while($DT{$_}=~/\G([\w\W]*?)((?:$utf8char)*)/gso){
 		    $str .= ('?' x length($1)) . $2;
 		}
 		$DT{$_} = $str;
 	    }
-	    $DT{$_} =~ s/\343\200\234/\357\275\236/go;
+	    $str = $DT{$_};
+	    $str =~ s/\xE3\x80\x9C/\xEF\xBD\x9E/go;
+	    $str =~ s/\xE2\x80\x96/\xE2\x88\xA5/go;
+	    $str =~ s/\xE2\x88\x92/\xEF\xBC\x8D/go;
+	    $str =~ s/\xC2\xA2/\xEF\xBF\xA0/go;
+	    $str =~ s/\xC2\xA3/\xEF\xBF\xA1/go;
+	    $str =~ s/\xC2\xAC/\xEF\xBF\xA2/go;
+	    $str =~ s/\xC2\xAC/\xEF\xBF\xA2/go;
+	    $str =~ s/\xC2\xA6/\xEF\xBF\xA4/go;
+	    $DT{$_} = $str;
 	}
 	
 	# Load save settings
@@ -2744,7 +2777,8 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	    $fh=*LOGFILE{IO};
 	    #version string
 	    my $version = <$fh>;
-	    if($version =~ /^Marldia=1.1/o){
+	    if (!$version) {
+	    }elsif($version =~ /^Marldia=1.1/o){
 		#memberを追加
 		while(<$fh>){/\S/o?push(@members,$_):last}
 		#chatlogを追加
@@ -3258,7 +3292,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision: 1.45 $;
+    $CF{'correv'}=qq$Revision$;
     $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
