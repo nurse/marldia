@@ -38,7 +38,7 @@ sub main{
 	&help();
     }elsif('xml'eq$IN{'type'}){
 	&xmlView();
-    }elsif('mobile'eq$IN{'type'} || $IN{'hua'} =~ /(?:^Mozilla\/[1-3].0|DoCoMo|UP\.Browser|^J-PHONE|^Vodafone|^ASTEL)/o){
+    }elsif('mobile'eq$IN{'type'} || $IN{'hua'} =~ /(?:^Mozilla\/[1-3].0|DoCoMo|UP\.Browser|^J-PHONE|^Vodafone|^SoftBank|^ASTEL|iPhone)/o){
 	$IN{'type'} = 'mobile';
 	my %default = (
 		       line => 20
@@ -136,7 +136,7 @@ Home: <INPUT type="text" name="home" value="$IN{'home'}" istyle="3">
 入口へ: <INPUT name="mode" type="checkbox" value="entrance">
 <INPUT type="submit" value="OK" accesskey="1">
 </FORM>
--<A href="http://www.airemix.com/" title="Airemixへいってみる">Marldia v$CF{'version'}</A>-
+-<A href="http://www.airemix.com/" title="Airemixへいってみる">Marldia r$CF{'version'}</A>-
 </BODY>
 </HTML>
 _HTML_
@@ -178,6 +178,20 @@ sub mobileView{
     }
     my $color = $IN{'_opt'}{'color'} ? ' color=' . $IN{'_opt'}{'color'} : '';
     my $bgcolor = $IN{'_opt'}{'bgcolor'} ? ' bgcolor=' . $IN{'_opt'}{'bgcolor'} : '';
+    my $size =
+        $IN{'hua'} =~ /iPhone/o ? 50 :
+        $IN{'hua'} =~ /Mozilla|922SH/o ? 50 :
+        4;
+    my $style = '';
+    if ($IN{'hua'} =~ /iPhone/o) {
+      $style = <<_STYLE_;
+<style>
+body{width:1024}
+input{font-size:x-large}
+font{font-size:large}
+</style>
+_STYLE_
+    }
     
     #-----------------------------
     #ヘッダ出力
@@ -189,6 +203,7 @@ Content-type: text/html; charset=$IN{'encoding'}
 <HEAD>
 <META http-equiv="Content-type" content="text/html; charset=$IN{'encoding'}">
 <TITLE>$CF{'title'}</TITLE>
+$style
 </HEAD>
 <BODY$bgcolor><font size=2$color>$extension
 <FORM name="north" method="$method" action="$CF{'index'}">
@@ -203,7 +218,7 @@ Content-type: text/html; charset=$IN{'encoding'}
 <INPUT type="hidden" name="email" value="$IN{'email'}">
 <INPUT type="hidden" name="opt"   value="$IN{'opt'}">
 <INPUT type="hidden" name="home"  value="$IN{'home'}">
-内容:<INPUT type="text" name="body" value="" size="4" accesskey="2">
+内容:<INPUT type="text" name="body" value="" size="$size" accesskey="2">
 <INPUT type="submit" value="OK" size="2" accesskey="1">
 行:<INPUT type="text" name="line" value="$IN{'line'}" size="1" istyle="4">
 <INPUT name="mode" type="checkbox" value="entrance">
@@ -212,8 +227,9 @@ _HTML_
     
     #-----------------------------
     #参加者表示
+    #[@{[sprintf("%02d:%02d",(split(/[\s:]+/o,scalar localtime($^T)))[3,4])]}]
     $output .= <<"_HTML_";
-<pre>計:$intMembers [ $strMembers ]
+<div>計:$intMembers [ $strMembers ]<br>
 _HTML_
     my$i=0;
     my $isAdmin = 0;
@@ -256,12 +272,13 @@ _HTML_
 $icon$name &gt; $body$date$status
 _HTML_
 	}
+	$output .= "<br>";
     }
     $chatlog->dispose;
     $logfile->dispose;
     $output .= <<"_HTML_";
 Airemix Marldia
-</PRE>
+</div>
 </BODY>
 </HTML>
 _HTML_
@@ -1886,7 +1903,7 @@ $CF{'iconList'}の最初の一文字が' '（半角空白）だった場合複�
     $_[0]=$CF{'icondir'}.$_[0]unless$isAbsolute;
     $isDisabled&&=' disabled';
     $CF{'-CacheIconList'}=<<"_HTML_";
-<SELECT name="icon" id="icon" onchange="document.images['preview'].src=iconDirectory+this.value;document.images['preview'].title=this.value;if(changeOption)changeOption()"$opt$isDisabled>
+<SELECT name="icon" id="icon" onchange="document.images['preview'].src=iconDirectory+this.value;document.images['preview'].title=this.value;if(changeOption)changeOption()" onkeyup="document.images['preview'].src=iconDirectory+this.value;document.images['preview'].title=this.value;if(changeOption)changeOption()"$opt$isDisabled>
 $iconlist</SELECT>
 _HTML_
     return$CF{'-CacheIconList'};
@@ -3293,7 +3310,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
 
     #Revision Number
     $CF{'correv'}=qq$Revision$;
-    $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
+    $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]*)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
 __END__

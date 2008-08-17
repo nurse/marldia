@@ -1,5 +1,5 @@
 =begin
-#encoding="shift_jis"
+# -*- coding: UTF-8 -*-
 #------------------------------------------------------------------------------#
 = Marldia - Web Chat System
 #
@@ -7,340 +7,342 @@
 # http://www.airemix.com/
 # naruse@airemix.com
 # Scripted by NARUSE Yui.
-# "This file is written in shift_jis, CRLF." ��
+# "This file is written in shift_jis, CRLF." 空
 #------------------------------------------------------------------------------#
-== ����͉��H
-�gMarldia�h�́u����������������̂��ʓ|�Ȑl���������ߎ�ꂪ���ȏ������`���b�g�V�X�e���v�ł��B
-�u���Ƃ��݂Ȃɓ`���ƌ����Ă��A�����܂ł���̓`���b�g���A
-�ƌ�������Ǘ��l�̂���T�C�g�����A�̂ю�ё΍�ς݃`���b�g�V�X�e���v
-�Ƃ�������������܂���B
-�Ƃ肠��������ȗނ̂��̂ł��B
+== これは何？
+“Marldia”は「いちいち入室するのが面倒な人が多いため寂れがちな所向けチャットシステム」です。
+「たとえみなに伝言板と言われても、あくまでこれはチャットだ、
+と言い張る管理人のいるサイト向け、侘び寂び対策済みチャットシステム」
+とも言うかもしれません。
+とりあえずそんな類のものです。
 
-== �ݒu���ē����Ȃ��Ƃ��̃����B
+== 設置して動かないときのメモ。
 
-=== �^�����ɔR���s����
-index.cgi���̂͂��߂̕��� $ENV{'HTTP_ACCEPT_ENCODING'} = ''; �Ə����Ă�������
-=== ����ȊO
-Mireille�̐����������Ă��������i��
-=== ����ł��킩��Ȃ�
-Airemix�̌f���Ŏ��₵�Ă݂Ă�������
+=== 真っ白に燃え尽きた
+index.cgi内のはじめの方に $ENV{'HTTP_ACCEPT_ENCODING'} = ''; と書いてください
+=== それ以外
+Mireilleの説明書を見てください（死
+=== それでもわからない
+Airemixの掲示板で質問してみてください
 
 
 #------------------------------------------------------------------------------#
 == Marldia History
+:2008-08-17 Revision: 1.66
+  * iPhone, 922SH 対応
 :2008-08-17 Revision: 1.65
-  * �F�X�ύX
+  * 色々変更
 :2008-01-27 Revision: 1.45
-  * ���낢��ύX
+  * いろいろ変更
 :2007-09-23 Revision: 1.44
-  * �n�j�[�|�b�g�@�\������
+  * ハニーポット機能を実装
 :2007-07-04 Revision: 1.43
-  * �R�}���h /help ��ǉ�
-  * �R�}���h /save ��ǉ�
-  * Safari �Ή�
-  * REMOTE_HOST �������L���O�ƎQ���҈ꗗ�ŕ\������悤��
+  * コマンド /help を追加
+  * コマンド /save を追加
+  * Safari 対応
+  * REMOTE_HOST をランキングと参加者一覧で表示するように
 :2007-03-23 Revision: 1.42
-  * Cast�o�͂�system/uri����o�[�W�������폜
-  * UTF-8�Ƃ��Đ������Ȃ�������̓��͂������Ȃ�
+  * Cast出力のsystem/uriからバージョンを削除
+  * UTF-8として正しくない文字列の入力を許さない
 :2007-01-16 Revision: 1.41
-  * �g�у��[�h�Ŏ��������������̂��ēx�C��
-  * �g�у��[�h�ł̈ꕔ�t�H���g�T�C�Y�̕ύX
-  * �g�у��[�h�ŐF�w�肪�Ȃ��ꍇ��FONT�^�O���o�͂��Ȃ��悤��
+  * 携帯モードで時刻がおかしいのを再度修正
+  * 携帯モードでの一部フォントサイズの変更
+  * 携帯モードで色指定がない場合はFONTタグを出力しないように
 :2006-10-06 Revision: 1.40
   * option: color, bgcolor
-  * iconcache��p�����g�ь����A�C�R���k���E�t�H�[�}�b�g�ϊ��ɑΉ�
-  * �g�у��[�h�Ŏ��������������̂��C��
+  * iconcacheを用いた携帯向けアイコン縮小・フォーマット変換に対応
+  * 携帯モードで時刻がおかしいのを修正
 :2006-10-06 Revision: 1.39
   * option: showIcon
-  * PC���[�h�ŁA�g�т���̔����ɂ͌g�у}�[�N��\��
-  * �g�у��[�h�Ŏ��������������̂��C��
-  * �g�у��[�h�ō폜���ꂽ�L����\���ł���ہA�폜�}�[�N��\��
-  * �s���ƍX�V�b���̃t�H�[�����AINPUT��SELECT�I�ׂ�悤��
-  * �����{���̓��e�ɂ��āA�^�O�̑Ή�������悤��
+  * PCモードで、携帯からの発言には携帯マークを表示
+  * 携帯モードで時刻がおかしいのを修正
+  * 携帯モードで削除された記事を表示でする際、削除マークを表示
+  * 行数と更新秒数のフォームを、INPUTかSELECT選べるように
+  * 発言本文の内容について、タグの対応を見るように
 :2006-07-06 Revision: 1.38
-  * �f�t�H���g�� ChatHistory �ғ�
-  * �����L���O����̏C��
+  * デフォルトで ChatHistory 稼動
+  * ランキング周りの修正
   * &userArgumentFilter
-  * �A�C�R���J�^���O�� page=0 ������
+  * アイコンカタログで page=0 を許す
 :2006-07-02 Revision: 1.37
-  * �A�C�R������
-  * Cast 0.4 beta �Ή�
-  * XML �A�C�R�����X�g
+  * アイコン履歴
+  * Cast 0.4 beta 対応
+  * XML アイコンリスト
 :2006-03-17 Revision: 1.36
-  * ��ASCII���܂�URL���������N���J�����Ƃ��ɉ�����̂��C��
+  * 非ASCIIを含んだURL自動リンクが開いたときに化けるのを修正
 :2006-03-11 Revision: 1.35
-  * au/Vodafone�̌g�тɑΉ�
-  * �����R�[�h��UTF-8�ɕύX
+  * au/Vodafoneの携帯に対応
+  * 文字コードをUTF-8に変更
 :2005-11-04 Revision: 1.34
   * fix: quotes are not closed
   * fix: form of mobile entrance should be moethod="get"
 :2005-10-05 Revision: 1.33
-  * �P�[�^�C���[�h�ł�accesskey��ݒ�
-  * Encode 2.10 �� FB_HTMLCREF �̈������ς�������ɑΉ�
+  * ケータイモードでのaccesskeyを設定
+  * Encode 2.10 で FB_HTMLCREF の扱いが変わった件に対応
 :2005-07-28 Revision: 1.32
-  * �\��A�C�R���̈ꗗ��createPopup�łȂ�div�ōs���悤�ɂ���
-  * �N�b�L�[��IrDr�ŃG�N�X�|�[�g�E�C���|�[�g����@�\������
-  * �R�}���h�E�B���h�E������
+  * 表情アイコンの一覧をcreatePopupでなくdivで行うようにした
+  * クッキーをIrDrでエクスポート・インポートする機能をつけた
+  * コマンドウィンドウをつけた
 :2005-07-14 Revision: 1.31
-  * ��ʕ\��A�C�R�����g���Ȃ������̂��C��
-  * URL���������N�ŁA���pCGI�łȂ��AJavaScript�Ŕ�΂��悤�ɂ���
-  * ChatXML��article/icon@src����ɐ�΃p�X�ƂȂ�悤�ɂ���
-  * ChatXML��article/icon{@width,@height}��ǉ�����
+  * 一般表情アイコンが使えなかったのを修正
+  * URL自動リンクで、中継CGIでなく、JavaScriptで飛ばすようにした
+  * ChatXMLのarticle/icon@srcが常に絶対パスとなるようにした
+  * ChatXMLでarticle/icon{@width,@height}を追加した
 :2005-06-07 Revision: 1.30
-  * SELECT�ɂ��A�C�R���w�莞�ɁA�\��A�C�R�����g�p�ł��Ȃ��o�O�̏C��
-  * SELECT�ɂ��A�C�R���w�莞�ɁA�\��A�C�R��SELECT�����f����Ȃ��o�O�̏C��
-  * XML�o�͂̒���
-  * �A�����e�h�~�@�\
+  * SELECTによるアイコン指定時に、表情アイコンが使用できないバグの修正
+  * SELECTによるアイコン指定時に、表情アイコンSELECTが反映されないバグの修正
+  * XML出力の調整
+  * 連続投稿防止機能
 :2005-05-29 Revision: 1.29
-  * encoding�w�蓊�e�ɑΉ�
+  * encoding指定投稿に対応
 :2005-03-12 Revision: 1.28
-  * XML�o�͑Ή�
-  * URL���������N�ł̃����N�̍ہALocation�Ŕ�΂��悤��
+  * XML出力対応
+  * URL自動リンクでのリンクの際、Locationで飛ばすように
 :2005-03-12 Revision: 1.27
-  * ���{��h���C����URL���������N�ɑΉ�
+  * 日本語ドメインのURL自動リンクに対応
 :2005-03-12 Revision: 1.26
-  * �Ǘ��R�}���h�̕ύX
-  * ����������IE5�ł������悤�ɁH
-  * ���������̃o�O�C��
+  * 管理コマンドの変更
+  * 自動消去がIE5でも動くように？
+  * 発言履歴のバグ修正
 :2004-12-05 Revision: 1.25
-  * �f�b�h���b�N����\�����������̂��C��
-  * �I�v�V����CSS
-  * Reload����̏C��
-  * �����ł̋󔒂̈�������ύX
-  * �F�I��p��SELECT��Firefox�ł��F�����f�����悤��
+  * デッドロックする可能性があったのを修正
+  * オプションCSS
+  * Reload周りの修正
+  * 発言での空白の扱い方を変更
+  * 色選択用のSELECTでFirefoxでも色が反映されるように
 :2004-12-05 Revision: 1.24
-  * �Q���ҏ�񂪏�������Ԃœ�����Ԃ̃����[�h�������BLANK�����������Ȃ�o�O���C��
-  * �����sBODY
-  * ��������
+  * 参加者情報が消えた状態で入室状態のリロードをするとBLANKがおかしくなるバグを修正
+  * 複数行BODY
+  * 発言履歴
 :2004-12-05 Revision: 1.23
-  * �R�}���h���@�̕ύX
-  * �ҏW�R�}���h�̒ǉ�
+  * コマンド文法の変更
+  * 編集コマンドの追加
 :2004-11-24 Revision: 1.22
-  * �o���n�̏��Ȃ��l���폜�ł���悤��
+  * 経験地の少ない人を削除できるように
 :2004-11-23 Revision: 1.21
-  * �g�ѓd�b����̉{�����T�|�[�g
+  * 携帯電話からの閲覧をサポート
 :2004-08-26 Revision: 1.20
-  * �����L���O�ɏ��ʂ�����
-  * �Ǘ��R�}���h�ɂ�锭���ꊇ�폜�̎���
-  * �Ǘ��R�}���h�ɂ��o���l�}�[�W�@�\�̏C��
-  * ���t���[���̎��������[�h�ɂ���āA��t���[���̖��m��ȕ����񂪏�����IE�̃o�O�ɑΉ�
+  * ランキングに順位をつけた
+  * 管理コマンドによる発言一括削除の実装
+  * 管理コマンドによる経験値マージ機能の修正
+  * 下フレームの自動リロードによって、上フレームの未確定な文字列が消えるIEのバグに対応
 :2004-08-10 Revision: 1.19
-  * �Ǘ��R�}���h����̃��O�E�����L���O�폜�@�\���C��
+  * 管理コマンドからのログ・ランキング削除機能を修正
 :2004-07-30 Revision: 1.18
-  * �ގ����[�h�̎��ɔ����폜���o���Ȃ��̂��C��
+  * 退室モードの時に発言削除が出来ないのを修正
 :2004-07-30 Revision: 1.17
-  * �����]���@�\�̎���
+  * 強制転送機能の実装
 :2003-09-04 Revision: 1.16
-  * ��Ύw��A�C�R�������܂������Ȃ������̂��C��
-  * �ގ����[�h��ǉ�
-  * Zyo����Surface��
+  * 絶対指定アイコンがうまく動かなかったのを修正
+  * 退室モードを追加
+  * ZyoからSurfaceに
 :2003-05-15 Revision: 1.15
-  * �����\���̃I�u�W�F�N�g�w������i�߂�
-  * �\��A�C�R�����������������
-  * ��Ύw��A�C�R���E���Ύw��A�C�R���R�}���h��ǉ�
-  * ���̑�
+  * 内部構造のオブジェクト指向化を進めた
+  * 表情アイコン周りを書き直した
+  * 絶対指定アイコン・相対指定アイコンコマンドを追加
+  * その他
 :2003-03-30 Revision: 1.14
-  * Marldia.txt��RD������
-  * �Ǘ����[�h�̃����L���O��Q���҈ꗗ��ID�̍��ڂ�ǉ�
-  * �����L���O�ɂ��傤����/LatContact���ڂ�ǉ�
-  * getOnlyHash�̃n�b�V����id���܂߂�悤�ɂ���
-  * CSS��link�����IE6�΍����𒲐�
-  * ���x���v�Z���܂Ƃ��ɂ��Ă݂�
-  * ���̑�����
+  * Marldia.txtをRD化した
+  * 管理モードのランキングや参加者一覧にIDの項目を追加
+  * ランキングにしょうそく/LatContact項目を追加
+  * getOnlyHashのハッシュにidを含めるようにした
+  * CSSのlink周りやIE6対策周りを調整
+  * レベル計算をまともにしてみた
+  * その他調整
 :2002-12-17 Revision: 1.13
-  * ���������L���O�̋���
-  * �Q���҈ꗗ�̋���
-  * ���O�ۑ�����̃o�O���C��
-  * ���������N�̐��x�����߂�
+  * 発言ランキングの強化
+  * 参加者一覧の強化
+  * ログ保存周りのバグを修正
+  * 自動リンクの精度を高めた
 :2002-12-13 Revision: 1.12
-  * �t�@�C������̎����Ŗ{�i�I�ɃI�u�W�F�N�g�w�����g���Ă݂�
-  * ����css��ύX
-  * ���̑�
+  * ファイル周りの実装で本格的にオブジェクト指向を使ってみた
+  * 少しcssを変更
+  * その他
 :2002-10-22 Revision: 1.11
-  * iconCatalog���g���ăA�C�R���ꗗ��\������悤�ɂ���
-  * �����L���O�̎������@��ς��Ă݂�
-  * $CF{'icondir'} ��$CF{'iconDir'} �ƃL�[���ύX
-  * $CF{'iconlist'}��$CF{'iconList'}�ƃL�[���ύX
-  * ���O�⃉���L���O�̃t�@�C��������I�u�W�F�N�g�w�������ɍĐ݌v
-  * ������Ԃ̃`���b�g���O�ƃ����L���O��ۑ�����t�@�C���̊g���q��pl����cgi�ɕύX
-  * �^�OSelectable�@�\������
-  * ���̑�
+  * iconCatalogを使ってアイコン一覧を表示するようにした
+  * ランキングの実装方法を変えてみた
+  * $CF{'icondir'} →$CF{'iconDir'} とキー名変更
+  * $CF{'iconlist'}→$CF{'iconList'}とキー名変更
+  * ログやランキングのファイル操作をオブジェクト指向風味に再設計
+  * 初期状態のチャットログとランキングを保存するファイルの拡張子をplからcgiに変更
+  * タグSelectable機構をつけた
+  * その他
 :2002-08-29 Revision: 1.10
-  * �����Ɣ������Ȃ��ƃ����[�h�Ԋu���L�тĂ����@�\������
-  * WindowsXP�̏ꍇ�AWindows�̐VUI��Ή���IE�n�u���E�U�ł��VUI�ɂȂ�悤�ɂ��Ă݂�
+  * ずっと発言しないとリロード間隔が伸びていく機能をつけた
+  * WindowsXPの場合、Windowsの新UI非対応のIE系ブラウザでも新UIになるようにしてみた
 :2002-07-21 Revision: 1.9
-  * CSS��IE6�Ń`���b�g�E�B���h�E�ɉ��X�N���[���o�[���o�Ȃ��悤�ɒ���
-  * ���̂ق�
+  * CSSをIE6でチャットウィンドウに横スクロールバーが出ないように調整
+  * そのほか
 :2002-06-13 Revision: 1.8
-  * �A�C�R�����Z���N�g�{�b�N�X�őI�Ԏ��ɗ��������O�F�ɂȂ��Ă��܂��o�O���C��
-  * Tripod.co.jp�ł��ꉞ�����悤�ɂ����B
+  * アイコンをセレクトボックスで選ぶ時に両方が名前色になってしまうバグを修正
+  * Tripod.co.jpでも一応動くようにした。
 :2002-05-05 Revision: 1.7
-  * Cookie�ɕۑ�����Ă���A�C�R�������\����g���Ȃ������o�O���C��
-  * ���̑��\��A�C�R��������C��
+  * Cookieに保存されているアイコンしか表情を使えなかったバグを修正
+  * その他表情アイコン周りを修正
 :2002-04-21 Revision: 1.6
-  * �R�}���h�Ōo���n�����Ƃ����낢��ł���悤�ɂ��Ă݂�h
-  * �\��A�C�R�����ꗗ�őI�ׂ�悤�ɂ��Ă݂�
-  * CSS�̊����R�[�h��EUC-JP��
+  * コマンドで経験地統合とかいろいろできるようにしてみたh
+  * 表情アイコンを一覧で選べるようにしてみた
+  * CSSの漢字コードをEUC-JPに
 :2002-03-21 Revision: 1.5
-  * �A�C�R������C��
-  * �\��E��p�A�C�R������C��
-  * CSS������
-  * $CF{'icon'}��$CF{'icondir'}
+  * アイコン周り修正
+  * 表情・専用アイコン周り修正
+  * CSSも調整
+  * $CF{'icon'}→$CF{'icondir'}
 :2002-03-15 Revision: 1.4
-  * �A�C�R�����X�g�𕡐��ǂݍ��߂�悤�ɂ���
-  * �\��A�C�R���@�\������
-  * �L�����ʂō폜�ł���悤�ɂ���
-  * ���̂ق���ʂɕύX
+  * アイコンリストを複数読み込めるようにした
+  * 表情アイコン機能をつけた
+  * 記事を個別で削除できるようにした
+  * そのほか大量に変更
 :2001-12-30 Revision: 1.3
-  * �Q���ҏ��̕ۑ����@��ύX���܂���
+  * 参加者情報の保存方法を変更しました
 :2001-12-21 Revision: 1.2
-  * �S�̓I�ɂ��܂��܂Ƃ����C�������܂���
-  * �ł��ʂ������̂ŉ��������̂��Y�ꂽ��A�A
+  * 全体的にこまごまとした修正をしました
+  * でも量が多いので何をしたのか忘れたり、、
 :2001-10-21 Revision: 1.1
   * Initial Version.
 :2001-05-04 Project'Marldia'
-  * �v���W�F�N�g�X�^�[�g�B
+  * プロジェクトスタート。
 
 #------------------------------------------------------------------------------#
-== �ȒP�Ȑݒu���@�B
-	�t�@�C����  �p�[�~�b�V���� ���l
-	/                      705 �`���b�g�̃f�B���N�g��
-	/-index.cgi            705 �N���t�@�C��
-	/-core.cgi             644 �R�A�t�@�C��
-	/-icon.txt             644 �A�C�R�����X�g
-	/-style.css            644 �X�^�C���V�[�g
-�ȉ���Marldia������ɐݒu���܂�
-	/-log.cgi              666 ���O�t�@�C��
-	/-rank.cgi             666 �����L���O�t�@�C��
-����Ȋ����Őݒu����Γ����Ă����Ǝv���܂��B�����B
+== 簡単な設置方法。
+	ファイル名  パーミッション 備考
+	/                      705 チャットのディレクトリ
+	/-index.cgi            705 起動ファイル
+	/-core.cgi             644 コアファイル
+	/-icon.txt             644 アイコンリスト
+	/-style.css            644 スタイルシート
+以下はMarldiaが勝手に設置します
+	/-log.cgi              666 ログファイル
+	/-rank.cgi             666 ランキングファイル
+こんな感じで設置すれば動いてくれると思います。多分。
 
 #------------------------------------------------------------------------------#
-== �A�C�R�����X�g�̌`��
-	<optgroup label="�O���[�v��">
-	  <option value="�t�@�C����">�A�C�R����</option>
-	  <option value="�t�@�C����">�A�C�R����</option>
+== アイコンリストの形式
+	<optgroup label="グループ名">
+	  <option value="ファイル名">アイコン名</option>
+	  <option value="ファイル名">アイコン名</option>
 	</optgroup>
-	<optgroup label="�O���[�v��">
-	  <option value="�t�@�C����">�A�C�R����</option>
-	  <option value="�t�@�C����">�A�C�R����</option>
+	<optgroup label="グループ名">
+	  <option value="ファイル名">アイコン名</option>
+	  <option value="ファイル名">アイコン名</option>
 	</optgroup>
 	 . . .
-	<optgroup label="�O���[�v��">
-	  <option value="�t�@�C����">�A�C�R����</option>
-	  <option value="�t�@�C����">�A�C�R����</option>
+	<optgroup label="グループ名">
+	  <option value="ファイル名">アイコン名</option>
+	  <option value="ファイル名">アイコン名</option>
 	</optgroup>
-	<option value="�t�@�C����">�A�C�R����</option>
-	<option value="�t�@�C����">�A�C�R����</option>
-�Ɨ��񂷂�B
-optgroup�v�f��IE6�őΉ����Ă��܂��B
-IE5�ł͉��������܂��񂪁A���Ղ��E���ނ̂��₷�������l������ƁA
-���̂���������Ă������ق��������Ǝv���܂��B
-���Ȃ݂ɁA���̑�����ǉ����ď������ꍇ�ꉞ����Ȃ�ɑ΍�͂��Ă���܂����A
-�d�������������\���͏\���ɍl�����邽�߁A
-�Ȃ�ׂ���L�̌`���ɉ����悤�ɏ����Ă��������B
-���s�͕K�{�ł��B�Ȃ��Ɛ��퓮�삵�܂���B
-optgroup�ň͂��Ă��Ȃ�option�͍Ō���ɂ̂ݒu���܂��B
-�r���œ����Ƃ���ς�d������������܂��B
-����ȏ㊰�e�ɂ͍��܂���ł����B���݂܂���m(__)m
+	<option value="ファイル名">アイコン名</option>
+	<option value="ファイル名">アイコン名</option>
+と羅列する。
+optgroup要素はIE6で対応しています。
+IE5では何もおきませんが、見易さ・分類のしやすさをを考慮すると、
+今のうちからつけておいたほうがいいと思います。
+ちなみに、他の属性を追加して書いた場合一応それなりに対策はしてありますが、
+妖しい動作をする可能性は十分に考えられるため、
+なるべく上記の形式に沿うように書いてください。
+改行は必須です。ないと正常動作しません。
+optgroupで囲っていないoptionは最後尾にのみ置けます。
+途中で入れるとやっぱり妖しい動作をします。
+これ以上寛容には作れませんでした。すみませんm(__)m
 
 #------------------------------------------------------------------------------#
-== ��p�A�C�R���ɂ��Ă̕⑫�B
-(({$CF{'cmic'}='1';}))�Ƃ���((|$IC{''}|))�������A�˂�Δ������܂��B
-	$IC{'hae'}='mae.png'; #�c
-	$IC{'hie'}='mie.png'; #��
-	$IC{'hue'}='mue.png'; #�K
-	$IC{'hee'}='mee.png'; #��
-	$IC{'hoe'}='moe.png'; #�T�G
-����Ȃ��񂶂�#�ȍ~�ɒN�̐�p�A�C�R���������Ă����Ƃ킩��₷���Ǝv���܂��B
-���̏ꍇ�A((%icon=hoe%))��Option���ɓ��͂��ē��e����ƁA
-�A�C�R�����T�G������̐�p�A�C�R���ł���Amoe.png���A�C�R���ɂȂ�܂��B
-���Ȃ݂ɂ��̏ꍇ�����ۂ�(({<img src="$CF{'icon'}moe.png">}))�ƂȂ�܂��B
-���ӁF�A�C�R���p�X���[�h�ɂ�[0-9A-Z_a-f]�ȕ����݂̂��g���܂�
+== 専用アイコンについての補足。
+(({$CF{'cmic'}='1';}))として((|$IC{''}|))を書き連ねれば発動します。
+	$IC{'hae'}='mae.png'; #苗
+	$IC{'hie'}='mie.png'; #贄
+	$IC{'hue'}='mue.png'; #鵺
+	$IC{'hee'}='mee.png'; #姐
+	$IC{'hoe'}='moe.png'; #乃絵
+こんなかんじで#以降に誰の専用アイコンか書いておくとわかりやすいと思います。
+この場合、((%icon=hoe%))とOption欄に入力して投稿すると、
+アイコンが乃絵○さんの専用アイコンである、moe.pngがアイコンになります。
+ちなみにこの場合も実際は(({<img src="$CF{'icon'}moe.png">}))となります。
+注意：アイコンパスワードには[0-9A-Z_a-f]な文字のみが使えます
 
 #------------------------------------------------------------------------------#
 == Option
-Option���ɂ��܂��܂ȃR�}���h����͂��邱�Ƃ��ł��܂��B
+Option欄にさまざまなコマンドを入力することができます。
 
 === icon
-��p�A�C�R�����w�肵�܂��B
+専用アイコンを指定します。
 
 === absoluteIcon
-��Ύw��A�C�R�����w�肵�܂��B
+絶対指定アイコンを指定します。
 
 === relativeIcon
-���Ύw��A�C�R�����w�肵�܂��B
+相対指定アイコンを指定します。
 
 === showIcon
-�g�ѓd�b�ł��A�C�R����\�����܂��B
+携帯電話でもアイコンを表示します。
 
 === color
-�g�у��[�h�ł̕����F���w�肵�܂��B
+携帯モードでの文字色を指定します。
 
 === bgcolor
-�g�у��[�h�ł̔w�i�F���w�肵�܂��B
+携帯モードでの背景色を指定します。
 
 === css
-�g���O��CSS�t�@�C�����w�肵�܂��B
+拡張外部CSSファイルを指定します。
 
 === su
-�Ǘ����[�h�ɓ���܂��B
+管理モードに入ります。
 
 #------------------------------------------------------------------------------#
-== �\��A�C�R���̎w��
-=== �A�C�R���̃t�@�C����
-�t�@�C������ foo.png, foo0.png ,foo1.png�E�E�E�ƁA
-���������A�g���q�̑O��0�A�g���q�̑O��1�E�E�E�ƘA�Ԃɂ���B
+== 表情アイコンの指定
+=== アイコンのファイル名
+ファイル名を foo.png, foo0.png ,foo1.png・・・と、
+数字無し、拡張子の前に0、拡張子の前に1・・・と連番にする。
 
-=== �A�C�R�����X�g���̎w����@
+=== アイコンリスト側の指定方法
 <OPTION value="foo.png#1">foo</OPTION>
-�ȂǂƂ���B
-�������A�u1�v�̕����́A�\��A�C�R���̘A�Ԃ̐����̒��ŁA��ԑ傫�Ȃ��̂ɂ���B
+などとする。
+ただし、「1」の部分は、表情アイコンの連番の数字の中で、一番大きなものにする。
 
-�Ⴆ�΁Abar.gif, bar0.gif, bar1.gif, �E�E�E, bar10.gif��12�̃A�C�R��������ꍇ�A
-"bar.gif#10"�Ƃ��܂��B
+例えば、bar.gif, bar0.gif, bar1.gif, ・・・, bar10.gifと12個のアイコンがある場合、
+"bar.gif#10"とします。
 
 #------------------------------------------------------------------------------#
-== �Ǘ����[�h
-�܂��Ǘ��p�X���[�h��ݒ肵�܂��B
-index.cgi �� adminpass �Ƀp�X���[�h��ݒ肵�܂��傤�B
+== 管理モード
+まず管理パスワードを設定します。
+index.cgi の adminpass にパスワードを設定しましょう。
 
-  #�Ǘ����[�h�ֈڍs����ۂ̃p�X���[�h
+  #管理モードへ移行する際のパスワード
   $CF{'admipass'}='hogehoge';
 
-���Ƀ`���b�g��ʂŁAOption ���Ɂusu=hogehoge�v�Ɠ��͂��܂��B
-����ŁA�Ǘ����[�h�ɓ��邱�Ƃ��ł��܂��B
+次にチャット画面で、Option 欄に「su=hogehoge」と入力します。
+これで、管理モードに入ることができます。
 
-�Ǘ����[�h�łł��邱�Ƃ͈ȉ��̒ʂ�ł��B
+管理モードでできることは以下の通りです。
 
-* ��������A�S���̍폜���\
-* ��������A�폜�ς݂̔����������
-* �Ǘ��R�}���h�����p�ł���
+* 発言直後、全員の削除が可能
+* 発言直後、削除済みの発言が見れる
+* 管理コマンドが利用できる
 
 #------------------------------------------------------------------------------#
-== �Ǘ��R�}���h
+== 管理コマンド
 
-�Ǘ����[�h�ɓ����Ă���ƁA�Ǘ��R�}���h�����p�ł��܂��B
+管理モードに入っていると、管理コマンドが利用できます。
 
 === rank (del|delByExp|merge) <...>
-�����L���O��\��
+ランキングを表示
 
 * del <id>
-  �����Ƃ��Ďw�肳�ꂽID�̏����폜
+  引数として指定されたIDの情報を削除
 * delByExp <exp>
-  �����Ƃ��Ďw�肳�ꂽ�o���l��菭�Ȃ��l���폜
+  引数として指定された経験値より少ない人を削除
 * merge <mainid> [<subid>]..
-  ��������ID�ɁA����ȍ~��ID�𓝍�����
+  第一引数のIDに、それ以降のIDを統合する
 
 === member
-�Q���ҏ���\��
+参加者情報を表示
 
 === del <id> [<exp>]
-�����폜
+発言削除
 
 #------------------------------------------------------------------------------#
-== ���̂ق��̐�����
-Mireille�̐���������Ώ����Ă��邩������܂���^^;;
-�A�C�R���`���⎩�������N�Ȃǂ̎d�g�݂�Mireille�Ƃق�100%�݊��ł��B
+== そのほかの説明は
+Mireilleの説明を見れば書いてあるかもしれません^^;;
+アイコン形式や自動リンクなどの仕組みはMireilleとほぼ100%互換です。
 
 #------------------------------------------------------------------------------#
 == Copyright
