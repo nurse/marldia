@@ -133,10 +133,9 @@ Identity: <INPUT type="text" name="id" value="$IN{'id'}">
 E-mail: <INPUT type="text" name="email" value="$IN{'email'}" istyle="3">
 Option: <INPUT type="text" name="opt" value="$IN{'opt'}" istyle="3">
 Home: <INPUT type="text" name="home" value="$IN{'home'}" istyle="3">
-入口へ: <INPUT name="mode" type="checkbox" value="entrance">
 <INPUT type="submit" value="OK" accesskey="1">
 </FORM>
--<A href="http://www.airemix.com/" title="Airemixへいってみる">Marldia r$CF{'version'}</A>-
+-<A href="http://www.airemix.com/" title="Airemixへいってみる">Marldia v$CF{'version'}</A>-
 </BODY>
 </HTML>
 _HTML_
@@ -164,9 +163,9 @@ sub mobileView{
     
     #-----------------------------
     #クエリ
-    my$query=$IN{'id'} ?
+    my$query =
 	join(';',map{my$val=$IN{$_};$val=~s{(\W)}{'%'.unpack('H2',$1)}ego;"$_=$val"}
-	     grep{defined$IN{$_}}($IN{'quit'}?qw(line reload):qw(name id line reload color))):'south';
+	     grep{defined$IN{$_}}qw(type name id icon email home line reload color opt bcolo));
     my $method = 'post'; # $IN{'hua'} =~ /(?:UP\.Browser)/o ? 'get' : 'post';
     
     #---------------------------------------
@@ -179,13 +178,14 @@ sub mobileView{
     my $color = $IN{'_opt'}{'color'} ? ' color=' . $IN{'_opt'}{'color'} : '';
     my $bgcolor = $IN{'_opt'}{'bgcolor'} ? ' bgcolor=' . $IN{'_opt'}{'bgcolor'} : '';
     my $size =
-        $IN{'hua'} =~ /Mozilla|922SH|iPhone/o ? 50 :
+        $IN{'hua'} =~ /iPhone/o ? 50 :
+        $IN{'hua'} =~ /Mozilla|922SH/o ? 50 :
         4;
     my $style = '';
     if ($IN{'hua'} =~ /iPhone/o) {
       $style = <<_STYLE_;
 <style>
-body{width:1024px}
+body{width:1024}
 input{font-size:x-large}
 font{font-size:large}
 </style>
@@ -221,6 +221,7 @@ $style
 <INPUT type="submit" value="OK" size="2" accesskey="1">
 行:<INPUT type="text" name="line" value="$IN{'line'}" size="1" istyle="4">
 <INPUT name="mode" type="checkbox" value="entrance">
+<A href="$CF{'index'}?$query" accesskey="0">R</a>
 </FORM>
 _HTML_
     
@@ -733,7 +734,7 @@ value="$CK{'opt'}" tabindex="102" onblur="isInitialized&&changeOption()"></TD>
 <TD colspan="3"><INPUT type="text" class="text" name="home" id="home" maxlength="200" size="40"
 style="ime-mode:inactive;width:200px" value="$CK{'home'}" tabindex="112"></TD>
 <TH style="letter-cpacing:-1px;text-align:center">-<A href="http://airemix.com/" title="Airemixへいってみる"
-target="_top">Marldia r$CF{'version'}</A>-</TH>
+target="_top">Marldia v$CF{'version'}</A>-</TH>
 </TR>
 </TABLE>
 </FORM>
@@ -868,9 +869,18 @@ qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}"
 	    $del .= "[制限]"
 	}
 	my $status = '';
-	$status = ' [携帯]' if $DT{'hua'} =~/DoCoMo|KDDI|Vodafone|WILLCOM/o;
+	$status = ' [携帯]' if $DT{'hua'} =~/DoCoMo|KDDI|Vodafone|WILLCOM|Softbank/o;
+        my $exp = $DT{'exp'};
+        if ($DT{'id'} eq 'niwatori') {
+          $exp = sprintf("0b%b", $exp);
+        }
+        elsif ($DT{'id'} eq 'mizunoiro') {
+          $exp = sprintf("0x%X", $exp);
+        }
+        my $person_id = Airemix::Digest::MD5_hex($DT{'id'});
 	#出力
 	print<<"_HTML_";
+<div style="margin:0;padding:0" class="article_$person_id">
 <TABLE cellspacing="0" class="article" summary="article">
 <TR>
 <TH class="articon" rowspan="2">$DT{'_Icon'}</TH>
@@ -879,10 +889,11 @@ qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}"
 </TR>
 <TR>
 <TD class="artdel">$del</TD>
-<TD class="artinfo"><SPAN class="artlev">Exp.$DT{'exp'}/Lv.$DT{'level'}</SPAN>$status
+<TD class="artinfo"><SPAN class="artlev">Exp.$exp/Lv.$DT{'level'}</SPAN>$status
 <SPAN class="artdate">$date</SPAN></TD>
 </TR>
 </TABLE>
+</div>
 _HTML_
     }
     $chatlog->dispose;
@@ -1344,6 +1355,13 @@ Content-type: text/html; charset=$IN{'encoding'}
 </head>
 <body>
 <dl>
+  <dt>Replacement</dt>
+  <dd>
+    <dl>
+      <dt>&lt;ip&gt;</dt>
+      <dd>show ip address</dd>
+    </dl>
+  </dd>
   <dt>Command</dt>
   <dd>
     <p>内容欄にさまざまなコマンドを入力することができます。</p>
@@ -1483,7 +1501,7 @@ _HTML_
 #
 sub showFooter{
     print<<"_HTML_";
-<DIV class="AiremixCopy">- <A href="http://airemix.com/" target="_top" title="Airemix - Marldia -">Airemix Marldia</A><VAR title="times:@{[times]}">r$CF{'version'}</VAR> -</DIV>
+<DIV class="AiremixCopy">- <A href="http://airemix.com/" target="_top" title="Airemix - Marldia -">Airemix Marldia</A><VAR title="times:@{[times]}">v$CF{'version'}</VAR> -</DIV>
 </BODY>
 </HTML>
 _HTML_
@@ -2483,6 +2501,8 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	my$pkg=shift;
 	my$str=shift;
 	my%EX=@_;
+	# Marldia Replacement
+	$str =~ s/<ip>/$::IN{'ra'}/g;
 	#-----------------------------
 	#本文の処理
 	#form->data変換
@@ -3139,8 +3159,13 @@ q{(?:[^(\040)<>@,;:".\\\\\[\]\00-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\\}
 	if(!$self->{"$DT{'id'}"}||!$self->{"$DT{'id'}"}->{'exp'}){
 	    $self->{"$DT{'id'}"}={name=>$DT{'name'},exp=>1};
 	}else{
-	    $self->{"$DT{'id'}"}{'exp'}++;
-	    $self->{"$DT{'id'}"}{'name'}=$DT{'name'};
+          if ($self->{"$DT{'id'}"}{'exp'} >= 0) {
+            $self->{"$DT{'id'}"}{'exp'}++;
+          }
+          else {
+            $self->{"$DT{'id'}"}{'exp'}--;
+          }
+          $self->{"$DT{'id'}"}{'name'}=$DT{'name'};
 	}
 	$self->{"$DT{'id'}"}{'lastContact'}=$^T;
 	$self->{"$DT{'id'}"}{'firstContact'}||=$^T;
@@ -3309,7 +3334,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
 
     #Revision Number
     $CF{'correv'}=qq$Revision$;
-    $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]*)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
+    $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
 }
 1;
 __END__

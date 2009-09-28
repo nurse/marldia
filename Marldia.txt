@@ -28,6 +28,9 @@ Airemixの掲示板で質問してみてください
 
 #------------------------------------------------------------------------------#
 == Marldia History
+:2009-09-29 Revision: 1.69
+  * <ip>と内容に書くと、IPアドレスを表示するように
+  * XML出力時に個人のIDをMD5とするように
 :2008-08-17 Revision: 1.67
   * revision 表示に変更等
 :2008-08-17 Revision: 1.66
@@ -348,6 +351,6 @@ Mireilleの説明を見れば書いてあるかもしれません^^;;
 
 #------------------------------------------------------------------------------#
 == Copyright
-Copyright (c) 2001-2003 NARUSE,Yui (((<Airemix|URL:http://www.airemix.com/>))). All rights reserved.
+Copyright (c) 2001-2009 NARUSE,Yui (((<Airemix|URL:http://www.airemix.com/>))). All rights reserved.
 
 =end

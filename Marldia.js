@@ -54,9 +54,8 @@ function autoclear() {
 	if(form['body']){
 	    form['body'].value = '';
 	}
-    }else{
-	return true;
     }
+    return true;
 }
 
 
@@ -80,7 +79,9 @@ function onSubmitHandler(e){
 	form.submit();
 	if(form['body']){
 	    form['body'].focus();
-	    if (!window.Components && !document.compatMode) setTimeout(autoclear, 500);
+            setTimeout(autoclear, 500);
+            if (true);
+            else if (!window.Components && !document.compatMode) setTimeout(autoclear, 500);
 	    else form['body'].value = '';
 	}
 	if(myIconHistory == null){
