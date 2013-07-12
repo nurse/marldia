@@ -3,7 +3,6 @@
  * Marldia.js
  * 
  * -*- coding: utf-8 -*-
- * $Id$
  * 
  ******************************************************************************/
 
@@ -479,11 +478,6 @@ function showCommandWindow(e){
 	   }else{
 	       alert("正しく情報が入力されていません");
 	   }
-	   break;
-	case 'version':
-	   alert(
-		 MARLDIA_CORE_ID + "\n"+
-		 "$Id$");
 	   break;
 	case 'exit':
 	case 'quit':
