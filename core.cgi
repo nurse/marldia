@@ -4,10 +4,8 @@
 # 'Marldia' Chat System
 # - Main Script -
 #
-# $Revision$
 # Scripted by NARUSE, Yui.
 #------------------------------------------------------------------------------#
-# $cvsid = q$Id$;
 require 5.005;
 use strict;
 use vars qw(%CF %IN %CK %IC);
@@ -607,7 +605,6 @@ sub modeNorth{
 <!--
 /*========================================================*/
 // 初期化
-MARLDIA_CORE_ID = '$Id$';
 var isInitialized;
 _HTML_
     print<<"_HTML_";
@@ -692,7 +689,10 @@ maxlength="300" size="100" style="ime-mode:active;width:400px" tabindex="1">
 onclick="isInitialized&&switchBodyFormType(event);return false;"></TD>
 <TD style="text-align:center"><!--INPUT type="checkbox" name="quit" id="quit" class="check" tabindex="51"
 ><LABEL accesskey="Q" for="quit" title="Quit&#10;チェックを入れると参加者から名前を消します。"
->退室モード(<SPAN class="ak">Q</SPAN>)</LABEL--></TD>
+>退室モード(<SPAN class="ak">Q</SPAN>)</LABEL-->
+<INPUT type="button" tabindex="52" value="通知ON"
+onclick="if (window.webkitNotifications != undefined && webkitNotifications.checkPermission() == 1) { webkitNotifications.requestPermission(); }">
+</TD>
 </TR>
 
 <TR>
@@ -800,6 +800,20 @@ sub modeSouth{
 function reload(){
   self.location = '$CF{'index'}?$query';
 }
+function notify(time, icon, title, body) {
+  if (window.webkitNotifications != undefined && webkitNotifications.checkPermission() == 0) {
+    if (!window.top.lastMessageTime || window.top.lastMessageTime < time) {
+       window.top.lastMessageTime = time;
+       var notification = webkitNotifications.createNotification(
+         icon, title, body
+       );
+       notification.ondisplay = function(){
+         setTimeout( function(){ notification.cancel(); }, 5000);
+       };
+       notification.show();
+    }
+  }
+}
 setTimeout(reload, $IN{'reload'}000);
 //-->
 </SCRIPT>
@@ -834,6 +848,7 @@ _HTML_
 	    last;
     	}
     }
+    my $first = 1;
     for(@{$chatlog}){
 	my%DT=%{$_};
 	!$isAdmin&&'del'eq$DT{'Mar1'}&&next;
@@ -879,6 +894,19 @@ qq(<A href="mailto:$DT{'email'}" title="$DT{'email'}" style="color:$DT{'color'}"
         }
         my $person_id = Airemix::Digest::MD5_hex($DT{'id'});
 	#出力
+	if ($first) {
+		if ($DT{'id'} ne $IN{'id'}) {
+			my $icon = $DT{'_Icon'} =~ /src="([^"]+)"/ ? "'http://marldia.org$1'" : "null";
+			print<<"_HTML_";
+<SCRIPT type="text/javascript">
+<!--
+notify($DT{'time'}, $icon, "$DT{'name'}", "$DT{'body'}");
+//-->
+</SCRIPT>
+_HTML_
+		}
+		$first = 0;
+	}
 	print<<"_HTML_";
 <div style="margin:0;padding:0" class="article_$person_id">
 <TABLE cellspacing="0" class="article" summary="article">
@@ -1329,7 +1357,6 @@ $location
 <H1>: Marldia :</H1>
 <P>And, please go <A href="$href">here</A>.</P>
 <P>Location: $href</P>
-<P>Marldia <VAR>$CF{'correv'}</VAR>.<BR>
 Copyright &#169;2001,2002 <A href="http://airemix.com/" target="_blank" title="Airemix">Airemix</A>. All rights reserved.</P>
 </BODY>
 </HTML>
@@ -3333,8 +3360,7 @@ qw(CONTENT_LENGTH QUERY_STRING REQUEST_METHOD SERVER_NAME HTTP_HOST SCRIPT_NAME 
     }
 
     #Revision Number
-    $CF{'correv'}=qq$Revision$;
-    $CF{'version'}=($CF{'correv'}=~/(\d[\w\.]+)/o)?"$1":'0.0';#"Revision: 1.4"->"1.4"
+    $CF{'version'}='1.70';
 }
 1;
 __END__
